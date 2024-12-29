@@ -6,16 +6,14 @@
 #    By: craimond <claudio.raimondi@protonmail.c    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/03/19 14:52:58 by egualand          #+#    #+#              #
-#    Updated: 2024/12/29 17:50:10 by craimond         ###   ########.fr        #
+#    Updated: 2024/12/30 00:30:56 by craimond         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 SRCS := $(addprefix srcs/, main.c)
-OBJS := $(SRCS:.c=.o) #TODO metterli in /objs
-
+OBJS := $(SRCS:srcs/%.c=objs/%.o)
 HDRS := $(addprefix srcs/headers/, arb.h)
-INCS := $(addprefix /usr/include/, #TODO aggiungere librerie)
-INCLUDES = $(HDRS) $(INCS)
+INCS := /usr/include /usr/local/include srcs/headers
 
 CC := cc
 CFLAGS := -Wall -Wextra -Werror -O3 -static -fomit-frame-pointer -flto
@@ -35,8 +33,8 @@ build: $(OBJS)
 leaks: all
 		valgrind $(VALGRIND_FLAGS) ./$(NAME)
 
-%.o: %.c $(INCLUDES)
-		$(CC) $(CFLAGS) -I $(INCLUDES) -c $< -o $@
+objs/%.o: srcs/%.c $(HDRS)
+		$(CC) $(CFLAGS) -I $(INCS) -c $< -o $@
 
 clean:
 		$(RM) $(OBJS)
