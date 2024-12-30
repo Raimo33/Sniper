@@ -6,14 +6,14 @@
 #    By: craimond <claudio.raimondi@protonmail.c    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/03/19 14:52:58 by egualand          #+#    #+#              #
-#    Updated: 2024/12/30 00:30:56 by craimond         ###   ########.fr        #
+#    Updated: 2024/12/30 16:41:24 by craimond         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 SRCS := $(addprefix srcs/, main.c)
 OBJS := $(SRCS:srcs/%.c=objs/%.o)
 HDRS := $(addprefix srcs/headers/, arb.h)
-INCS := /usr/include /usr/local/include srcs/headers
+INCS := /usr/include srcs/headers
 
 CC := cc
 CFLAGS := -Wall -Wextra -Werror -O3 -static -fomit-frame-pointer -flto
