@@ -1,0 +1,8 @@
+{
+  "files.associations": {
+    "*.conf.template": "nginx",
+    "*.sql.template": "sql",
+    "arb.h": "c",
+    "typeinfo": "c"
+  }
+}
