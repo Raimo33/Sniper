@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@protonmail.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/01 17:12:05 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/01 18:18:42 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/01 18:31:02 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,7 @@ static CURL *init_rest(const char *api_key, const char *ca_certs_path, uv_loop_t
 //https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#individual-symbol-book-ticker-streams
 static struct lws *init_ws(const char *api_key, const char *ca_certs_path, uv_loop_t *loop) //per ricevere dati di mercato in tempo reale
 {
-  struct lws_protocols *protocols = malloc(2 * sizeof(struct lws_protocols));
+  struct lws_protocols *protocols = je_malloc(2 * sizeof(struct lws_protocols));
   protocols[0] = { "binance-ws", ws_callback, sizeof(per_session_data_t), 1024, 0, NULL, 0 };
   protocols[1] = { NULL, NULL, 0, 0, 0, NULL, 0 };
 
@@ -76,7 +76,7 @@ static struct lws *init_ws(const char *api_key, const char *ca_certs_path, uv_lo
   if (!context)
     return (err("Failed to create websocket context"), NULL);
   
-  user_data_t *user_data = calloc(sizeof(user_data_t));
+  user_data_t *user_data = je_calloc(1, sizeof(user_data_t));
   char endpoint_copy[sizeof(WS_ENDPOINT)];
   strcpy(endpoint_copy, WS_ENDPOINT);
 
