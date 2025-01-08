@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/29 17:07:42 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/06 01:32:56 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/08 20:00:51 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,14 +14,11 @@
 
 #include "headers/arb.h"
 
+t_config g_config = {0};
+
 //TODO error checking per tutte le funzioni con goto
 int32_t main(void)
 {
-  const char *api_key = getenv("API_KEY");
-  const char *ca_certs_path = getenv("CA_CERTS_PATH");
-
-  if (!api_key || !ca_certs_path)
-    return (puts_fd("Missing environment variables", STDERR_FILENO), 1);
-
+  init_config();
   //TODO init epoll loop
 }
