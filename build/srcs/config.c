@@ -1,20 +1,20 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   utils.h                                            :+:      :+:    :+:   */
+/*   config.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: craimond <claudio.raimondi@protonmail.c    +#+  +:+       +#+        */
+/*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/01/01 18:16:35 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/01 18:18:08 by craimond         ###   ########.fr       */
+/*   Created: 2025/01/09 16:15:41 by craimond          #+#    #+#             */
+/*   Updated: 2025/01/09 16:15:51 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef UTILS_H
-# define UTILS_H
+#include "headers/config.h"
+#include "headers/logging.h"
 
-# include <unistd.h>
-
-void err(const char *s);
-
-#endif
+void init_config(void)
+{
+  g_config.api_key = getenv("API_KEY");
+  g_config.log_level = map_log_level(getenv("LOG_LEVEL"));
+}

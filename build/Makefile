@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: craimond <claudio.raimondi@protonmail.c    +#+  +:+       +#+         #
+#    By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/03/19 14:52:58 by egualand          #+#    #+#              #
-#    Updated: 2024/12/30 16:41:24 by craimond         ###   ########.fr        #
+#    Updated: 2025/01/09 18:29:30 by craimond         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -15,7 +15,7 @@ OBJS := $(SRCS:srcs/%.c=objs/%.o)
 HDRS := $(addprefix srcs/headers/, arb.h)
 INCS := /usr/include srcs/headers
 
-CC := cc
+CC := gcc
 CFLAGS := -Wall -Wextra -Werror -O3 -static -fomit-frame-pointer -flto
 RM := rm -rf
 
@@ -28,19 +28,19 @@ NAME := arb
 all: build
 
 build: $(OBJS)
-		$(CC) $(CFLAGS) -o $(NAME) $(OBJS)
+	$(CC) $(CFLAGS) -o $(NAME) $(OBJS)
 
 leaks: all
-		valgrind $(VALGRIND_FLAGS) ./$(NAME)
+	valgrind $(VALGRIND_FLAGS) ./$(NAME)
 
 objs/%.o: srcs/%.c $(HDRS)
-		$(CC) $(CFLAGS) -I $(INCS) -c $< -o $@
+	$(CC) $(CFLAGS) -I $(INCS) -c $< -o $@
 
 clean:
-		$(RM) $(OBJS)
+	$(RM) $(OBJS)
 
 fclean: clean
-		$(RM) $(NAME) $(VALGRIND_LOG)
+	$(RM) $(NAME) $(VALGRIND_LOG)
 
 re: fclean all
 
