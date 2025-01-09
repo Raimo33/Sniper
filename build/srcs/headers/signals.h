@@ -1,27 +1,29 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
+/*   signals.h                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/12/29 17:07:42 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/09 17:49:47 by craimond         ###   ########.fr       */
+/*   Created: 2025/01/09 18:15:15 by craimond          #+#    #+#             */
+/*   Updated: 2025/01/09 18:36:25 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-//https://developers.binance.com/docs/binance-spot-api-docs/faqs/spot_glossary
+#ifndef SIGNALS_H
+# define SIGNALS_H
 
-#include "headers/arb.h"
+# include <stdint.h>
+# include <signal.h>
+# include <stdatomic.h>
+# include <stdbool.h>
 
-t_config g_config = {0};
+# define CRITICAL_SIGNALS { SIGINT, SIGTERM }
 
-//TODO error checking per tutte le funzioni con goto
-int32_t main(void)
-{
-  init_config();
-  init_logger();
-  init_signals();
-  event_loop();
-  cleanup();
-}
+extern atomic_bool g_running;
+
+void init_signals(void);
+
+typedef void (*signal_handler_t)(int);
+
+#endif

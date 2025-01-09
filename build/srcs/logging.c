@@ -6,12 +6,13 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 18:09:22 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/09 17:32:29 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/09 18:52:45 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "headers/logging.h"
 #include "headers/config.h"
+#include <immintrin.h>
 
 static t_log_ring        g_log_ring = {0};
 static const t_log_level g_levels[] = {
@@ -23,7 +24,9 @@ static const t_log_level g_levels[] = {
 
 uint8_t map_log_level(const char *level)
 {
-  for (uint8_t i = sizeof(g_levels) / sizeof(t_log_level) - 1; i >= 0; i--)
+  const uint8_t n_levels = sizeof(g_levels) / sizeof(g_levels[0]);
+  
+  for (uint8_t i = 0; i < n_levels; i++)
     if (!strcmp(level, g_levels[i].tag))
       return g_levels[i].level;
   return 0;

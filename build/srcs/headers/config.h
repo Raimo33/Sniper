@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 18:47:42 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/09 16:17:03 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/09 18:19:04 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,9 +19,9 @@
 # define WS_ENDPOINT "data-stream.binance.vision:9443"
 # define FIX_ENDPOINT "fix-oe.binance.com:9000"
 # define PAIRS = { "usdcust", "fdusdusdt", "usdtdai", "usdpusdt", "fdusdusdc", "eureuri"}
-# define LOGGING_INTERVAL 60 * 1000
-# define MAX_MARKET_ORDER_DELAY 50
-# define MAX_LIMIT_ORDER_DELAY 1000
+# define LOGGING_INTERVAL 60000U
+# define MAX_MARKET_ORDER_DELAY 50U
+# define MAX_LIMIT_ORDER_DELAY 1000U
 
 //TODO capire come fare per rendere config const e anche attributi
 

@@ -6,6 +6,7 @@
     "typeinfo": "c",
     "logging.h": "c",
     "config.h": "c",
-    "cerrno": "c"
+    "cerrno": "c",
+    "signals.h": "c"
   }
 }

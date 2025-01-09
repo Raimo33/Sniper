@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 18:08:11 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/09 17:30:46 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/09 18:19:34 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,14 +19,14 @@
 # include <string.h>
 # include <errno.h>
 
-# define LOG_LEVEL_DEBUG 0
-# define LOG_LEVEL_INFO  1
-# define LOG_LEVEL_WARN  2
-# define LOG_LEVEL_ERROR 3
+# define LOG_LEVEL_DEBUG 0U
+# define LOG_LEVEL_INFO  1U
+# define LOG_LEVEL_WARN  2U
+# define LOG_LEVEL_ERROR 3U
 
-# define STDOUT_FILENO 1
+# define STDOUT_FILENO 1U
 
-# define LOG_RING_SIZE 4096
+# define LOG_RING_SIZE 4096U
 
 typedef struct
 {
