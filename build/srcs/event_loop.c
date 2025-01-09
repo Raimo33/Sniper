@@ -6,31 +6,38 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 17:40:24 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/09 17:48:52 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/09 21:35:45 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "headers/event_loop.h"
+#include "headers/logging.h"
+#include "headers/signals.h"
 
-void event_loop(void)
+uint8_t init_event_loop(void)
 {
-  uint8_t epoll_fd;
-  struct epoll_event events[MAX_EVENTS];
-  uint8_t n_events;
+  uint8_t epoll_fd = epoll_create1(0);
 
-  epoll_fd = epoll_create1(0);
+  //TODO epoll_ctl per tutti i file descriptor
 
-  /* Add sockets/fds to monitor */
-  /* TODO: Add WebSocket connection fd */
+  return epoll_fd;
+}
 
-  while (//TODO segnale di terminazione)
+//TODO studiare EPOLLET
+void event_loop(const uint8_t epoll_fd)
+{
+  struct epoll_event events[MAX_EVENTS] = {0};
+
+  while (!g_stop)
   {
-    n_events = epoll_wait(epoll_fd, events, MAX_EVENTS, -1);
-      
+    int n_events = epoll_wait(epoll_fd, events, MAX_EVENTS, -1);
+
     for (uint8_t i = 0; i < n_events; i++)
     {
-      /* Handle events based on fd type */
-      /* TODO: Add WebSocket message handling */
+      switch (events[i].data.fd)
+      {
+        case
+      }
     }
   }
 

@@ -6,13 +6,13 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 18:15:10 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/09 18:38:17 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/09 20:23:58 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "headers/signals.h"
 
-atomic_bool g_running = true;
+atomic_bool g_stop = false;
 
 static void	signal_handler(int signum);
 
@@ -33,5 +33,5 @@ void  init_signals(void)
 static void	signal_handler(int signum)
 {
   if (signum == SIGINT || signum == SIGTERM)
-    g_running = false;
+    g_stop = true;
 }
