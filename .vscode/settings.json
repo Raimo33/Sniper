@@ -5,6 +5,7 @@
     "arb.h": "c",
     "typeinfo": "c",
     "logging.h": "c",
-    "config.h": "c"
+    "config.h": "c",
+    "cerrno": "c"
   }
 }

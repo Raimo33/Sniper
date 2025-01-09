@@ -1,20 +1,22 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   init.c                                             :+:      :+:    :+:   */
+/*   event_loop.h                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/01/08 20:00:57 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/08 20:01:45 by craimond         ###   ########.fr       */
+/*   Created: 2025/01/09 17:42:49 by craimond          #+#    #+#             */
+/*   Updated: 2025/01/09 17:45:09 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "headers/config.h"
-#include "headers/logging.h"
+#ifndef EVENT_LOOP_H
+# define EVENT_LOOP_H
 
-void init_config(void)
-{
-  g_config.api_key = getenv("API_KEY");
-  g_config.log_level = map_log_level(getenv("LOG_LEVEL"));
-}
+# include <sys/epoll.h>
+
+# define MAX_EVENTS 128
+
+void event_loop(void);
+
+#endif

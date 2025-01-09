@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/29 17:07:42 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/08 20:00:51 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/09 17:40:20 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,5 +20,6 @@ t_config g_config = {0};
 int32_t main(void)
 {
   init_config();
-  //TODO init epoll loop
+  event_loop();
+  cleanup();
 }

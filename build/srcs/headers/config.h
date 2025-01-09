@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 18:47:42 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/08 20:01:55 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/09 16:17:03 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@
 
 //TODO capire come fare per rendere config const e anche attributi
 
-typedef struct s_config
+typedef struct
 {
   char    *api_key;
   uint8_t log_level : 2;
