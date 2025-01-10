@@ -8,6 +8,8 @@
     "config.h": "c",
     "cerrno": "c",
     "signals.h": "c",
-    "event_loop.h": "c"
+    "event_loop.h": "c",
+    "rest.h": "c",
+    "types.h": "c"
   }
 }

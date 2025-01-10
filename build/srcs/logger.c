@@ -1,16 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   logging.c                                          :+:      :+:    :+:   */
+/*   logger.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 18:09:22 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/10 16:58:55 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/10 18:23:10 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "headers/logging.h"
+#include "headers/logger.h"
 #include "headers/config.h"
 #include <immintrin.h>
 
@@ -34,7 +34,7 @@ uint8_t map_log_level(const char *const level)
 
 void init_logger(void)
 {
-  dup2(LOG_FD, STDOUT_FILENO);
+  dup2(STDOUT_FILENO, LOG_FD);
   close(STDOUT_FILENO);
   const uint8_t flags = fcntl(LOG_FD, F_GETFL, 0);
   fcntl(LOG_FD, F_SETFL, flags | O_NONBLOCK);

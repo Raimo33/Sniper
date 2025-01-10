@@ -1,31 +1,24 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   rest.h                                             :+:      :+:    :+:   */
+/*   arb.h                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/01/10 16:52:43 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/10 18:20:12 by craimond         ###   ########.fr       */
+/*   Created: 2025/01/10 17:58:45 by craimond          #+#    #+#             */
+/*   Updated: 2025/01/10 17:59:07 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef REST_H
-# define REST_H
+#ifndef ARB_H
+# define ARB_H
 
-# include <sys/socket.h>
-# include <sys/types.h>
-# include <sys/fcntl.h>
-# include <netinet/in.h>
-# include <netinet/tcp.h>
-# include <arpa/inet.h>
-# include <netdb.h>
-
-# define REST_FD 6U
-# define REST_HOST "api.binance.com"
-# define REST_PORT 8080
-
-void init_rest(void);
-//TODO handler
+# include "config.h"
+# include "logger.h"
+# include "signals.h"
+# include "ws.h"
+# include "fix.h"
+# include "rest.h"
+# include "event_loop.h"
 
 #endif
