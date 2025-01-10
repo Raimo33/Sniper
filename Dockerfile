@@ -6,7 +6,7 @@
 #    By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/12/29 17:07:44 by craimond          #+#    #+#              #
-#    Updated: 2025/01/08 18:54:32 by craimond         ###   ########.fr        #
+#    Updated: 2025/01/10 21:32:08 by craimond         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,7 +14,7 @@ FROM alpine:3.21
 
 SHELL ["/bin/ash", "-c"]
 
-RUN apk add make gcc libuv-dev curl-dev libwebsockets-dev nghttp2-dev ngtcp2-dev brotli-dev openssl-dev yyjson-dev jemalloc-dev
+RUN apk add make gcc jemalloc-dev wolfssl-dev
 
 COPY ./build/ /build/
 

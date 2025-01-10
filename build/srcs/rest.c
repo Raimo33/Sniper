@@ -6,20 +6,19 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 17:53:55 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/10 19:29:45 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/10 21:20:12 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "headers/rest.h"
 
-//TODO valutare se serve una pool di sockets
 void init_rest(void)
 {
   const struct sockaddr_in addr = {
     .sin_family = AF_INET,
     .sin_port = htons(REST_PORT),
     .sin_addr = {
-      .s_addr = inet_addr(REST_HOST)
+      .s_addr = inet_addr(REST_HOST) //TODO inet-addr funziona solo con IPv4, non DNS
     }
   };
 

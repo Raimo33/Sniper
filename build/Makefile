@@ -6,13 +6,13 @@
 #    By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/03/19 14:52:58 by egualand          #+#    #+#              #
-#    Updated: 2025/01/09 18:29:30 by craimond         ###   ########.fr        #
+#    Updated: 2025/01/10 21:27:35 by craimond         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-SRCS := $(addprefix srcs/, main.c)
+SRCS := $(addprefix srcs/, main.c event_loop.c ws.c fix.c rest.c logger.c signals.c config.c)
 OBJS := $(SRCS:srcs/%.c=objs/%.o)
-HDRS := $(addprefix srcs/headers/, arb.h)
+HDRS := $(addprefix srcs/headers/, arb.h event_loop.h ws.h fix.h rest.h logger.h signals.h config.h)
 INCS := /usr/include srcs/headers
 
 CC := gcc

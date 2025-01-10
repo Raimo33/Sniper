@@ -6,15 +6,15 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 16:52:43 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/10 19:29:31 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/10 21:15:49 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef REST_H
 # define REST_H
 
+# include <stdint.h>
 # include <sys/socket.h>
-# include <sys/types.h>
 # include <netinet/in.h>
 # include <netinet/tcp.h>
 # include <arpa/inet.h>

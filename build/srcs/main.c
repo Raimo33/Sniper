@@ -6,13 +6,27 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/29 17:07:42 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/10 18:24:46 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/10 21:21:17 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 //https://developers.binance.com/docs/binance-spot-api-docs/faqs/spot_glossary
 
-//TODO epoll, nonblocking sockets, custom JSON parser, jemalloc, nonblocking dns, high-resolution timers, in-memory order books (binary heap), preallocated stack memory, CPU caching, SIMD, memory alignment, async logging (in-memory ring buffer), dont use OpenSSL (heavy), TCP_NODELAY, Set appropriate SO_RCVBUF and SO_SNDBUF,
+//epoll (linux event loop)
+//non-blocking sockets
+//custom JSON parser
+//jemalloc (faster malloc)
+//non-blocking DNS, dns cache
+//high-resolution timers
+//in-memory order books (binary heap)
+//preallocated stack memory
+//CPU caching
+//SIMD (Single Instruction, Multiple Data)
+//memory alignment
+//async logging (in-memory ring buffer, write vectorized)
+//GnuTLS (TLS 1.3) lightweigth
+//TCP_NODELAY (disable Nagle's algorithm)
+//SO_RECVBUF / SO_SENDBUF //TODO needed?
 
 #include "headers/arb.h"
 
