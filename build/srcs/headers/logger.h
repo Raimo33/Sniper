@@ -1,17 +1,17 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   logging.h                                          :+:      :+:    :+:   */
+/*   logger.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 18:08:11 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/09 18:19:34 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/10 18:18:43 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef LOGGING_H
-# define LOGGING_H
+#ifndef LOGGER_H
+# define LOGGER_H
 
 # include <unistd.h>
 # include <stdint.h>
@@ -24,9 +24,8 @@
 # define LOG_LEVEL_WARN  2U
 # define LOG_LEVEL_ERROR 3U
 
-# define STDOUT_FILENO 1U
-
 # define LOG_RING_SIZE 4096U
+# define LOG_FD        7U
 
 typedef struct
 {
@@ -40,12 +39,11 @@ typedef struct
   char     data[LOG_RING_SIZE];
   uint16_t head;
   uint16_t tail;
-  uint8_t  fd;
 } t_log_ring;
 
-uint8_t map_log_level(const char *level);
+uint8_t map_log_level(const char *const level);
 void    init_logger(void);
-void    log(const uint8_t level, const char *msg, const uint8_t msg_len);
+void    log(const uint8_t level, const char *const msg, const uint8_t msg_len);
 void    flush_logs(void);
 
 #endif

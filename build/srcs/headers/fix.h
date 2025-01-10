@@ -1,24 +1,21 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   arb.h                                              :+:      :+:    :+:   */
+/*   fix.h                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/01/10 17:58:45 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/10 17:59:07 by craimond         ###   ########.fr       */
+/*   Created: 2025/01/10 16:52:51 by craimond          #+#    #+#             */
+/*   Updated: 2025/01/10 17:50:42 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef ARB_H
-# define ARB_H
+#ifndef FIX_H
+# define FIX_H
 
-# include "config.h"
-# include "logger.h"
-# include "signals.h"
-# include "ws.h"
-# include "fix.h"
-# include "rest.h"
-# include "event_loop.h"
+# define FIX_FD  5U
+
+void init_fix(void);
+//TODO handler
 
 #endif

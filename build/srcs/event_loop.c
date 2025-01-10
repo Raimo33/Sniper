@@ -6,33 +6,71 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 17:40:24 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/09 17:48:52 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/10 18:18:16 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "headers/event_loop.h"
 
-void event_loop(void)
+void init_event_loop(event_loop_ctx_t *const ctx)
 {
-  uint8_t epoll_fd;
-  struct epoll_event events[MAX_EVENTS];
-  uint8_t n_events;
+  ctx->epoll_fd = epoll_create1(0);
+  const uint8_t signal_events = EPOLLIN | EPOLLET;
+  const uint8_t socket_events = EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLERR | EPOLLET;
+  const uint8_t log_events = EPOLLOUT | EPOLLHUP | EPOLLERR | EPOLLET;
+  
+  epoll_ctl(ctx->epoll_fd, EPOLL_CTL_ADD, SIG_FD, &(struct epoll_event) {
+    .events = signal_events,
+    .data = { .fd = SIG_FD }
+  });
 
-  epoll_fd = epoll_create1(0);
+  epoll_ctl(ctx->epoll_fd, EPOLL_CTL_ADD, WS_FD, &(struct epoll_event) {
+    .events = socket_events,
+    .data = { .fd = WS_FD }
+  });
+  epoll_ctl(ctx->epoll_fd, EPOLL_CTL_ADD, FIX_FD, &(struct epoll_event) {
+    .events = socket_events,
+    .data = { .fd = FIX_FD }
+  });
+  epoll_ctl(ctx->epoll_fd, EPOLL_CTL_ADD, REST_FD, &(struct epoll_event) {
+    .events = socket_events,
+    .data = { .fd = REST_FD }
+  });
 
-  /* Add sockets/fds to monitor */
-  /* TODO: Add WebSocket connection fd */
+  epoll_ctl(ctx->epoll_fd, EPOLL_CTL_ADD, LOG_FD, &(struct epoll_event) {
+    .events = log_events,
+    .data = { .fd = LOG_FD }
+  });
+}
 
-  while (//TODO segnale di terminazione)
+
+/*
+
+TODO
+
+ET mode requires specific handling:
+
+Non-blocking sockets
+Complete reads/writes
+EAGAIN handling
+Error checking
+
+*/
+
+void start_event_loop(const event_loop_ctx_t *const ctx)
+{
+  struct epoll_event events[MAX_EVENTS] = {0};
+
+  while (true)
   {
-    n_events = epoll_wait(epoll_fd, events, MAX_EVENTS, -1);
-      
+    uint8_t n_events = epoll_wait(ctx->epoll_fd, events, MAX_EVENTS, -1);
+
     for (uint8_t i = 0; i < n_events; i++)
     {
-      /* Handle events based on fd type */
-      /* TODO: Add WebSocket message handling */
+      switch (events[i].data.fd)
+      {
+        case
+      }
     }
   }
-
-  close(epoll_fd);
 }

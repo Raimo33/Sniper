@@ -1,16 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   logging.c                                          :+:      :+:    :+:   */
+/*   logger.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 18:09:22 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/09 18:52:45 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/10 18:23:10 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "headers/logging.h"
+#include "headers/logger.h"
 #include "headers/config.h"
 #include <immintrin.h>
 
@@ -22,7 +22,7 @@ static const t_log_level g_levels[] = {
   {"ERROR", LOG_LEVEL_ERROR, 5}
 };
 
-uint8_t map_log_level(const char *level)
+uint8_t map_log_level(const char *const level)
 {
   const uint8_t n_levels = sizeof(g_levels) / sizeof(g_levels[0]);
   
@@ -34,12 +34,13 @@ uint8_t map_log_level(const char *level)
 
 void init_logger(void)
 {
-  g_log_ring.fd = dup(STDOUT_FILENO);
-  uint8_t flags = fcntl(g_log_ring.fd, F_GETFL, 0);
-  fcntl(g_log_ring.fd, F_SETFL, flags | O_NONBLOCK);
+  dup2(STDOUT_FILENO, LOG_FD);
+  close(STDOUT_FILENO);
+  const uint8_t flags = fcntl(LOG_FD, F_GETFL, 0);
+  fcntl(LOG_FD, F_SETFL, flags | O_NONBLOCK);
 }
 
-void log(const uint8_t level, const char *msg, const uint8_t msg_len)
+void log(const uint8_t level, const char *const msg, const uint8_t msg_len)
 {
   if (level > g_config.log_level)
     return;
@@ -73,7 +74,7 @@ void flush_logs(void)
     else
       available = LOG_RING_SIZE - g_log_ring.tail;
 
-    written = write(g_log_ring.fd, &g_log_ring.data[g_log_ring.tail], available); //TODO error handling EAGAIN EWOULDBLOCK (wrapper? troppo inefficiente?)
+    written = write(LOG_FD, &g_log_ring.data[g_log_ring.tail], available); //TODO error handling EAGAIN EWOULDBLOCK (wrapper? troppo inefficiente?)
     g_log_ring.tail = (g_log_ring.tail + written) % LOG_RING_SIZE;
   }
 }

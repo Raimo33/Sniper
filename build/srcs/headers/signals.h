@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 18:15:15 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/09 18:36:25 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/10 16:51:40 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,15 +15,9 @@
 
 # include <stdint.h>
 # include <signal.h>
-# include <stdatomic.h>
-# include <stdbool.h>
 
-# define CRITICAL_SIGNALS { SIGINT, SIGTERM }
-
-extern atomic_bool g_running;
+# define SIG_FD 3U
 
 void init_signals(void);
-
-typedef void (*signal_handler_t)(int);
 
 #endif

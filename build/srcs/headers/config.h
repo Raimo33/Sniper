@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 18:47:42 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/09 18:19:04 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/10 18:24:43 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,9 +15,6 @@
 
 # include <stdint.h>
 
-# define REST_ENDPOINT "api3.binance.com:443"
-# define WS_ENDPOINT "data-stream.binance.vision:9443"
-# define FIX_ENDPOINT "fix-oe.binance.com:9000"
 # define PAIRS = { "usdcust", "fdusdusdt", "usdtdai", "usdpusdt", "fdusdusdc", "eureuri"}
 # define LOGGING_INTERVAL 60000U
 # define MAX_MARKET_ORDER_DELAY 50U
