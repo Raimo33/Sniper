@@ -1,25 +1,21 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   sockets.h                                          :+:      :+:    :+:   */
+/*   fix.h                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/01/09 21:23:15 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/09 21:25:05 by craimond         ###   ########.fr       */
+/*   Created: 2025/01/10 16:52:51 by craimond          #+#    #+#             */
+/*   Updated: 2025/01/10 17:50:42 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef SOCKETS_H
-# define SOCKETS_H
+#ifndef FIX_H
+# define FIX_H
 
-# include <sys/socket.h>
-# include <netinet/in.h>
-# include <arpa/inet.h>
-# include <unistd.h>
+# define FIX_FD  5U
 
-# define MAX_CONNECTIONS //TODO
-
-void init_sockets(void);
+void init_fix(void);
+//TODO handler
 
 #endif

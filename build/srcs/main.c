@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/29 17:07:42 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/09 21:22:34 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/10 17:53:02 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,9 @@ int32_t main(void)
   init_config();
   init_logger();
   init_signals();
-  init_sockets();
+  init_ws();
+  init_fix();
+  init_rest();
   init_event_loop();
   start_event_loop();
   cleanup();
