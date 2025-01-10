@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 18:08:11 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/10 18:18:43 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/10 18:55:46 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,7 @@
 # include <unistd.h>
 # include <stdint.h>
 # include <fcntl.h>
-# include <string.h>
-# include <errno.h>
+# include <sys/uio.h>
 
 # define LOG_LEVEL_DEBUG 0U
 # define LOG_LEVEL_INFO  1U
