@@ -6,12 +6,11 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 18:09:22 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/11 18:44:06 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/11 21:18:11 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "headers/logger.h"
-#include "headers/config.h"
 
 static t_log_ring g_log_ring;
 

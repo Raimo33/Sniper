@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 17:42:49 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/11 16:23:54 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/11 20:36:35 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,8 @@
 
 # define MAX_EVENTS 128U
 
-typedef struct {
+typedef struct
+{
     uint16_t epoll_fd;
     // Can add more event loop related state here
 } event_loop_ctx_t;

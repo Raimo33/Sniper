@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 10:10:46 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/11 19:00:35 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/11 21:49:01 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,17 +19,23 @@
 # include <wolfssl/wolfcrypt/ed25519.h>
 # include <wolfssl/wolfcrypt/base64.h>
 
-# include "keygen.h"
+# include "keys.h"
 
 typedef struct
 {
   WOLFSSL_CTX *ctx;
   WOLFSSL *ssl;
-} ssl_t;
+} ssl_sock_t;
+
+typedef struct
+{
+  RNG rng;
+
+} ssl_data_t;
 
 void  init_ssl(void);
-ssl_t init_ssl_socket(const uint16_t fd);
+void  init_ssl_socket(const uint16_t fd, ssl_sock_t *const ssl);
 //TODO void  generate_signature(
-void  cleanup_ssl(ssl_t *const ssl);
+void  cleanup_ssl_socket(ssl_sock_t *const ssl);
 
 #endif

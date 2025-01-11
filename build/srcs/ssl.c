@@ -6,30 +6,27 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 16:35:17 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/11 19:03:46 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/11 21:15:34 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 # include "headers/ssl.h"
 
-void init_ssl(keys_t *const keys)
+void init_ssl(ssl_data_t *const ssl_data)
 {
   wolfSSL_Init();
-  generate_keys(keys);
+  wolfCrypt_Init();
+  wc_InitRng(&ssl_data->rng);
 }
 
-ssl_t init_ssl_socket(const uint16_t fd)
+void init_ssl_socket(const uint16_t fd, ssl_sock_t *const ssl_sock)
 {
-  const ssl_t ssl = {
-    .ctx = wolfSSL_CTX_new(wolfTLSv1_3_client_method()),
-    .ssl = wolfSSL_new(ssl.ctx)
-  };
+  ssl_sock->ctx = wolfSSL_CTX_new(wolfTLSv1_3_client_method());
+  ssl_sock->ssl = wolfSSL_new(ssl_sock->ctx);
 
-  wolfSSL_set_fd(ssl.ssl, fd);
-  wolfSSL_set_verify(ssl.ssl, SSL_VERIFY_NONE, NULL);
-  wolfSSL_set_using_nonblock(ssl.ssl, true);
-
-  return ssl;
+  wolfSSL_set_fd(ssl_sock->ssl, fd);
+  wolfSSL_set_verify(ssl_sock->ssl, SSL_VERIFY_NONE, NULL);
+  wolfSSL_set_using_nonblock(ssl_sock->ssl, true);
 }
 
 //TODO generate per-message signature (0.03ms max)
@@ -38,9 +35,9 @@ ssl_t init_ssl_socket(const uint16_t fd)
   
 // }
 
-void cleanup_ssl(ssl_t *const ssl)
+void cleanup_ssl_socket(ssl_sock_t *const ssl_sock)
 {
-  wolfSSL_free(ssl->ssl);
-  wolfSSL_CTX_free(ssl->ctx);
+  wolfSSL_free(ssl_sock->ssl);
+  wolfSSL_CTX_free(ssl_sock->ctx);
   //wolfSSL_shutdown(ssl);??? //TODO
 }

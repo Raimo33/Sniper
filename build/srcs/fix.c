@@ -6,14 +6,11 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 21:02:36 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/11 16:38:21 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/11 21:21:49 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "headers/fix.h"
-#include "headers/config.h"
-
-static ssl_t setup_ssl(const uint16_t fd);
 
 //TODO pool di connessioni
 void init_fix(fix_client_t *const fix)
