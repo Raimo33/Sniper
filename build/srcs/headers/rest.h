@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 16:52:43 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/10 21:15:49 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/11 10:20:19 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,8 @@
 # include <arpa/inet.h>
 # include <netdb.h>
 
-# define REST_FD 6U
+# include "headers/ssl.h"
+
 # define REST_HOST "api.binance.com"
 # define REST_PORT 8080U
 
@@ -28,7 +29,14 @@
 # define REST_KEEPALIVE_INTVL 1U
 # define REST_KEEPALIVE_CNT   3U
 
-void init_rest(void);
+typedef struct
+{
+  const uint8_t fd;
+  const struct sockaddr_in addr;
+  const ssl_t ssl;
+} rest_client_t;
+
+void init_rest(rest_client_t *const rest);
 //TODO handler
 
 #endif

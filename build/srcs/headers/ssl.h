@@ -1,23 +1,26 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   signals.h                                          :+:      :+:    :+:   */
+/*   ssl.h                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/01/09 18:15:15 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/11 10:16:03 by craimond         ###   ########.fr       */
+/*   Created: 2025/01/11 10:10:46 by craimond          #+#    #+#             */
+/*   Updated: 2025/01/11 10:11:24 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef SIGNALS_H
-# define SIGNALS_H
+#ifndef SSL_H
+# define SSL_H
 
-# include <stdint.h>
-# include <signal.h>
+# include <wolfssl/options.h>
+# include <wolfssl/ssl.h>
 
-# define SIG_FILENO 3U
+typedef struct
+{
+  WOLFSSL_CTX *ctx;
+  WOLFSSL *ssl;
+} ssl_t;
 
-void init_signals(void);
 
 #endif

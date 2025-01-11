@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 18:08:11 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/10 18:55:46 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/11 10:16:03 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@
 # define LOG_LEVEL_ERROR 3U
 
 # define LOG_RING_SIZE 4096U
-# define LOG_FD        7U
+# define LOG_FILENO        7U
 
 typedef struct
 {

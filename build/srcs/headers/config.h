@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 18:47:42 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/10 18:24:43 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/11 10:36:46 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,10 +26,8 @@ typedef struct
 {
   char    *api_key;
   uint8_t log_level : 2;
-} t_config;
+} config_t;
 
-extern t_config g_config;
-
-void init_config(void);
+void init_config(config_t *const config);
 
 #endif

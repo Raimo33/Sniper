@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 18:09:22 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/10 18:55:46 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/11 10:37:37 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,17 +31,17 @@ uint8_t map_log_level(const char *const level)
   return 0;
 }
 
-void init_logger(void)
+uint8_t init_logger(void)
 {
-  dup2(STDOUT_FILENO, LOG_FD);
-  close(STDOUT_FILENO);
-  const uint8_t flags = fcntl(LOG_FD, F_GETFL, 0);
-  fcntl(LOG_FD, F_SETFL, flags | O_NONBLOCK);
+  const uint8_t fd = dup(STDOUT_FILENO);
+  const uint8_t flags = fcntl(LOG_FILENO, F_GETFL, 0);
+  fcntl(fd, F_SETFL, flags | O_NONBLOCK);
+  return fd;
 }
 
 void log(const uint8_t level, const char *const msg, const uint8_t msg_len)
 {
-  if (level > g_config.log_level)
+  if (level > g_config.log_level) //TODO fix log_level scope
     return;
 
   uint16_t total_len = g_levels[level].tag_len + 2 +  msg_len + 1;
@@ -87,7 +87,7 @@ void flush_logs(void)
     }
   }
 
-  const uint16_t written = writev(LOG_FD, iov, iovcnt);
+  const uint16_t written = writev(LOG_FILENO, iov, iovcnt);
   if (written > 0)
     g_log_ring.tail = (g_log_ring.tail + written) % LOG_RING_SIZE;
   // TODO: Handle EAGAIN/EWOULDBLOCK

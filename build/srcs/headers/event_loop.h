@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 17:42:49 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/10 18:18:21 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/11 10:21:44 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ typedef struct {
     // Can add more event loop related state here
 } event_loop_ctx_t;
 
-void  init_event_loop(event_loop_ctx_t *const ctx);
-void  start_event_loop(const event_loop_ctx_t *const ctx);
+void  init_event_loop(event_loop_ctx_t *const ctx, const ws_client_t *const ws, const fix_client_t *const fix, const rest_client_t *const rest);
+void  start_event_loop(const event_loop_ctx_t *const ctx, const ws_client_t *const ws, const fix_client_t *const fix, const rest_client_t *const rest);
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 16:53:00 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/10 21:15:47 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/11 10:20:09 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,11 +20,16 @@
 # include <arpa/inet.h>
 # include <netdb.h>
 
-# define WS_FD 4U
 # define WS_HOST "stream.binance.com"
 # define WS_PORT 9443U
 
-void init_ws(void);
+typedef struct
+{
+  const uint8_t fd;
+  const struct sockaddr_in addr;
+} ws_client_t;
+
+void init_ws(ws_client_t *const ws);
 //TODO handler
 
 #endif

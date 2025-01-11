@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/29 17:07:42 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/10 21:21:17 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/11 10:36:15 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,20 +30,24 @@
 
 #include "headers/arb.h"
 
-t_config g_config = {0};
-
 //TODO error checking per tutte le funzioni con goto
+//TODO struttura grande chiamata clients?
 int32_t main(void)
 {
+  config_t config;
   event_loop_ctx_t loop;
+  ws_client_t ws;
+  fix_client_t fix;
+  rest_client_t rest;
 
-  init_config();
-  init_logger();
-  init_signals();
-  init_ws();
-  init_fix();
-  init_rest();
-  init_event_loop(&loop);
-  start_event_loop(&loop);
-  cleanup(&loop);
+  init_config(&config);
+  const uint8_t log_fd = init_logger();
+  const uint8_t sig_fd = init_signals();
+  wolfSSL_Init();
+  init_ws(&ws);
+  init_fix(&fix);
+  init_rest(&rest);
+  init_event_loop(&loop, &ws, &fix, &rest);
+  start_event_loop(&loop, &ws, &fix, &rest);
+  cleanup(&loop, &ws, &fix, &rest);
 }
