@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 16:52:51 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/11 10:20:15 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/11 17:20:36 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,10 +24,10 @@
 
 # define FIX_HOST "fix-oe.binance.com"
 # define FIX_PORT 9000U
+# define FIX_FILENO 4U
 
 typedef struct
 {
-  const uint8_t fd;
   const struct sockaddr_in addr;
   const ssl_t ssl;
 } fix_client_t;

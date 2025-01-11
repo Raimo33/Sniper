@@ -6,14 +6,14 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 17:40:24 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/11 10:28:13 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/11 16:24:07 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "headers/event_loop.h"
 
 //TODO cambiare logica sig fileno e log fileno
-void init_event_loop(event_loop_ctx_t *const ctx, const ws_client_t *const ws, const fix_client_t *const fix, const rest_client_t *const rest)
+void init_event_loop(event_loop_ctx_t *const ctx)
 {
   ctx->epoll_fd = epoll_create1(0);
   const uint8_t signal_events = EPOLLIN | EPOLLET;
@@ -27,15 +27,15 @@ void init_event_loop(event_loop_ctx_t *const ctx, const ws_client_t *const ws, c
 
   epoll_ctl(ctx->epoll_fd, EPOLL_CTL_ADD, ws->fd, &(struct epoll_event) {
     .events = socket_events,
-    .data = { .fd = ws->fd }
+    .data = { .fd = WS_FILENO }
   });
   epoll_ctl(ctx->epoll_fd, EPOLL_CTL_ADD, fix->fd, &(struct epoll_event) {
     .events = socket_events,
-    .data = { .fd = fix->fd }
+    .data = { .fd = FIX_FILENO }
   });
   epoll_ctl(ctx->epoll_fd, EPOLL_CTL_ADD, rest->fd, &(struct epoll_event) {
     .events = socket_events,
-    .data = { .fd = rest->fd }
+    .data = { .fd = REST_FILENO }
   });
 
   epoll_ctl(ctx->epoll_fd, EPOLL_CTL_ADD, LOG_FILENO, &(struct epoll_event) {
@@ -58,7 +58,7 @@ Error checking
 
 */
 
-void start_event_loop(const event_loop_ctx_t *const ctx, const ws_client_t *const ws, const fix_client_t *const fix, const rest_client_t *const rest)
+void start_event_loop(const event_loop_ctx_t *const ctx, const ws_client_t *const fix, const ws_client_t *const ws, const rest_client_t *const rest)
 {
   struct epoll_event events[MAX_EVENTS] = {0};
 

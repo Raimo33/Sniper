@@ -1,20 +1,20 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   config.c                                           :+:      :+:    :+:   */
+/*   cleanup.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/01/09 16:15:41 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/11 10:37:03 by craimond         ###   ########.fr       */
+/*   Created: 2025/01/11 16:36:59 by craimond          #+#    #+#             */
+/*   Updated: 2025/01/11 16:37:40 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "headers/config.h"
-#include "headers/logger.h"
-
-void init_config(config_t *const config)
+void cleanup(event_loop_ctx_t *const loop, fix_client_t *const fix, ws_client_t *const ws, rest_client_t *const rest)
 {
-  config->api_key = getenv("API_KEY");
-  config->log_level = map_log_level(getenv("LOG_LEVEL"));
+  wolfSSL_Cleanup();
+  free_fix(fix);
+  free_ws(ws);
+  free_rest(rest);
+  close(loop->epoll_fd); //forse non basta
 }

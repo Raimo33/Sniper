@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 20:53:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/11 10:24:54 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/11 16:19:22 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,8 +23,11 @@ void init_ws(ws_client_t *const ws)
     }
   };
   
-  ws->fd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
-  setsockopt(ws->fd, IPPROTO_TCP, TCP_NODELAY, &(uint8_t){1}, sizeof(uint8_t));
+  const uint16_t fd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
+  setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &(uint8_t){1}, sizeof(uint8_t));
 
-  connect(ws->fd, (const struct sockaddr *)&addr, sizeof(addr));
+  connect(fd, (const struct sockaddr *)&ws->addr, sizeof(ws->addr));
+
+  dup2(fd, WS_FILENO);
+  close(fd);
 }

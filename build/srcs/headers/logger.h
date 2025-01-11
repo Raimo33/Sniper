@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 18:08:11 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/11 10:16:03 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/11 18:42:05 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@
 # define LOG_LEVEL_ERROR 3U
 
 # define LOG_RING_SIZE 4096U
-# define LOG_FILENO        7U
+# define LOG_FILENO    7U
 
 typedef struct
 {
@@ -40,9 +40,8 @@ typedef struct
   uint16_t tail;
 } t_log_ring;
 
-uint8_t map_log_level(const char *const level);
 void    init_logger(void);
-void    log(const uint8_t level, const char *const msg, const uint8_t msg_len);
+void    log(const char *const msg, const uint8_t msg_len);
 void    flush_logs(void);
 
 #endif

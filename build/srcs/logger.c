@@ -6,55 +6,30 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 18:09:22 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/11 10:37:37 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/11 18:44:06 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "headers/logger.h"
 #include "headers/config.h"
 
-static t_log_ring        g_log_ring = {0};
-static const t_log_level g_levels[] = {
-  {"DEBUG", LOG_LEVEL_DEBUG, 5},
-  {"INFO",  LOG_LEVEL_INFO,  4},
-  {"WARN",  LOG_LEVEL_WARN,  4},
-  {"ERROR", LOG_LEVEL_ERROR, 5}
-};
+static t_log_ring g_log_ring;
 
-uint8_t map_log_level(const char *const level)
+void init_logger(void)
 {
-  const uint8_t n_levels = sizeof(g_levels) / sizeof(g_levels[0]);
-  
-  for (uint8_t i = 0; i < n_levels; i++)
-    if (!strcmp(level, g_levels[i].tag))
-      return g_levels[i].level;
-  return 0;
-}
-
-uint8_t init_logger(void)
-{
-  const uint8_t fd = dup(STDOUT_FILENO);
+  dup2(STDOUT_FILENO, LOG_FILENO);
   const uint8_t flags = fcntl(LOG_FILENO, F_GETFL, 0);
-  fcntl(fd, F_SETFL, flags | O_NONBLOCK);
-  return fd;
+  fcntl(LOG_FILENO, F_SETFL, flags | O_NONBLOCK);
 }
 
-void log(const uint8_t level, const char *const msg, const uint8_t msg_len)
+void log(const char *const msg, const uint8_t msg_len)
 {
-  if (level > g_config.log_level) //TODO fix log_level scope
-    return;
-
-  uint16_t total_len = g_levels[level].tag_len + 2 +  msg_len + 1;
-  uint16_t next_head = (g_log_ring.head + total_len) % LOG_RING_SIZE;
+  const uint16_t next_head = (g_log_ring.head + msg_len + 1) % LOG_RING_SIZE;
   
   if (next_head == g_log_ring.tail)
     return;
 
-  char *dest = &g_log_ring.data[g_log_ring.head];
-  memcpy(dest, g_levels[level].tag, g_levels[level].tag_len);
-  dest += g_levels[level].tag_len;
-  memcpy(dest, ": ", 2);
-  dest += 2;
+  char *const dest = &g_log_ring.data[g_log_ring.head];
   memcpy(dest, msg, msg_len);
   dest[msg_len] = '\n';
 

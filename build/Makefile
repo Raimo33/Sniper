@@ -6,13 +6,14 @@
 #    By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/03/19 14:52:58 by egualand          #+#    #+#              #
-#    Updated: 2025/01/10 21:27:35 by craimond         ###   ########.fr        #
+#    Updated: 2025/01/11 18:41:26 by craimond         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-SRCS := $(addprefix srcs/, main.c event_loop.c ws.c fix.c rest.c logger.c signals.c config.c)
+#TODO add srcs e headers
+SRCS := $(addprefix srcs/, 
 OBJS := $(SRCS:srcs/%.c=objs/%.o)
-HDRS := $(addprefix srcs/headers/, arb.h event_loop.h ws.h fix.h rest.h logger.h signals.h config.h)
+HDRS := $(addprefix srcs/headers/, 
 INCS := /usr/include srcs/headers
 
 CC := gcc
@@ -23,9 +24,9 @@ VALGRIND_SUPP := valgrind.supp
 VALGRIND_LOG := valgrind.log
 VALGRIND_FLAGS := --leak-check=full --show-leak-kinds=all --track-origins=yes --track-fds=yes --suppressions=$(VALGRIND_SUPP) --log-file=$(VALGRIND_LOG)
 
-NAME := arb
+NAME := sniper
 
-all: build
+all: init build
 
 build: $(OBJS)
 	$(CC) $(CFLAGS) -o $(NAME) $(OBJS)

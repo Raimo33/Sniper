@@ -1,24 +1,31 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   arb.h                                              :+:      :+:    :+:   */
+/*   keygen.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/01/10 17:58:45 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/10 17:59:07 by craimond         ###   ########.fr       */
+/*   Created: 2025/01/11 18:59:34 by craimond          #+#    #+#             */
+/*   Updated: 2025/01/11 19:02:13 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef ARB_H
-# define ARB_H
+#ifndef KEYGEN_H
+# define KEYGEN_H
 
-# include "config.h"
-# include "logger.h"
-# include "signals.h"
-# include "ws.h"
-# include "fix.h"
-# include "rest.h"
-# include "event_loop.h"
+# include <stdint.h>
+# include <wolfssl/wolfcrypt/ed25519.h>
+
+# define KEYS_DIR "/keys"
+# define ED25519_KEY_SIZE 32
+# define API_KEY_SIZE 64
+
+typedef struct
+{
+  const char api_key[API_KEY_SIZE];
+  const char private_key[ED25519_KEY_SIZE]; 
+} keys_t;
+
+void generate_keys(keys_t *const keys);
 
 #endif

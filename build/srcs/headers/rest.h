@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 16:52:43 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/11 10:20:19 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/11 16:02:05 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@
 
 # define REST_HOST "api.binance.com"
 # define REST_PORT 8080U
+# define REST_FILENO 6U
 
 # define REST_KEEPALIVE_IDLE  5U
 # define REST_KEEPALIVE_INTVL 1U
@@ -31,7 +32,6 @@
 
 typedef struct
 {
-  const uint8_t fd;
   const struct sockaddr_in addr;
   const ssl_t ssl;
 } rest_client_t;

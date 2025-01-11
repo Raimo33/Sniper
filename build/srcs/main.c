@@ -6,9 +6,16 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/29 17:07:42 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/11 10:36:15 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/11 18:58:01 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
+# include "headers/logger.h"
+# include "headers/signals.h"
+# include "headers/fix.h"
+# include "headers/ws.h"
+# include "headers/rest.h"
+# include "headers/event_loop.h"
 
 //https://developers.binance.com/docs/binance-spot-api-docs/faqs/spot_glossary
 
@@ -26,28 +33,23 @@
 //async logging (in-memory ring buffer, write vectorized)
 //GnuTLS (TLS 1.3) lightweigth
 //TCP_NODELAY (disable Nagle's algorithm)
-//SO_RECVBUF / SO_SENDBUF //TODO needed?
-
-#include "headers/arb.h"
 
 //TODO error checking per tutte le funzioni con goto
-//TODO struttura grande chiamata clients?
 int32_t main(void)
 {
-  config_t config;
+  keys_t keys;
   event_loop_ctx_t loop;
-  ws_client_t ws;
   fix_client_t fix;
+  ws_client_t ws;
   rest_client_t rest;
 
-  init_config(&config);
-  const uint8_t log_fd = init_logger();
-  const uint8_t sig_fd = init_signals();
-  wolfSSL_Init();
-  init_ws(&ws);
+  init_logger();
+  init_ssl(&keys);
+  init_signals();
   init_fix(&fix);
+  init_ws(&ws);
   init_rest(&rest);
-  init_event_loop(&loop, &ws, &fix, &rest);
-  start_event_loop(&loop, &ws, &fix, &rest);
-  cleanup(&loop, &ws, &fix, &rest);
+  init_event_loop(&loop);
+  start_event_loop(&loop, &fix, &ws, &rest);
+  cleanup(&loop, &fix, &ws, &rest);
 }
