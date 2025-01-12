@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 18:59:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/12 13:41:10 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/12 16:15:46 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,8 @@
 
 # define PRIVATE_KEY_PATH "/keys/ed25519.key"
 # define API_KEY_PATH "/keys/api.key"
-# define ED25519_KEY_SIZE 32
+# define ED25519_PUB_KEY_SIZE 32
+# define ED25519_PRIV_KEY_SIZE 32
 # define API_KEY_SIZE 64
 
 typedef struct
