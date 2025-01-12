@@ -6,13 +6,13 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 19:01:43 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/12 16:40:01 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/12 16:52:18 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "headers/keys.h"
 
-static void map_files(char **const priv_key_file_str, char **const api_key_file_str);
+static bool map_files(char **const priv_key_file_str, char **const api_key_file_str);
 static void map_existing_files(char **const priv_key_file_str, char **const api_key_file_str);
 static void map_new_files(char **const priv_key_file_str, char **const api_key_file_str);
 static void generate_keys(const WC_RNG *rng, ed25519_key *const priv_key, ed25519_key *const pub_key);
@@ -40,9 +40,9 @@ void init_keys(ssl_data_t *const ssl_data, keys_t *const keys)
   unmap_files(priv_key_file_str, api_key_file_str);
 }
 
-static void map_files(char **const priv_key_file_str, char **const api_key_file_str)
+static bool map_files(char **const priv_key_file_str, char **const api_key_file_str)
 {
-  const bool keys_exist = access(PRIVATE_KEY_PATH, F_OK) != -1 && access(API_KEY_PATH, F_OK) != -1; 
+  const bool keys_exist = (access(PRIVATE_KEY_PATH, F_OK) == -1 || access(API_KEY_PATH, F_OK) == -1);
 
   if (keys_exist)
     map_existing_files(priv_key_file_str, api_key_file_str);
