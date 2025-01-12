@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/29 17:07:42 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/11 21:16:54 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/12 11:47:16 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@
 //GnuTLS (TLS 1.3) lightweigth
 //TCP_NODELAY (disable Nagle's algorithm)
 
-//TODO error checking per tutte le funzioni con goto
+//TODO error checking per tutte le funzioni con goto, oppure assert
 int32_t main(void)
 {
   ssl_data_t ssl_data;

@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 18:59:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/11 21:48:27 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/12 13:41:10 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,11 +23,12 @@
 
 typedef struct
 {
-  const char api_key[API_KEY_SIZE];
-  const char private_key[ED25519_KEY_SIZE];
-  const char public_key[ED25519_KEY_SIZE];
+  const ed25519_key priv_key;
+  const ed25519_key pub_key;
+  const char[API_KEY_SIZE] api_key;
 } keys_t;
 
 void init_keys(keys_t *const keys);
+void free_keys(keys_t *const keys);
 
 #endif
