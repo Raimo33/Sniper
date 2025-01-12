@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 19:01:43 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/12 16:26:30 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/12 16:40:01 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,11 +117,15 @@ static void prompt_api_key(const char *const pub_key_str, char *const api_key_st
   const char msg1[] = "API key missing!\ned25519 public key: ";
   const char msg2[] = "\nEnter your API key: ";
 
-  write(STDOUT_FILENO, msg1, sizeof(msg1));
-  write(STDOUT_FILENO, pub_key_str, ED25519_PUB_KEY_SIZE);
-  write(STDOUT_FILENO, msg2, sizeof(msg2));
-  read(STDIN_FILENO, api_key_str, API_KEY_SIZE + 1);
-  api_key_str[API_KEY_SIZE] = '\0';
+  const struct iovec iov[3] = {
+    {.iov_base = msg1, .iov_len = sizeof(msg1) - 1},
+    {.iov_base = pub_key_str, .iov_len = ED25519_PUB_KEY_SIZE},
+    {.iov_base = msg2, .iov_len = sizeof(msg2) - 1}
+  };
+  
+  writev(STDOUT_FILENO, iov, sizeof(iov) / sizeof(iov[0]));
+  const uint8_t bytes_read = read(STDIN_FILENO, api_key_str, API_KEY_SIZE + 1);
+  api_key_str[bytes_read - 1] = '\0';
 }
 
 static void export_keys(const keys_t *const keys, char *const priv_key_file_str, char *const api_key_file_str)
