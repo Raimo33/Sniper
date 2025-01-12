@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 19:01:43 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/12 16:52:18 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/12 18:22:11 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,17 +57,8 @@ static void map_existing_files(char **const priv_key_file_str, char **const api_
   const uint16_t key_fd = open(PRIVATE_KEY_PATH, O_RDONLY);
   const uint16_t api_fd = open(API_KEY_PATH, O_RDONLY);
 
-  struct stat key_stat;
-  struct stat api_stat;
-  fstat(key_fd, &key_stat);
-  fstat(api_fd, &api_stat);
-
-  //TODO: check if the keys are the right size, or maybe just truncate them
-  // assert(key_stat.st_size == ED25519_PUB_KEY_SIZE)
-  // assert(api_stat.st_size == API_KEY_SIZE)
-
-  *api_key_file_str  = mmap(NULL, api_stat.st_size, PROT_READ, MAP_PRIVATE, api_fd, 0);
-  *priv_key_file_str = mmap(NULL, key_stat.st_size, PROT_READ, MAP_PRIVATE, key_fd, 0);
+  *api_key_file_str  = mmap(NULL, API_KEY_SIZE, PROT_READ, MAP_PRIVATE, api_fd, 0);
+  *priv_key_file_str = mmap(NULL, ED25519_PUB_KEY_SIZE, PROT_READ, MAP_PRIVATE, key_fd, 0);
 
   close(key_fd);
   close(api_fd);
@@ -78,16 +69,11 @@ static void map_new_files(char **const priv_key_file_str, char **const api_key_f
   const uint16_t key_fd = open(PRIVATE_KEY_PATH, O_WRONLY | O_CREAT, 0600);
   const uint16_t api_fd = open(API_KEY_PATH, O_WRONLY | O_CREAT, 0600);
 
-  ftruncate(key_fd, ED25519_PUB_KEY_SIZE);
-  ftruncate(api_fd, API_KEY_SIZE);
+  fallocate(key_fd, 0, 0, ED25519_PRIV_KEY_SIZE);
+  fallocate(api_fd, 0, 0, API_KEY_SIZE);
 
-  struct stat key_stat;
-  struct stat api_stat;
-  fstat(key_fd, &key_stat);
-  fstat(api_fd, &api_stat);
-
-  *api_key_file_str  = mmap(NULL, api_stat.st_size, PROT_WRITE, MAP_SHARED, api_fd, 0);
-  *priv_key_file_str = mmap(NULL, key_stat.st_size, PROT_WRITE, MAP_SHARED, key_fd, 0);
+  *api_key_file_str  = mmap(NULL, API_KEY_SIZE, PROT_WRITE, MAP_SHARED, api_fd, 0);
+  *priv_key_file_str = mmap(NULL, ED25519_PRIV_KEY_SIZE, PROT_WRITE, MAP_SHARED, key_fd, 0);
 
   close(key_fd);
   close(api_fd);

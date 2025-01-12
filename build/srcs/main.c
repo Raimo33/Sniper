@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/29 17:07:42 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/12 11:47:16 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/12 18:08:23 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,8 @@
 //async logging (in-memory ring buffer, write vectorized)
 //GnuTLS (TLS 1.3) lightweigth
 //TCP_NODELAY (disable Nagle's algorithm)
+//timerfd_create() per timers con epoll
+//fallocate() per preallocare spazio su disco
 
 //TODO error checking per tutte le funzioni con goto, oppure assert
 int32_t main(void)
