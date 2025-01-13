@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 10:10:46 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/13 17:47:21 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/13 18:33:52 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,11 +29,12 @@ typedef struct
 
 typedef struct
 {
+  //TODO roba come RNG
 } ssl_data_t;
 
 void  init_ssl(void);
 void  init_ssl_socket(const uint16_t fd, ssl_sock_t *const ssl);
 //TODO void  generate_signature(
-void  cleanup_ssl_socket(ssl_sock_t *const ssl);
+void  free_ssl_socket(ssl_sock_t *const ssl);
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 20:53:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/12 20:26:01 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/13 18:52:06 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,9 +25,35 @@ void init_ws(ws_client_t *const ws)
   
   const uint16_t fd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
   setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &(uint8_t){1}, sizeof(uint8_t));
+  init_ssl_socket(fd, &ws->ssl_sock);
 
   connect(fd, (const struct sockaddr *)&ws->addr, sizeof(ws->addr));
+  wolfSSL_connect(ws->ssl_sock.ssl);
+  perform_ws_handshake(ws->ssl_sock.ssl);
 
   dup2(fd, WS_FILENO);
   close(fd);
+}
+
+static void perform_ws_handshake(const WOLFSSL *const ssl)
+{
+  //TODO dynamically form path, dynamically generate Sec-WebSocket-Key (in keys.c)
+
+  //https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#trade-streams
+  const char *const request[] = 
+    "GET /stream?streams=usdcusdt@trade/usdpusdt@trade/usdtdai@trade/fdusdusdt@trade/fdusdusdc@trade/tusdusdt@trade/eureuri@trade HTTP/1.1\r\n"
+    "Host: " WS_HOST "\r\n"
+    "Upgrade: websocket\r\n"
+    "Connection: Upgrade\r\n"
+    "Sec-WebSocket-Key: " WS_KEY "\r\n"
+    "Sec-WebSocket-Version: 13\r\n"
+    "\r\n";
+
+  wolfSSL_write(ssl, request, sizeof(request) - 1);
+}
+
+void free_ws(ws_client_t *const ws)
+{
+  free_ssl_socket(&ws->ssl_sock);
+  close(WS_FILENO);
 }

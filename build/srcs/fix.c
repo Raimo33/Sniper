@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 21:02:36 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/11 21:21:49 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/13 18:33:52 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,10 +25,10 @@ void init_fix(fix_client_t *const fix)
 
   const uint16_t fd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
   setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &(bool){1}, sizeof(bool));
-
-  fix->ssl = init_ssl(fd);
+  init_ssl_socket(fd, &fix->ssl_sock);
 
   connect(fd, (const struct sockaddr *)&fix->addr, sizeof(fix->addr));
+  wolfSSL_connect(fix->ssl_sock.ssl);
 
   dup2(fd, FIX_FILENO);
   close(fd);
@@ -36,6 +36,6 @@ void init_fix(fix_client_t *const fix)
 
 void free_fix(fix_client_t *const fix)
 {
-  cleanup_ssl(&fix->ssl);
+  free_ssl_socket(&fix->ssl_sock);
   close(FIX_FILENO);
 }

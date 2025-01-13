@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 16:35:17 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/11 21:15:34 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/13 18:33:52 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ void init_ssl_socket(const uint16_t fd, ssl_sock_t *const ssl_sock)
   
 // }
 
-void cleanup_ssl_socket(ssl_sock_t *const ssl_sock)
+void free_ssl_socket(ssl_sock_t *const ssl_sock)
 {
   wolfSSL_free(ssl_sock->ssl);
   wolfSSL_CTX_free(ssl_sock->ctx);

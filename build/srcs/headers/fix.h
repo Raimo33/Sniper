@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 16:52:51 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/11 17:20:36 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/13 18:28:20 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@
 typedef struct
 {
   const struct sockaddr_in addr;
-  const ssl_t ssl;
+  const ssl_sock_t ssl_sock;
 } fix_client_t;
 
 void init_fix(fix_client_t *const fix);
