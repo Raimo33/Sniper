@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 16:35:17 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/13 19:05:36 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/13 19:40:15 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@ void init_ssl(ssl_data_t *const ssl_data)
   wolfSSL_Init();
   wolfCrypt_Init();
   wc_InitRng(&ssl_data->rng);
+  init_keys(&ssl_data->keys);
 }
 
 void init_ssl_socket(const uint16_t fd, ssl_sock_t *const ssl_sock)
@@ -43,6 +44,7 @@ void free_ssl_socket(ssl_sock_t *const ssl_sock)
 
 void free_ssl(ssl_data_t *const ssl_data)
 {
+  free_keys(&ssl_data->keys);
   wc_FreeRng(&ssl_data->rng);
   wolfSSL_Cleanup();
   wolfCrypt_Cleanup();

@@ -6,14 +6,14 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 21:02:36 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/13 18:33:52 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/13 19:43:38 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "headers/fix.h"
 
 //TODO pool di connessioni
-void init_fix(fix_client_t *const fix)
+void init_fix(fix_client_t *const fix, ssl_data_t *ssl_data)
 {
   fix->addr = (struct sockaddr_in){
     .sin_family = AF_INET,

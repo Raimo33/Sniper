@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/29 17:07:42 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/12 18:08:23 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/13 19:40:37 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,6 @@
 int32_t main(void)
 {
   ssl_data_t ssl_data;
-  keys_t keys;
   event_loop_ctx_t loop;
   fix_client_t fix;
   ws_client_t ws;
@@ -48,11 +47,10 @@ int32_t main(void)
 
   init_logger();
   init_ssl(&ssl_data);
-  init_keys(&keys);
   init_signals();
-  init_fix(&fix, &keys, &ssl_data); //forse non serve ssl_data
-  init_ws(&ws);
-  init_rest(&rest, &keys, &ssl_data); //forse non serve ssl_data
+  init_fix(&fix, &ssl_data);
+  init_ws(&ws, &ssl_data);
+  init_rest(&rest, &ssl_data);
   init_event_loop(&loop);
   start_event_loop(&loop, &fix, &ws, &rest);
   cleanup(&loop, &fix, &ws, &rest);

@@ -6,14 +6,16 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 20:53:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/13 19:17:25 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/13 21:15:13 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "headers/ws.h"
 
+static void perform_ws_handshake(const WOLFSSL *const ssl, WC_RNG *const rng);
+
 //TODO pool di connessioni
-void init_ws(ws_client_t *const ws)
+void init_ws(ws_client_t *const ws, ssl_data_t *ssl_data)
 {
   ws->addr = (struct sockaddr_in){
     .sin_family = AF_INET,
@@ -29,33 +31,33 @@ void init_ws(ws_client_t *const ws)
 
   connect(fd, (const struct sockaddr *)&ws->addr, sizeof(ws->addr));
   wolfSSL_connect(ws->ssl_sock.ssl);
-  perform_ws_handshake(ws->ssl_sock.ssl);
+  perform_ws_handshake(ws->ssl_sock.ssl, &ssl_data->rng);
 
   dup2(fd, WS_FILENO);
   close(fd);
 }
 
-static void perform_ws_handshake(const WOLFSSL *const ssl)
-{
-  //TODO dynamically form path, dynamically generate Sec-WebSocket-Key (in keys.c)
-  const char *const path = "/stream?streams=usdcusdt@trade/usdpusdt@trade/usdtdai@trade/fdusdusdt@trade/fdusdusdc@trade/tusdusdt@trade/eureuri@trade";
-  char ws_key[WS_KEY_SIZE];
+//https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#trade-streams
+static void perform_ws_handshake(const WOLFSSL *const ssl, WC_RNG *const rng) {
 
-  //TODO generate_ws_key(&ws->rng, ws_key);
-  //https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#trade-streams
-  const char *const request[] = 
-    "GET %s HTTP/1.1\r\n"
-    "Host: " WS_HOST ":%d\r\n"
-    "Upgrade: websocket\r\n"
-    "Connection: Upgrade\r\n"
-    "Sec-WebSocket-Key: %s\r\n"
-    "Sec-WebSocket-Version: 13\r\n"
-    "\r\n";
+    const char request[] __attribute__ ((aligned(16))) =
+      "GET " WS_PATH " HTTP/1.1"
+      "\r\nHost: " WS_HOST ":" WS_PORT_STR
+      "\r\nUpgrade: websocket"
+      "\r\nConnection: Upgrade"
+      "\r\nSec-WebSocket-Version: 13"
+      "\r\nSec-WebSocket-Key: ";
 
-  //TODO sprintf?? (qualcosa di meglio?)
+    const uint16_t request_len = sizeof(request) - 1;
+    char buffer[request_len + WS_KEY_SIZE] __attribute__ ((aligned(16)));
 
-  wolfSSL_write(ssl, request, sizeof(request) - 1);
+    memcpy(buffer, request, request_len);
+    generate_ws_key(rng, buffer + request_len);
+
+    wolfSSL_write(ssl, buffer, sizeof(buffer));
 }
+
+static void construct_path()
 
 void free_ws(ws_client_t *const ws)
 {

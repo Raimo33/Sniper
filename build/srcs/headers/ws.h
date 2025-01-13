@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 16:53:00 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/13 19:16:15 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/13 21:02:18 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,9 @@
 
 # define WS_HOST "data-stream.binance.com"
 # define WS_PORT 9443U
+# define WS_PORT_STR "9443"
 # define WS_FILENO 5U
+# define WS_PATH "/stream?streams=usdcusdt@trade/usdpusdt@trade/usdtdai@trade/fdusdusdt@trade/fdusdusdc@trade/tusdusdt@trade/eureuri@trade"
 
 typedef struct
 {
@@ -32,7 +34,7 @@ typedef struct
   const ssl_sock_t ssl_sock;
 } ws_client_t;
 
-void init_ws(ws_client_t *const ws);
+void init_ws(ws_client_t *const ws, ssl_data_t *ssl_data);
 //TODO handler
 
 #endif
