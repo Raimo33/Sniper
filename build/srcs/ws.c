@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 20:53:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/13 18:52:06 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/13 19:17:25 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,16 +38,21 @@ void init_ws(ws_client_t *const ws)
 static void perform_ws_handshake(const WOLFSSL *const ssl)
 {
   //TODO dynamically form path, dynamically generate Sec-WebSocket-Key (in keys.c)
+  const char *const path = "/stream?streams=usdcusdt@trade/usdpusdt@trade/usdtdai@trade/fdusdusdt@trade/fdusdusdc@trade/tusdusdt@trade/eureuri@trade";
+  char ws_key[WS_KEY_SIZE];
 
+  //TODO generate_ws_key(&ws->rng, ws_key);
   //https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#trade-streams
   const char *const request[] = 
-    "GET /stream?streams=usdcusdt@trade/usdpusdt@trade/usdtdai@trade/fdusdusdt@trade/fdusdusdc@trade/tusdusdt@trade/eureuri@trade HTTP/1.1\r\n"
-    "Host: " WS_HOST "\r\n"
+    "GET %s HTTP/1.1\r\n"
+    "Host: " WS_HOST ":%d\r\n"
     "Upgrade: websocket\r\n"
     "Connection: Upgrade\r\n"
-    "Sec-WebSocket-Key: " WS_KEY "\r\n"
+    "Sec-WebSocket-Key: %s\r\n"
     "Sec-WebSocket-Version: 13\r\n"
     "\r\n";
+
+  //TODO sprintf?? (qualcosa di meglio?)
 
   wolfSSL_write(ssl, request, sizeof(request) - 1);
 }

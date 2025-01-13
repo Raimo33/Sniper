@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 18:59:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/13 17:58:08 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/13 19:08:23 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 
 # define ED25519_PRIV_KEY_SIZE 32
 # define API_KEY_SIZE 64
+# define WS_KEY_SIZE 24
 
 typedef struct
 {

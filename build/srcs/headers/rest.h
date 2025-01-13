@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 16:52:43 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/13 18:28:03 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/13 19:16:06 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@
 # include <arpa/inet.h>
 # include <netdb.h>
 
-# include "headers/ssl.h"
+# include "ssl.h"
 
 # define REST_HOST "api.binance.com"
 # define REST_PORT 8080U

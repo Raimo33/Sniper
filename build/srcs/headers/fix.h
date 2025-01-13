@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 16:52:51 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/13 18:28:20 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/13 19:16:12 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@
 # include <arpa/inet.h>
 # include <netdb.h>
 
-# include "headers/ssl.h"
+# include "ssl.h"
 
 # define FIX_HOST "fix-oe.binance.com"
 # define FIX_PORT 9000U

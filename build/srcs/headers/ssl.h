@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 10:10:46 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/13 18:33:52 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/13 19:02:04 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ typedef struct
 
 typedef struct
 {
-  //TODO roba come RNG
+  WC_RNG rng;
 } ssl_data_t;
 
 void  init_ssl(void);
