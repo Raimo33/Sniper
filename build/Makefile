@@ -6,7 +6,7 @@
 #    By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/03/19 14:52:58 by egualand          #+#    #+#              #
-#    Updated: 2025/01/12 10:25:50 by craimond         ###   ########.fr        #
+#    Updated: 2025/01/13 17:29:02 by craimond         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -69,7 +69,7 @@ fclean: clean
 
 re: fclean all
 
-.PHONY: all build leaks cache clean fclean re
+.PHONY:
 .SILENT:
 .SUFFIXES: .c .o
 .IGNORE: clean fclean

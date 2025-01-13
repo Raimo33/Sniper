@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 20:53:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/11 16:19:22 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/12 20:26:01 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ void init_ws(ws_client_t *const ws)
     .sin_family = AF_INET,
     .sin_port = htons(WS_PORT),
     .sin_addr = {
-      .s_addr = inet_addr(WS_HOST) //TODO getaddrinfo e dns resolve
+      .s_addr = inet_addr(WS_HOST) //TODO getaddrinfo e dns resolve (https://c-ares.org/docs.html)
     }
   };
   
