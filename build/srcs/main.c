@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/29 17:07:42 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/14 14:54:37 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/14 18:55:35 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,5 +55,9 @@ int32_t main(void)
 
   start_event_loop(&loop, &fix, &ws, &rest, &ssl_data);
 
-  cleanup(&loop, &fix, &ws, &rest);
+  wolfSSL_Cleanup();
+  free_fix(fix);
+  free_ws(ws);
+  free_rest(rest);
+  close(loop->epoll_fd); //forse non basta
 }

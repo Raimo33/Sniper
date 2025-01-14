@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 18:08:11 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/11 18:42:05 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/14 18:38:24 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ typedef struct
 } t_log_ring;
 
 void    init_logger(void);
-void    log(const char *const msg, const uint8_t msg_len);
+void    log(const char *msg, const uint8_t msg_len);
 void    flush_logs(void);
 
 #endif

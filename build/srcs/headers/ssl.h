@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 10:10:46 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/13 19:39:08 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/14 18:41:35 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,8 +34,8 @@ typedef struct
 } ssl_data_t;
 
 void  init_ssl(void);
-void  init_ssl_socket(const uint16_t fd, ssl_sock_t *const ssl);
+void  init_ssl_socket(const uint16_t fd, ssl_sock_t *ssl);
 //TODO void  generate_signature(
-void  free_ssl_socket(ssl_sock_t *const ssl);
+void  free_ssl_socket(const ssl_sock_t *ssl);
 
 #endif

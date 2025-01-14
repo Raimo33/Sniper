@@ -6,15 +6,15 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 17:40:24 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/14 14:57:15 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/14 18:55:19 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "headers/event_loop.h"
 
-static void establish_connection(const uint16_t fd, const struct sockaddr_in *const addr, const ssl_sock_t *const ssl_sock);
+static void establish_connection(const uint16_t fd, const struct sockaddr_in *addr, const ssl_sock_t *ssl_sock);
 
-void init_event_loop(event_loop_ctx_t *const ctx)
+void init_event_loop(event_loop_ctx_t *ctx)
 {
   ctx->epoll_fd = epoll_create1(0);
   const uint8_t signal_events = EPOLLIN | EPOLLET;
@@ -59,25 +59,50 @@ Error checking
 
 */
 
-void start_event_loop(const event_loop_ctx_t *const ctx, const ws_client_t *const fix, const ws_client_t *const ws, const rest_client_t *const rest, const ssl_data_t *const ssl_data)
+void start_event_loop(const event_loop_ctx_t *ctx, const ws_client_t *fix, const ws_client_t *ws, const rest_client_t *rest, const ssl_data_t *ssl_data)
 {
   struct epoll_event events[MAX_EVENTS] = {0};
+  uint8_t n_events;
+  uint8_t i;
+
+  connect()
+  connect()
+  connect()
+
+  epoll_wait()
+  handle_events()
+
+  wolfSSL_connect()
+  wolfSSL_connect()
+  wolfSSL_connect()
+
+  epoll_wait()
+  handle_events()
+
+  perform_ws_handshake()
 
   while (true)
   {
-    uint8_t n_events = epoll_wait(ctx->epoll_fd, events, MAX_EVENTS, -1);
-
-    for (uint8_t i = 0; i < n_events; i++)
+    n_events = epoll_wait(ctx->epoll_fd, events, MAX_EVENTS, -1);
+    for (i = 0; i < n_events; i++)
     {
       switch (events[i].data.fd)
       {
-        //TODO handlers
+        case SIG_FILENO:
+          return;
+        case WS_FILENO:
+          handle_ws_event(ws);
+          break;
+        case FIX_FILENO:
+          handle_fix_event(fix);
+          break;
+        case REST_FILENO:
+          handle_rest_event(rest);
+          break;
+        case LOG_FILENO:
+          flush_logs();
+          break;
       }
     }
   }
 }
-
-//TODO trovare un modo per eseguirle una alla volta async ma solo all'inizio
-// connect(fd, (const struct sockaddr *)addr, sizeof(*addr));
-// wolfSSL_connect(ssl_sock->ssl);
-// (SOLO PER WS) perform_ws_handshake(ws, ws_key);

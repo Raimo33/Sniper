@@ -6,14 +6,14 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 20:53:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/14 14:51:54 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/14 18:54:46 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "headers/ws.h"
 
 //TODO pool di connessioni
-void init_ws(ws_client_t *const ws)
+void init_ws(ws_client_t *ws)
 {
   ws->addr = (struct sockaddr_in){
     .sin_family = AF_INET,
@@ -31,7 +31,7 @@ void init_ws(ws_client_t *const ws)
   close(fd);
 }
 
-void perform_ws_handshake(const ws_client_t *const ws, const byte *const ws_key)
+void perform_ws_handshake(const ws_client_t *ws, const byte *ws_key)
 {
   const char request[] __attribute__ ((aligned(16))) =
     "GET " WS_PATH " HTTP/1.1"
@@ -45,12 +45,12 @@ void perform_ws_handshake(const ws_client_t *const ws, const byte *const ws_key)
   char buffer[request_len + WS_KEY_SIZE] __attribute__ ((aligned(16)));
 
   memcpy(buffer, request, request_len);
-  memcppy(buffer + request_len, ws_key, WS_KEY_SIZE);
+  memcpy(buffer + request_len, ws_key, WS_KEY_SIZE);
 
   wolfSSL_write(ws->ssl_sock.ssl, buffer, sizeof(buffer));
 }
 
-void free_ws(ws_client_t *const ws)
+void free_ws(const ws_client_t *ws)
 {
   free_ssl_socket(&ws->ssl_sock);
   close(WS_FILENO);

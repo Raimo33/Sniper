@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 16:53:00 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/14 14:49:54 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/14 18:42:27 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,8 +34,8 @@ typedef struct
   const ssl_sock_t ssl_sock;
 } ws_client_t;
 
-void init_ws(ws_client_t *const ws);
-void perform_ws_handshake(const ws_client_t *const ws, const byte *const ws_key);
+void init_ws(ws_client_t *ws);
+void free_ws(const ws_client_t *ws);
 //TODO handler
 
 #endif

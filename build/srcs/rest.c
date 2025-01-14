@@ -6,14 +6,13 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 17:53:55 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/14 14:51:48 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/14 18:54:51 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "headers/rest.h"
 
-//TODO add wolfssl ed25519 + api key
-void init_rest(rest_client_t *const rest)
+void init_rest(rest_client_t *rest)
 {
   rest->addr = (struct sockaddr_in){
     .sin_family = AF_INET,
@@ -35,7 +34,7 @@ void init_rest(rest_client_t *const rest)
   close(fd);
 }
 
-void free_rest(rest_client_t *const rest)
+void free_rest(const rest_client_t *rest)
 {
   free_ssl_socket(&rest->ssl_sock);
   close(REST_FILENO);

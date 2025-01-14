@@ -6,14 +6,14 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 21:02:36 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/14 14:51:38 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/14 18:54:42 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "headers/fix.h"
 
 //TODO pool di connessioni
-void init_fix(fix_client_t *const fix)
+void init_fix(fix_client_t *fix)
 {
   fix->addr = (struct sockaddr_in){
     .sin_family = AF_INET,
@@ -31,7 +31,7 @@ void init_fix(fix_client_t *const fix)
   close(fd);
 }
 
-void free_fix(fix_client_t *const fix)
+void free_fix(const fix_client_t *fix)
 {
   free_ssl_socket(&fix->ssl_sock);
   close(FIX_FILENO);

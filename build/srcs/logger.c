@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 18:09:22 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/12 16:03:25 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/14 18:32:04 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,21 +21,20 @@ void init_logger(void)
   fcntl(LOG_FILENO, F_SETFL, flags | O_NONBLOCK);
 }
 
-void log(const char *const msg, const uint8_t msg_len)
+void log(const char *msg, const uint8_t msg_len)
 {
   const uint16_t next_head = (g_log_ring.head + msg_len + 1) % LOG_RING_SIZE;
   
   if (next_head == g_log_ring.tail)
     return;
 
-  char *const dest = &g_log_ring.data[g_log_ring.head];
+  char *dest = &g_log_ring.data[g_log_ring.head];
   memcpy(dest, msg, msg_len);
   dest[msg_len] = '\n';
 
   g_log_ring.head = next_head;
 }
 
-//TODO da daggiungere nell'event loop, da chiamare sempre prima dell'uscita del programma
 void flush_logs(void)
 {
   struct iovec iov[2];
