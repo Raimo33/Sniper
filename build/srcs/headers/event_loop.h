@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 17:42:49 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/14 18:22:35 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/14 20:24:01 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,8 @@ typedef struct
 } event_loop_ctx_t;
 
 void  init_event_loop(event_loop_ctx_t *ctx);
-void  start_event_loop(const event_loop_ctx_t *ctx, const ws_client_t *fix, const ws_client_t *ws, const rest_client_t *rest);
+void  establish_connections(const event_loop_ctx_t *ctx, const fix_client_t *fix, const ws_client_t *ws, const rest_client_t *rest);
+void  listen_events(const event_loop_ctx_t *ctx, const fix_client_t *fix, const ws_client_t *ws, const rest_client_t *rest);
+void  free_event_loop(const event_loop_ctx_t *ctx);
 
 #endif

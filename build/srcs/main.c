@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/29 17:07:42 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/14 18:55:35 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/14 20:22:58 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,8 @@
 //TODO error checking per tutte le funzioni con goto, oppure assert
 int32_t main(void)
 {
-  ssl_data_t ssl_data;
+  WC_RNG rng;
+  keys_t keys;
   event_loop_ctx_t loop;
   fix_client_t fix;
   ws_client_t ws;
@@ -47,17 +48,22 @@ int32_t main(void)
 
   init_logger();
   init_signals();
-  init_ssl(&ssl_data);
-  init_fix(&fix);
+  init_keys(&keys, &rng);
+  init_ssl();
+  init_fix(&fix, &keys);
   init_ws(&ws);
-  init_rest(&rest);
+  init_rest(&rest, &keys);
   init_event_loop(&loop);
 
-  start_event_loop(&loop, &fix, &ws, &rest, &ssl_data);
+  establish_connections(&loop, &fix, &ws, &rest);
+  listen_events(&loop, &fix, &ws, &rest);
 
-  wolfSSL_Cleanup();
-  free_fix(fix);
-  free_ws(ws);
-  free_rest(rest);
-  close(loop->epoll_fd); //forse non basta
+  free_event_loop(&loop);
+  free_rest(&rest);
+  free_ws(&ws);
+  free_fix(&fix);
+  free_ssl();
+  free_keys(&keys, &rng);
+  free_signals();
+  free_logger();  
 }

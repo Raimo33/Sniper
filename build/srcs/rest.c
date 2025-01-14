@@ -6,13 +6,13 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 17:53:55 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/14 18:54:51 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/14 20:52:17 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "headers/rest.h"
 
-void init_rest(rest_client_t *rest)
+void init_rest(rest_client_t *rest, const keys_t *keys)
 {
   rest->addr = (struct sockaddr_in){
     .sin_family = AF_INET,
@@ -21,6 +21,7 @@ void init_rest(rest_client_t *rest)
       .s_addr = inet_addr(REST_HOST) //TODO getaddrinfo e dns resolve
     }
   };
+  rest->keys = keys;
 
   const uint16_t fd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
   setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &(uint8_t){1}, sizeof(uint8_t));
@@ -32,6 +33,28 @@ void init_rest(rest_client_t *rest)
 
   dup2(fd, REST_FILENO);
   close(fd);
+}
+
+void establish_rest_connection(const rest_client_t *rest)
+{
+  static uint8_t sequence = 0;
+
+  switch (sequence)
+  {
+    case 0:
+      connect(REST_FILENO, (struct sockaddr *)&rest->addr, sizeof(rest->addr));
+      break;
+    case 1:
+      wolfSSL_connect(rest->ssl_sock.ssl); //TODO gestione botta e risposta
+      break;
+  }
+
+  sequence++;
+}
+
+void handle_rest_event(const rest_client_t *rest)
+{
+  //TODO
 }
 
 void free_rest(const rest_client_t *rest)

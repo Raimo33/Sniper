@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 17:40:24 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/14 18:55:19 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/14 20:55:24 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,41 +45,11 @@ void init_event_loop(event_loop_ctx_t *ctx)
   });
 }
 
-
-/*
-
-TODO
-
-ET mode requires specific handling:
-
-Non-blocking sockets
-Complete reads/writes
-EAGAIN handling
-Error checking
-
-*/
-
-void start_event_loop(const event_loop_ctx_t *ctx, const ws_client_t *fix, const ws_client_t *ws, const rest_client_t *rest, const ssl_data_t *ssl_data)
+void establish_connections(const event_loop_ctx_t *ctx, const fix_client_t *fix, const ws_client_t *ws, const rest_client_t *rest)
 {
   struct epoll_event events[MAX_EVENTS] = {0};
   uint8_t n_events;
   uint8_t i;
-
-  connect()
-  connect()
-  connect()
-
-  epoll_wait()
-  handle_events()
-
-  wolfSSL_connect()
-  wolfSSL_connect()
-  wolfSSL_connect()
-
-  epoll_wait()
-  handle_events()
-
-  perform_ws_handshake()
 
   while (true)
   {
@@ -89,7 +59,39 @@ void start_event_loop(const event_loop_ctx_t *ctx, const ws_client_t *fix, const
       switch (events[i].data.fd)
       {
         case SIG_FILENO:
-          return;
+          panic(); //TODO con jump o goto o assembly, implementare anche assert che chiama panic
+        case WS_FILENO:
+          establish_ws_connection(ws);
+          break;
+        case FIX_FILENO:
+          establish_fix_connection(fix);
+          break;
+        case REST_FILENO:
+          establish_rest_connection(rest);
+          break;
+        case LOG_FILENO:
+          flush_logs();
+          break;
+      }
+    }
+  }
+}
+
+void listen_events(const event_loop_ctx_t *ctx, const fix_client_t *fix, const ws_client_t *ws, const rest_client_t *rest)
+{
+  struct epoll_event events[MAX_EVENTS] = {0};
+  uint8_t n_events;
+  uint8_t i;
+
+  while (true)
+  {
+    n_events = epoll_wait(ctx->epoll_fd, events, MAX_EVENTS, -1);
+    for (i = 0; i < n_events; i++)
+    {
+      switch (events[i].data.fd)
+      {
+        case SIG_FILENO:
+          panic();
         case WS_FILENO:
           handle_ws_event(ws);
           break;
@@ -105,4 +107,14 @@ void start_event_loop(const event_loop_ctx_t *ctx, const ws_client_t *fix, const
       }
     }
   }
+}
+
+void free_event_loop(const event_loop_ctx_t *ctx)
+{
+  epoll_ctl(ctx->epoll_fd, EPOLL_CTL_DEL, SIG_FILENO, NULL);
+  epoll_ctl(ctx->epoll_fd, EPOLL_CTL_DEL, WS_FILENO, NULL);
+  epoll_ctl(ctx->epoll_fd, EPOLL_CTL_DEL, FIX_FILENO, NULL);
+  epoll_ctl(ctx->epoll_fd, EPOLL_CTL_DEL, REST_FILENO, NULL);
+  epoll_ctl(ctx->epoll_fd, EPOLL_CTL_DEL, LOG_FILENO, NULL);
+  close(ctx->epoll_fd);
 }

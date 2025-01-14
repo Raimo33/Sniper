@@ -6,11 +6,13 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 20:53:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/14 18:54:46 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/14 20:54:59 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "headers/ws.h"
+
+static void perform_ws_handshake(const ws_client_t *ws);
 
 //TODO pool di connessioni
 void init_ws(ws_client_t *ws)
@@ -31,7 +33,32 @@ void init_ws(ws_client_t *ws)
   close(fd);
 }
 
-void perform_ws_handshake(const ws_client_t *ws, const byte *ws_key)
+void establish_ws_connection(const ws_client_t *ws) //TODO distinguere tra eventi EPOLLIN, EPOLLOUT ecc
+{
+  static uint8_t sequence = 0;
+
+  switch (sequence)
+  {
+    case 0:
+      connect(WS_FILENO, (struct sockaddr *)&ws->addr, sizeof(ws->addr));
+      break;
+    case 1:
+      wolfSSL_connect(ws->ssl_sock.ssl); //TODO gestione botta e risposta
+      break;
+    case 2:
+      perform_ws_handshake(ws);
+      break;
+  }
+
+  sequence++;
+}
+
+void handle_ws_event(const ws_client_t *ws)
+{
+  //TODO
+}
+
+static void perform_ws_handshake(const ws_client_t *ws)
 {
   const char request[] __attribute__ ((aligned(16))) =
     "GET " WS_PATH " HTTP/1.1"
@@ -45,9 +72,9 @@ void perform_ws_handshake(const ws_client_t *ws, const byte *ws_key)
   char buffer[request_len + WS_KEY_SIZE] __attribute__ ((aligned(16)));
 
   memcpy(buffer, request, request_len);
-  memcpy(buffer + request_len, ws_key, WS_KEY_SIZE);
+  generate_ws_key(buffer + request_len);
 
-  wolfSSL_write(ws->ssl_sock.ssl, buffer, sizeof(buffer));
+  wolfSSL_write(ws->ssl_sock.ssl, buffer, sizeof(buffer)); //TODO basta cosi'? wolfSSL_read?
 }
 
 void free_ws(const ws_client_t *ws)

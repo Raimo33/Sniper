@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 18:09:22 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/14 18:32:04 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/14 19:39:28 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,5 +64,11 @@ void flush_logs(void)
   if (written > 0)
     g_log_ring.tail = (g_log_ring.tail + written) % LOG_RING_SIZE;
   // TODO: Handle EAGAIN/EWOULDBLOCK
+}
+
+void free_logger(void)
+{
+  flush_logs();
+  close(LOG_FILENO);
 }
 

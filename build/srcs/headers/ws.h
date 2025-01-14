@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 16:53:00 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/14 18:42:27 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/14 20:52:49 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,12 +30,13 @@
 
 typedef struct
 {
-  const struct sockaddr_in addr;
-  const ssl_sock_t ssl_sock;
+  struct sockaddr_in addr;
+  ssl_sock_t ssl_sock;
 } ws_client_t;
 
 void init_ws(ws_client_t *ws);
+void establish_ws_connection(const ws_client_t *ws);
+void handle_ws_event(const ws_client_t *ws);
 void free_ws(const ws_client_t *ws);
-//TODO handler
 
 #endif
