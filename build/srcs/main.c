@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/29 17:07:42 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/13 19:40:37 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/14 14:54:37 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,12 +46,14 @@ int32_t main(void)
   rest_client_t rest;
 
   init_logger();
-  init_ssl(&ssl_data);
   init_signals();
-  init_fix(&fix, &ssl_data);
-  init_ws(&ws, &ssl_data);
-  init_rest(&rest, &ssl_data);
+  init_ssl(&ssl_data);
+  init_fix(&fix);
+  init_ws(&ws);
+  init_rest(&rest);
   init_event_loop(&loop);
-  start_event_loop(&loop, &fix, &ws, &rest);
+
+  start_event_loop(&loop, &fix, &ws, &rest, &ssl_data);
+
   cleanup(&loop, &fix, &ws, &rest);
 }

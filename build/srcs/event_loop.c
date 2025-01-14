@@ -6,13 +6,14 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 17:40:24 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/11 16:24:07 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/14 14:57:15 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "headers/event_loop.h"
 
-//TODO cambiare logica sig fileno e log fileno
+static void establish_connection(const uint16_t fd, const struct sockaddr_in *const addr, const ssl_sock_t *const ssl_sock);
+
 void init_event_loop(event_loop_ctx_t *const ctx)
 {
   ctx->epoll_fd = epoll_create1(0);
@@ -58,7 +59,7 @@ Error checking
 
 */
 
-void start_event_loop(const event_loop_ctx_t *const ctx, const ws_client_t *const fix, const ws_client_t *const ws, const rest_client_t *const rest)
+void start_event_loop(const event_loop_ctx_t *const ctx, const ws_client_t *const fix, const ws_client_t *const ws, const rest_client_t *const rest, const ssl_data_t *const ssl_data)
 {
   struct epoll_event events[MAX_EVENTS] = {0};
 
@@ -75,3 +76,8 @@ void start_event_loop(const event_loop_ctx_t *const ctx, const ws_client_t *cons
     }
   }
 }
+
+//TODO trovare un modo per eseguirle una alla volta async ma solo all'inizio
+// connect(fd, (const struct sockaddr *)addr, sizeof(*addr));
+// wolfSSL_connect(ssl_sock->ssl);
+// (SOLO PER WS) perform_ws_handshake(ws, ws_key);

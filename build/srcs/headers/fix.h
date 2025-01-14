@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 16:52:51 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/13 19:41:08 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/14 14:35:40 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ typedef struct
   const ssl_sock_t ssl_sock;
 } fix_client_t;
 
-void init_fix(fix_client_t *const fix, ssl_data_t *ssl_data);
+void init_fix(fix_client_t *const fix);
 //TODO handler
 
 #endif

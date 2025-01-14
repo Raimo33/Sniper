@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 16:52:43 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/13 19:41:15 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/14 14:35:27 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ typedef struct
   const ssl_sock_t ssl_sock;
 } rest_client_t;
 
-void init_rest(rest_client_t *const rest, ssl_data_t *ssl_data);
+void init_rest(rest_client_t *const rest);
 //TODO handler
 
 #endif
