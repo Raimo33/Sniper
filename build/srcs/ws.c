@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 20:53:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/15 19:42:15 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/15 20:55:32 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,11 +74,10 @@ static void send_upgrade(const ws_client_t *ws)
     "\r\nSec-WebSocket-Version: 13"
     "\r\nSec-WebSocket-Key: ";
 
-  const uint16_t request_len = sizeof(request) - 1;
-  char buffer[request_len + WS_KEY_SIZE] __attribute__ ((aligned(16)));
+  char buffer[STR_LEN(request) + WS_KEY_SIZE] __attribute__ ((aligned(16)));
 
-  memcpy(buffer, request, request_len);
-  generate_ws_key(buffer + request_len);
+  memcpy(buffer, request, STR_LEN(request));
+  generate_ws_key(buffer + STR_LEN(request));
 
   wolfSSL_write(ws->ssl_sock.ssl, buffer, sizeof(buffer));
 }
