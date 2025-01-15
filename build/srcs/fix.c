@@ -6,14 +6,16 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 21:02:36 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/15 19:02:34 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/15 19:34:00 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "headers/fix.h"
 
-static void send_fix_logon(const fix_client_t *fix);
-static void receive_fix_logon(const fix_client_t *fix);
+static void send_logon(const fix_client_t *fix);
+static void receive_logon(const fix_client_t *fix);
+static void send_limit_query(const fix_client_t *fix);
+static void receive_limit_query(const fix_client_t *fix);
 
 //TODO pool di connessioni
 void init_fix(fix_client_t *fix, const keys_t *keys)
@@ -50,17 +52,18 @@ bool handle_fix_connection_event(const fix_client_t *fix, const uint32_t events)
         sequence++;
       break;
     case 2:
-      if (events & EPOLLOUT)
-        send_fix_logon(fix);
-      else
-        receive_fix_logon(fix);
+      (events & EPOLLOUT) ? send_logon(fix) : receive_logon(fix);
+      sequence++;
+      break;
+    case 3:
+      (events & EPOLLOUT) ? send_limit_query(fix) : receive_limit_query(fix);
       sequence++;
       break;
     default:
       break;
   }
 
-  return (sequence >= 3);
+  return (sequence >= 4);
 }
 
 void handle_fix_event(const fix_client_t *fix)
@@ -68,12 +71,32 @@ void handle_fix_event(const fix_client_t *fix)
   //TODO
 }
 
-static void send_fix_logon(const fix_client_t *fix)
+static void send_logon(const fix_client_t *fix)
+{
+  //TODO
+  //Username (553) API_KEY
+  //RawData (96) valid signature made with the API key (base64 encoding of the following:
+    //text string constructed by concatenating the values of the following fields in this exact order, separated by the SOH character:
+      // MsgType (35)
+      // SenderCompId (49)
+      // TargetCompId (56)
+      // MsgSeqNum (34)
+      // SendingTime (52)
+  //MessageHandling (25035) Unordered(1)
+  //ResponseMode (25036) ONLY_ACKS(2)
+}
+
+static void receive_logon(const fix_client_t *fix)
 {
   //TODO
 }
 
-static void receive_fix_logon(const fix_client_t *fix)
+static void send_limit_query(const fix_client_t *fix)
+{
+  //TODO
+}
+
+static void receive_limit_query(const fix_client_t *fix)
 {
   //TODO
 }

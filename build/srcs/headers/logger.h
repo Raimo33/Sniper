@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 18:08:11 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/14 20:26:43 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/15 20:04:25 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@
 # define LOG_RING_SIZE 4096U
 # define LOG_FILENO    7U
 
-# define LOG_MESSAGE(msg) log(msg, sizeof(msg) - 1)
+# define STR_LEN(str) str, sizeof(str) - 1
 
 typedef struct
 {

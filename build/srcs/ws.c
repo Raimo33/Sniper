@@ -6,13 +6,14 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 20:53:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/15 18:58:08 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/15 19:42:15 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "headers/ws.h"
 
-static void send_ws_upgrade(const ws_client_t *ws);
+static void send_upgrade(const ws_client_t *ws);
+static void receive_upgrade(const ws_client_t *ws);
 
 //TODO pool di connessioni
 void init_ws(ws_client_t *ws)
@@ -48,10 +49,7 @@ bool handle_ws_connection_event(const ws_client_t *ws, const uint32_t events)
         sequence++;
       break;
     case 2:
-      if (events & EPOLLOUT)
-        send_ws_upgrade(ws);
-      else
-        receive_ws_upgrade(ws);
+      (events & EPOLLOUT) ? send_upgrade(ws) : receive_upgrade(ws);
       sequence++;
       break;
     default:
@@ -66,7 +64,7 @@ void handle_ws_event(const ws_client_t *ws)
   //TODO
 }
 
-static void send_ws_upgrade(const ws_client_t *ws)
+static void send_upgrade(const ws_client_t *ws)
 {
   const char request[] __attribute__ ((aligned(16))) =
     "GET " WS_PATH " HTTP/1.1"
@@ -85,8 +83,9 @@ static void send_ws_upgrade(const ws_client_t *ws)
   wolfSSL_write(ws->ssl_sock.ssl, buffer, sizeof(buffer));
 }
 
-static void receive_ws_upgrade(const ws_client_t *ws)
+static void receive_upgrade(const ws_client_t *ws)
 {
+  //base64 decode, 258EAFA5-E914-47DA-95CA-C5AB0DC85B11, sha1
   //TODO wolfSSL_read, FULL_READ perche siamo in non-blocking ET
 }
 
