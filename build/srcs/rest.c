@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 17:53:55 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/14 20:52:17 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/15 19:01:57 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,21 +35,25 @@ void init_rest(rest_client_t *rest, const keys_t *keys)
   close(fd);
 }
 
-void establish_rest_connection(const rest_client_t *rest)
+bool handle_rest_connection_event(const rest_client_t *rest, const uint32_t events)
 {
-  static uint8_t sequence = 0;
+  static uint8_t sequence;
 
   switch (sequence)
   {
     case 0:
       connect(REST_FILENO, (struct sockaddr *)&rest->addr, sizeof(rest->addr));
+      sequence++;
       break;
     case 1:
-      wolfSSL_connect(rest->ssl_sock.ssl); //TODO gestione botta e risposta
+      if (wolfSSL_connect(rest->ssl_sock.ssl) == SSL_SUCCESS)
+        sequence++;
+      break;
+    default:
       break;
   }
 
-  sequence++;
+  return (sequence >= 2);
 }
 
 void handle_rest_event(const rest_client_t *rest)

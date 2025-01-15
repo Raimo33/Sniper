@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 16:52:43 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/14 20:52:43 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/15 18:55:11 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ typedef struct
 } rest_client_t;
 
 void init_rest(rest_client_t *rest, const keys_t *keys);
-void establish_rest_connection(const rest_client_t *rest);
+bool handle_rest_connection_event(const rest_client_t *rest, const uint32_t events);
 void handle_rest_event(const rest_client_t *rest);
 void free_rest(const rest_client_t *rest);
 

@@ -6,18 +6,16 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 17:40:24 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/14 20:55:24 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/15 18:54:27 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "headers/event_loop.h"
 
-static void establish_connection(const uint16_t fd, const struct sockaddr_in *addr, const ssl_sock_t *ssl_sock);
-
 void init_event_loop(event_loop_ctx_t *ctx)
 {
   ctx->epoll_fd = epoll_create1(0);
-  const uint8_t signal_events = EPOLLIN | EPOLLET;
+  const uint8_t signal_events = EPOLLIN | EPOLLONESHOT | EPOLLPRI | EPOLLET;
   const uint8_t socket_events = EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLERR | EPOLLET;
   const uint8_t log_events = EPOLLOUT | EPOLLHUP | EPOLLERR | EPOLLET;
   
@@ -45,29 +43,39 @@ void init_event_loop(event_loop_ctx_t *ctx)
   });
 }
 
+// panic(); //TODO con jump o goto o assembly, implementare anche assert che chiama panic
 void establish_connections(const event_loop_ctx_t *ctx, const fix_client_t *fix, const ws_client_t *ws, const rest_client_t *rest)
 {
   struct epoll_event events[MAX_EVENTS] = {0};
-  uint8_t n_events;
-  uint8_t i;
+  uint8_t connected = 0;
+  uint8_t n;
 
-  while (true)
+  while (connected < 3)
   {
-    n_events = epoll_wait(ctx->epoll_fd, events, MAX_EVENTS, -1);
-    for (i = 0; i < n_events; i++)
+    n = epoll_wait(ctx->epoll_fd, events, MAX_EVENTS, -1);
+    while (n--)
     {
-      switch (events[i].data.fd)
+      switch (events[n].events)
+      {
+        case EPOLLERR:
+        case EPOLLHUP:
+        case EPOLLRDHUP:
+          panic("Connection error"); //TODO eventualmente getsockopt per capire l'errore
+          break;
+      }
+      switch (events[n].data.fd)
       {
         case SIG_FILENO:
-          panic(); //TODO con jump o goto o assembly, implementare anche assert che chiama panic
+          panic();
+          break;
         case WS_FILENO:
-          establish_ws_connection(ws);
+          connected += handle_ws_connection_event(ws, events[n].events);
           break;
         case FIX_FILENO:
-          establish_fix_connection(fix);
+          connected += handle_fix_connection_event(fix, events[n].events);
           break;
         case REST_FILENO:
-          establish_rest_connection(rest);
+          connected += handle_rest_connection_event(rest, events[n].events);
           break;
         case LOG_FILENO:
           flush_logs();
@@ -81,25 +89,24 @@ void listen_events(const event_loop_ctx_t *ctx, const fix_client_t *fix, const w
 {
   struct epoll_event events[MAX_EVENTS] = {0};
   uint8_t n_events;
-  uint8_t i;
 
   while (true)
   {
     n_events = epoll_wait(ctx->epoll_fd, events, MAX_EVENTS, -1);
-    for (i = 0; i < n_events; i++)
+    while (n_events--)
     {
       switch (events[i].data.fd)
       {
         case SIG_FILENO:
           panic();
         case WS_FILENO:
-          handle_ws_event(ws);
+          handle_ws_event(ws, events[i].events);
           break;
         case FIX_FILENO:
-          handle_fix_event(fix);
+          handle_fix_event(fix, events[i].events);
           break;
         case REST_FILENO:
-          handle_rest_event(rest);
+          handle_rest_event(rest, events[i].events);
           break;
         case LOG_FILENO:
           flush_logs();

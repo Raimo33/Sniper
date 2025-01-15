@@ -6,13 +6,13 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 20:53:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/14 20:54:59 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/15 18:58:08 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "headers/ws.h"
 
-static void perform_ws_handshake(const ws_client_t *ws);
+static void send_ws_upgrade(const ws_client_t *ws);
 
 //TODO pool di connessioni
 void init_ws(ws_client_t *ws)
@@ -33,24 +33,32 @@ void init_ws(ws_client_t *ws)
   close(fd);
 }
 
-void establish_ws_connection(const ws_client_t *ws) //TODO distinguere tra eventi EPOLLIN, EPOLLOUT ecc
+bool handle_ws_connection_event(const ws_client_t *ws, const uint32_t events)
 {
-  static uint8_t sequence = 0;
+  static uint8_t sequence;
 
   switch (sequence)
   {
     case 0:
       connect(WS_FILENO, (struct sockaddr *)&ws->addr, sizeof(ws->addr));
+      sequence++;
       break;
     case 1:
-      wolfSSL_connect(ws->ssl_sock.ssl); //TODO gestione botta e risposta
+      if (wolfSSL_connect(ws->ssl_sock.ssl) == SSL_SUCCESS)
+        sequence++;
       break;
     case 2:
-      perform_ws_handshake(ws);
+      if (events & EPOLLOUT)
+        send_ws_upgrade(ws);
+      else
+        receive_ws_upgrade(ws);
+      sequence++;
+      break;
+    default:
       break;
   }
 
-  sequence++;
+  return (sequence >= 3);
 }
 
 void handle_ws_event(const ws_client_t *ws)
@@ -58,7 +66,7 @@ void handle_ws_event(const ws_client_t *ws)
   //TODO
 }
 
-static void perform_ws_handshake(const ws_client_t *ws)
+static void send_ws_upgrade(const ws_client_t *ws)
 {
   const char request[] __attribute__ ((aligned(16))) =
     "GET " WS_PATH " HTTP/1.1"
@@ -74,7 +82,12 @@ static void perform_ws_handshake(const ws_client_t *ws)
   memcpy(buffer, request, request_len);
   generate_ws_key(buffer + request_len);
 
-  wolfSSL_write(ws->ssl_sock.ssl, buffer, sizeof(buffer)); //TODO basta cosi'? wolfSSL_read?
+  wolfSSL_write(ws->ssl_sock.ssl, buffer, sizeof(buffer));
+}
+
+static void receive_ws_upgrade(const ws_client_t *ws)
+{
+  //TODO wolfSSL_read, FULL_READ perche siamo in non-blocking ET
 }
 
 void free_ws(const ws_client_t *ws)

@@ -6,11 +6,14 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 21:02:36 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/14 20:52:03 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/15 19:02:34 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "headers/fix.h"
+
+static void send_fix_logon(const fix_client_t *fix);
+static void receive_fix_logon(const fix_client_t *fix);
 
 //TODO pool di connessioni
 void init_fix(fix_client_t *fix, const keys_t *keys)
@@ -32,30 +35,47 @@ void init_fix(fix_client_t *fix, const keys_t *keys)
   close(fd);
 }
 
-void establish_fix_connection(const fix_client_t *fix)
+bool handle_fix_connection_event(const fix_client_t *fix, const uint32_t events)
 {
-  static uint8_t sequence = 0;
+  static uint8_t sequence;
 
   switch (sequence)
   {
     case 0:
       connect(FIX_FILENO, (struct sockaddr *)&fix->addr, sizeof(fix->addr));
+      sequence++;
       break;
     case 1:
-      wolfSSL_connect(fix->ssl_sock.ssl); //TODO gestione botta e risposta
+      if (wolfSSL_connect(fix->ssl_sock.ssl) == SSL_SUCCESS)
+        sequence++;
+      break;
+    case 2:
+      if (events & EPOLLOUT)
+        send_fix_logon(fix);
+      else
+        receive_fix_logon(fix);
+      sequence++;
+      break;
+    default:
       break;
   }
 
-  sequence++;
+  return (sequence >= 3);
 }
 
 void handle_fix_event(const fix_client_t *fix)
 {
-  switch (FIX_FILENO)
-  {
-    case EPOLLERR:
+  //TODO
+}
 
-  }
+static void send_fix_logon(const fix_client_t *fix)
+{
+  //TODO
+}
+
+static void receive_fix_logon(const fix_client_t *fix)
+{
+  //TODO
 }
 
 void free_fix(const fix_client_t *fix)
