@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 10:10:46 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/15 19:17:32 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/16 15:06:13 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,10 +25,10 @@ typedef struct
   WOLFSSL *ssl;
 } ssl_sock_t;
 
-void  init_ssl(void);
-void  init_ssl_socket(const uint16_t fd, ssl_sock_t *ssl);
+__attribute__((cold)) void  init_ssl(void);
+__attribute__((cold)) void  init_ssl_socket(const uint16_t fd, ssl_sock_t *ssl);
 //TODO void  generate_signature(
-void  generate_api_key_signature(const byte *api_key, byte *signature);
-void  free_ssl_socket(const ssl_sock_t *ssl);
+__attribute__((cold)) void  generate_api_key_signature(const byte *api_key, byte *signature);
+__attribute__((cold)) void  free_ssl_socket(const ssl_sock_t *ssl);
 
 #endif

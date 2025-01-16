@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 19:43:46 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/15 21:24:39 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/16 15:26:11 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,8 @@ typedef struct
   const uint8_t len;
 } str_len_pair_t;
 
+//TODO in caso si scelga di usare allocazione dinamica allora usare array dinamici invece di puntatori (per risparmiare gli 8 byte del puntatore)
+
 typedef struct
 {
   const char *key;
@@ -51,7 +53,6 @@ typedef struct
   const uint16_t body_len;
   const uint8_t headers_count;
   const uint8_t path_len;
-
 } http_request_t;
 
 typedef struct
@@ -65,7 +66,7 @@ typedef struct
   const uint8_t headers_count;
 } http_response_t;
 
-void build_http_request(const http_request_t *req, char *buf);
-void parse_http_response(const char *buf, http_request_t *req);
+__attribute__((hot)) void build_http_request(const http_request_t *req, char *buf);
+__attribute__((hot)) void parse_http_response(const char *buf, http_request_t *req);
 
 #endif

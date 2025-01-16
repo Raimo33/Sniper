@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 18:08:11 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/15 21:27:02 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/16 15:38:36 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 # include <unistd.h>
 # include <stdint.h>
+# include <stdbool.h>
 # include <fcntl.h>
 # include <sys/uio.h>
 
@@ -31,9 +32,9 @@ typedef struct
   uint16_t tail;
 } t_log_ring;
 
-void  init_logger(void);
-void  log(const char *msg, const uint8_t msg_len);
-void  flush_logs(void);
-void  free_logger(void);
+__attribute__((cold)) void  init_logger(void);
+__attribute__((hot))  void  log(const char *msg, const uint8_t msg_len);
+__attribute__((hot))  void  flush_logs(void);
+__attribute__((cold)) void  free_logger(void);
 
 #endif

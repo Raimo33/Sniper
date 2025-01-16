@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 18:09:22 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/14 19:39:28 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/16 15:47:18 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ void log(const char *msg, const uint8_t msg_len)
 {
   const uint16_t next_head = (g_log_ring.head + msg_len + 1) % LOG_RING_SIZE;
   
-  if (next_head == g_log_ring.tail)
+  if (__builtin_expect(next_head == g_log_ring.tail, false))
     return;
 
   char *dest = &g_log_ring.data[g_log_ring.head];
@@ -40,10 +40,10 @@ void flush_logs(void)
   struct iovec iov[2];
   uint8_t iovcnt = 1;
 
-  if (g_log_ring.tail == g_log_ring.head)
+  if (__builtin_expect(g_log_ring.head == g_log_ring.tail, false))
     return;
 
-  if (g_log_ring.tail < g_log_ring.head)
+  if (__builtin_expect(g_log_ring.head > g_log_ring.tail, true))
   {
     iov[0].iov_base = &g_log_ring.data[g_log_ring.tail];
     iov[0].iov_len = g_log_ring.head - g_log_ring.tail;

@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 19:57:09 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/15 21:31:58 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/16 16:45:13 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,8 @@ void build_http_request(const http_request_t *req, char *buf)
   memcpy(ptr, versions[req->version].str, versions[req->version].len);
   ptr += versions[req->version].len;
 
-  for (uint8_t i = 0; i < req->headers_count; i++)
+  #pragma ivdep
+  for (uint8_t i = 0; __builtin_expect(i < req->headers_count, true); i++)
   {
     memcpy(ptr, req->headers[i].key, req->headers[i].key_len);
     ptr += req->headers[i].key_len;

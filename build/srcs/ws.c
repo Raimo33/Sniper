@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 20:53:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/15 20:55:32 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/16 16:07:31 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,25 +38,28 @@ bool handle_ws_connection_event(const ws_client_t *ws, const uint32_t events)
 {
   static uint8_t sequence;
 
-  switch (sequence)
+  switch (sequence) //TODO computed gotos (1-2% performance increase)
   {
     case 0:
       connect(WS_FILENO, (struct sockaddr *)&ws->addr, sizeof(ws->addr));
       sequence++;
       break;
-    case 1:
-      if (wolfSSL_connect(ws->ssl_sock.ssl) == SSL_SUCCESS)
-        sequence++;
-      break;
-    case 2:
-      (events & EPOLLOUT) ? send_upgrade(ws) : receive_upgrade(ws);
+    case 1 ... 5: //TODO stabilire il numero effettivo di step
+      wolfSSL_connect(ws->ssl_sock.ssl);
       sequence++;
       break;
-    default:
+    case 6:
+      send_upgrade(ws);
+      sequence++;
       break;
+    case 7: __attribute__((fallthrough));
+      receive_upgrade(ws);
+      sequence++;
+    default:
+      return true;
   }
 
-  return (sequence >= 3);
+  return false;
 }
 
 void handle_ws_event(const ws_client_t *ws)

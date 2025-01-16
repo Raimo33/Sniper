@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/29 17:07:42 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/14 20:22:58 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/16 16:51:06 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,23 +18,6 @@
 # include "headers/event_loop.h"
 
 //https://developers.binance.com/docs/binance-spot-api-docs/faqs/spot_glossary
-
-//epoll (linux event loop)
-//non-blocking sockets
-//custom JSON parser
-//jemalloc (faster malloc)
-//non-blocking DNS, dns cache
-//high-resolution timers
-//in-memory order books (binary heap)
-//preallocated stack memory
-//CPU caching
-//SIMD (Single Instruction, Multiple Data)
-//memory alignment
-//async logging (in-memory ring buffer, write vectorized)
-//GnuTLS (TLS 1.3) lightweigth
-//TCP_NODELAY (disable Nagle's algorithm)
-//timerfd_create() per timers con epoll
-//fallocate() per preallocare spazio su disco
 
 //TODO error checking per tutte le funzioni con goto, oppure assert
 int32_t main(void)

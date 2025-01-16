@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 18:15:15 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/14 19:38:46 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/16 15:05:57 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@
 
 # define SIG_FILENO 3U
 
-void  init_signals(void);
-void  free_signals(void);
+__attribute__((cold)) void  init_signals(void);
+__attribute__((cold)) void  free_signals(void);
 
 #endif

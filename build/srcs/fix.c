@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 21:02:36 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/15 19:34:00 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/16 16:12:19 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,29 +41,36 @@ bool handle_fix_connection_event(const fix_client_t *fix, const uint32_t events)
 {
   static uint8_t sequence;
 
-  switch (sequence)
+  switch (sequence) //TODO computed gotos (1-2% performance increase)
   {
     case 0:
       connect(FIX_FILENO, (struct sockaddr *)&fix->addr, sizeof(fix->addr));
       sequence++;
       break;
-    case 1:
-      if (wolfSSL_connect(fix->ssl_sock.ssl) == SSL_SUCCESS)
-        sequence++;
-      break;
-    case 2:
-      (events & EPOLLOUT) ? send_logon(fix) : receive_logon(fix);
+    case 1 ... 5: //TODO stabilire il numero effettivo di step
+      wolfSSL_connect(fix->ssl_sock.ssl);
       sequence++;
       break;
-    case 3:
-      (events & EPOLLOUT) ? send_limit_query(fix) : receive_limit_query(fix);
+    case 6:
+      send_logon(fix)
       sequence++;
       break;
+    case 7:
+      receive_logon(fix);
+      sequence++;
+      break;
+    case 8:
+      send_limit_query(fix)
+      sequence++;
+      break;
+    case 9: __attribute__((fallthrough));
+      receive_limit_query(fix);
+      sequence++;
     default:
-      break;
+      return true;
   }
 
-  return (sequence >= 4);
+  return false;
 }
 
 void handle_fix_event(const fix_client_t *fix)

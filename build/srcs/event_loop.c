@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 17:40:24 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/15 18:54:27 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/16 16:01:17 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,20 +50,21 @@ void establish_connections(const event_loop_ctx_t *ctx, const fix_client_t *fix,
   uint8_t connected = 0;
   uint8_t n;
 
-  while (connected < 3)
+  while (__builtin_expect(connected < 3, true))
   {
     n = epoll_wait(ctx->epoll_fd, events, MAX_EVENTS, -1);
     while (n--)
     {
+      //TODO computed gotos (1-2% performance increase)
       switch (events[n].events)
       {
-        case EPOLLERR:
-        case EPOLLHUP:
+        case EPOLLERR: __attribute__((fallthrough));
+        case EPOLLHUP: __attribute__((fallthrough));
         case EPOLLRDHUP:
           panic("Connection error"); //TODO eventualmente getsockopt per capire l'errore
           break;
       }
-      switch (events[n].data.fd)
+      switch (events[n].data.fd) //TODO computed gotos (1-2% performance increase)
       {
         case SIG_FILENO:
           panic();
@@ -88,25 +89,33 @@ void establish_connections(const event_loop_ctx_t *ctx, const fix_client_t *fix,
 void listen_events(const event_loop_ctx_t *ctx, const fix_client_t *fix, const ws_client_t *ws, const rest_client_t *rest)
 {
   struct epoll_event events[MAX_EVENTS] = {0};
-  uint8_t n_events;
+  uint8_t n;
 
   while (true)
   {
-    n_events = epoll_wait(ctx->epoll_fd, events, MAX_EVENTS, -1);
-    while (n_events--)
+    n = epoll_wait(ctx->epoll_fd, events, MAX_EVENTS, -1);
+    while (n--)
     {
-      switch (events[i].data.fd)
+      switch (events[n].events) //TODO computed gotos (1-2% performance increase)
+      {
+        case EPOLLERR: __attribute__((fallthrough));
+        case EPOLLHUP: __attribute__((fallthrough));
+        case EPOLLRDHUP:
+          panic("Connection error"); //TODO eventualmente getsockopt per capire l'errore
+          break;
+      }
+      switch (events[n].data.fd) //TODO computed gotos (1-2% performance increase)
       {
         case SIG_FILENO:
           panic();
         case WS_FILENO:
-          handle_ws_event(ws, events[i].events);
+          handle_ws_event(ws, events[n].events);
           break;
         case FIX_FILENO:
-          handle_fix_event(fix, events[i].events);
+          handle_fix_event(fix, events[n].events);
           break;
         case REST_FILENO:
-          handle_rest_event(rest, events[i].events);
+          handle_rest_event(rest, events[n].events);
           break;
         case LOG_FILENO:
           flush_logs();

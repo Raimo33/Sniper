@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 16:52:51 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/15 18:55:16 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/16 15:04:10 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,9 +33,9 @@ typedef struct
   const keys_t *keys;
 } fix_client_t;
 
-void init_fix(fix_client_t *fix, const keys_t *keys);
-bool handle_fix_connection_event(const fix_client_t *fix, const uint32_t events);
-void handle_fix_event(const fix_client_t *fix);
-void free_fix(const fix_client_t *fix);
+__attribute__((cold)) void init_fix(fix_client_t *fix, const keys_t *keys);
+__attribute__((hot))  bool handle_fix_connection_event(const fix_client_t *fix, const uint32_t events);
+__attribute__((hot))  void handle_fix_event(const fix_client_t *fix);
+__attribute__((cold)) void free_fix(const fix_client_t *fix);
 
 #endif
