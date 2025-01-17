@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 17:40:24 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/16 16:01:17 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/17 16:52:17 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,13 +61,13 @@ void establish_connections(const event_loop_ctx_t *ctx, const fix_client_t *fix,
         case EPOLLERR: __attribute__((fallthrough));
         case EPOLLHUP: __attribute__((fallthrough));
         case EPOLLRDHUP:
-          panic("Connection error"); //TODO eventualmente getsockopt per capire l'errore
+          panic(STR_LEN_PAIR("Connection error")); //TODO eventualmente getsockopt per capire l'errore
           break;
       }
       switch (events[n].data.fd) //TODO computed gotos (1-2% performance increase)
       {
         case SIG_FILENO:
-          panic();
+          panic(STR_LEN_PAIR("Signal intercepted"));
           break;
         case WS_FILENO:
           connected += handle_ws_connection_event(ws, events[n].events);
@@ -101,13 +101,13 @@ void listen_events(const event_loop_ctx_t *ctx, const fix_client_t *fix, const w
         case EPOLLERR: __attribute__((fallthrough));
         case EPOLLHUP: __attribute__((fallthrough));
         case EPOLLRDHUP:
-          panic("Connection error"); //TODO eventualmente getsockopt per capire l'errore
+          panic(STR_LEN_PAIR("Connection error")); //TODO eventualmente getsockopt per capire l'errore
           break;
       }
       switch (events[n].data.fd) //TODO computed gotos (1-2% performance increase)
       {
         case SIG_FILENO:
-          panic();
+          panic(STR_LEN_PAIR("Signal intercepted"));
         case WS_FILENO:
           handle_ws_event(ws, events[n].events);
           break;

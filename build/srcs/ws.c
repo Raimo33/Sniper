@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 20:53:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/16 16:07:31 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/17 17:28:49 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,6 +69,7 @@ void handle_ws_event(const ws_client_t *ws)
 
 static void send_upgrade(const ws_client_t *ws)
 {
+  static const http_request_t request = //TODO
   const char request[] __attribute__ ((aligned(16))) =
     "GET " WS_PATH " HTTP/1.1"
     "\r\nHost: " WS_HOST ":" WS_PORT_STR

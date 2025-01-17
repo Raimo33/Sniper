@@ -1,24 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   signals.h                                          :+:      :+:    :+:   */
+/*   errors.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/01/09 18:15:15 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/17 17:35:12 by craimond         ###   ########.fr       */
+/*   Created: 2025/01/17 17:07:01 by craimond          #+#    #+#             */
+/*   Updated: 2025/01/17 17:17:36 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef SIGNALS_H
-# define SIGNALS_H
+#include "errors.h"
 
-# include <stdint.h>
-# include <signal.h>
+void assert(const bool condition, const char *msg, const uint8_t len)
+{
+  if (!condition)
+    panic(msg, len);
+}
 
-# define SIG_FILENO 3U
-
-void __attribute__((cold)) init_signals(void);
-void __attribute__((cold)) free_signals(void);
-
-#endif
+void panic(const char *msg, const uint8_t len)
+{
+  log(msg, len);
+  goto *cleanup_label;
+}

@@ -6,20 +6,22 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/29 17:07:42 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/16 16:51:06 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/17 17:18:09 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-# include "headers/logger.h"
-# include "headers/signals.h"
-# include "headers/fix.h"
-# include "headers/ws.h"
-# include "headers/rest.h"
-# include "headers/event_loop.h"
+#include "headers/logger.h"
+#include "headers/errors.h"
+#include "headers/signals.h"
+#include "headers/fix.h"
+#include "headers/ws.h"
+#include "headers/rest.h"
+#include "headers/event_loop.h"
 
 //https://developers.binance.com/docs/binance-spot-api-docs/faqs/spot_glossary
 
-//TODO error checking per tutte le funzioni con goto, oppure assert
+void *cleanup_label = NULL;
+
 int32_t main(void)
 {
   WC_RNG rng;
@@ -28,6 +30,7 @@ int32_t main(void)
   fix_client_t fix;
   ws_client_t ws;
   rest_client_t rest;
+  cleanup_label = &&cleanup;
 
   init_logger();
   init_signals();
@@ -41,6 +44,7 @@ int32_t main(void)
   establish_connections(&loop, &fix, &ws, &rest);
   listen_events(&loop, &fix, &ws, &rest);
 
+cleanup:
   free_event_loop(&loop);
   free_rest(&rest);
   free_ws(&ws);

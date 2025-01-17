@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 16:53:00 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/16 15:06:37 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/17 17:35:42 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
 # include <netdb.h>
 
 # include "ssl.h"
+# include "http_parser.h"
 
 # define WS_HOST "data-stream.binance.com"
 # define WS_PORT 9443U
@@ -34,9 +35,9 @@ typedef struct
   ssl_sock_t ssl_sock;
 } ws_client_t;
 
-__attribute__((cold)) void init_ws(ws_client_t *ws);
-__attribute__((hot))  bool handle_ws_connection_event(const ws_client_t *ws, const uint32_t events);
-__attribute__((hot))  void handle_ws_event(const ws_client_t *ws);
-__attribute__((cold)) void free_ws(const ws_client_t *ws);
+void __attribute__((cold)) init_ws(ws_client_t *ws);
+bool __attribute__((hot)) handle_ws_connection_event(const ws_client_t *ws, const uint32_t events);
+void __attribute__((hot)) handle_ws_event(const ws_client_t *ws);
+void __attribute__((cold)) free_ws(const ws_client_t *ws);
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 18:59:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/16 15:05:04 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/17 17:34:12 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ typedef struct
   const byte[API_KEY_SIZE] api_key;
 } keys_t;
 
-__attribute__((cold)) void init_keys(keys_t *keys, WC_RNG *rng);
-__attribute__((cold)) void free_keys(keys_t *keys, WC_RNG *rng);
+void __attribute__((cold)) init_keys(keys_t *keys, WC_RNG *rng);
+void __attribute__((cold)) free_keys(keys_t *keys, WC_RNG *rng);
 
 #endif
