@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 17:40:24 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/17 16:52:17 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/17 20:32:21 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,41 +47,45 @@ void init_event_loop(event_loop_ctx_t *ctx)
 void establish_connections(const event_loop_ctx_t *ctx, const fix_client_t *fix, const ws_client_t *ws, const rest_client_t *rest)
 {
   struct epoll_event events[MAX_EVENTS] = {0};
+  struct epoll_event *event;
   uint8_t connected = 0;
   uint8_t n;
 
-  while (__builtin_expect(connected < 3, true))
+  while (LIKELY(connected < 3))
   {
     n = epoll_wait(ctx->epoll_fd, events, MAX_EVENTS, -1);
+    event = events;
     while (n--)
     {
+      PREFETCHR(event + 1, L0);
       //TODO computed gotos (1-2% performance increase)
-      switch (events[n].events)
+      switch (event.events)
       {
-        case EPOLLERR: __attribute__((fallthrough));
-        case EPOLLHUP: __attribute__((fallthrough));
+        case EPOLLERR: FALLTHROUGH;
+        case EPOLLHUP: FALLTHROUGH;
         case EPOLLRDHUP:
           panic(STR_LEN_PAIR("Connection error")); //TODO eventualmente getsockopt per capire l'errore
           break;
       }
-      switch (events[n].data.fd) //TODO computed gotos (1-2% performance increase)
+      switch (event.data.fd) //TODO computed gotos (1-2% performance increase)
       {
         case SIG_FILENO:
           panic(STR_LEN_PAIR("Signal intercepted"));
           break;
         case WS_FILENO:
-          connected += handle_ws_connection_event(ws, events[n].events);
+          connected += handle_ws_connection_event(ws);
           break;
         case FIX_FILENO:
-          connected += handle_fix_connection_event(fix, events[n].events);
+          connected += handle_fix_connection_event(fix);
           break;
         case REST_FILENO:
-          connected += handle_rest_connection_event(rest, events[n].events);
+          connected += handle_rest_connection_event(rest);
           break;
         case LOG_FILENO:
           flush_logs();
           break;
       }
+      event++;
     }
   }
 }
@@ -89,38 +93,42 @@ void establish_connections(const event_loop_ctx_t *ctx, const fix_client_t *fix,
 void listen_events(const event_loop_ctx_t *ctx, const fix_client_t *fix, const ws_client_t *ws, const rest_client_t *rest)
 {
   struct epoll_event events[MAX_EVENTS] = {0};
+  struct epoll_event *event;
   uint8_t n;
 
   while (true)
   {
     n = epoll_wait(ctx->epoll_fd, events, MAX_EVENTS, -1);
+    event = events;
     while (n--)
     {
-      switch (events[n].events) //TODO computed gotos (1-2% performance increase)
+      PREFETCHR(event + 1, L0);
+      switch (event.events) //TODO computed gotos (1-2% performance increase)
       {
-        case EPOLLERR: __attribute__((fallthrough));
-        case EPOLLHUP: __attribute__((fallthrough));
+        case EPOLLERR: FALLTHROUGH;
+        case EPOLLHUP: FALLTHROUGH;
         case EPOLLRDHUP:
           panic(STR_LEN_PAIR("Connection error")); //TODO eventualmente getsockopt per capire l'errore
           break;
       }
-      switch (events[n].data.fd) //TODO computed gotos (1-2% performance increase)
+      switch (event.data.fd) //TODO computed gotos (1-2% performance increase)
       {
         case SIG_FILENO:
           panic(STR_LEN_PAIR("Signal intercepted"));
         case WS_FILENO:
-          handle_ws_event(ws, events[n].events);
+          handle_ws_event(ws, event.events);
           break;
         case FIX_FILENO:
-          handle_fix_event(fix, events[n].events);
+          handle_fix_event(fix, event.events);
           break;
         case REST_FILENO:
-          handle_rest_event(rest, events[n].events);
+          handle_rest_event(rest, event.events);
           break;
         case LOG_FILENO:
           flush_logs();
           break;
       }
+      event++;
     }
   }
 }

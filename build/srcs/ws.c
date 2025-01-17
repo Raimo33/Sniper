@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 20:53:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/17 17:28:49 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/17 20:43:23 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,14 +34,16 @@ void init_ws(ws_client_t *ws)
   close(fd);
 }
 
-bool handle_ws_connection_event(const ws_client_t *ws, const uint32_t events)
+bool handle_ws_connection_event(const ws_client_t *ws)
 {
   static uint8_t sequence;
 
+  //TODO altri PREFETCH sequenziali in base a cosa serve allo step successivo
   switch (sequence) //TODO computed gotos (1-2% performance increase)
   {
     case 0:
       connect(WS_FILENO, (struct sockaddr *)&ws->addr, sizeof(ws->addr));
+      PREFETCHW(&ws->ssl_sock.ssl, L0);
       sequence++;
       break;
     case 1 ... 5: //TODO stabilire il numero effettivo di step
@@ -52,7 +54,7 @@ bool handle_ws_connection_event(const ws_client_t *ws, const uint32_t events)
       send_upgrade(ws);
       sequence++;
       break;
-    case 7: __attribute__((fallthrough));
+    case 7: FALLTHROUGH;
       receive_upgrade(ws);
       sequence++;
     default:
@@ -70,7 +72,7 @@ void handle_ws_event(const ws_client_t *ws)
 static void send_upgrade(const ws_client_t *ws)
 {
   static const http_request_t request = //TODO
-  const char request[] __attribute__ ((aligned(16))) =
+  const char request[] ALIGNED(16) =
     "GET " WS_PATH " HTTP/1.1"
     "\r\nHost: " WS_HOST ":" WS_PORT_STR
     "\r\nUpgrade: websocket"
@@ -78,7 +80,7 @@ static void send_upgrade(const ws_client_t *ws)
     "\r\nSec-WebSocket-Version: 13"
     "\r\nSec-WebSocket-Key: ";
 
-  char buffer[STR_LEN(request) + WS_KEY_SIZE] __attribute__ ((aligned(16)));
+  char buffer[STR_LEN(request) + WS_KEY_SIZE] ALIGNED(16);
 
   memcpy(buffer, request, STR_LEN(request));
   generate_ws_key(buffer + STR_LEN(request));

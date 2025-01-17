@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 18:59:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/17 17:34:12 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/17 19:55:43 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,8 @@
 # include <stdint.h>
 # include <wolfssl/wolfcrypt/ed25519.h>
 # include <wolfssl/wolfcrypt/base64.h>
+
+# include "extensions.h"
 
 # define ED25519_PRIV_KEY_SIZE 32
 # define API_KEY_SIZE 64
@@ -27,7 +29,7 @@ typedef struct
   const byte[API_KEY_SIZE] api_key;
 } keys_t;
 
-void __attribute__((cold)) init_keys(keys_t *keys, WC_RNG *rng);
-void __attribute__((cold)) free_keys(keys_t *keys, WC_RNG *rng);
+void COLD init_keys(keys_t *keys, WC_RNG *rng);
+void COLD free_keys(keys_t *keys, WC_RNG *rng);
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 19:57:09 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/17 17:23:19 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/17 20:16:36 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,8 +41,15 @@ void build_http_request(const http_request_t *req, char *buf)
   memcpy(ptr, versions[req->version].str, versions[req->version].len);
   ptr += versions[req->version].len;
 
+  uint8_t i;
+  for (i = 0; LIKELY(i < req->headers_count); i++)
+  {
+    PREFETCHR(req->headers[i].key, NTA);
+    PREFETCHR(req->headers[i].value, NTA);
+  }
+
   #pragma ivdep
-  for (uint8_t i = 0; i < req->headers_count; i++)
+  for (i = 0; LIKELY(i < req->headers_count); i++)
   {
     memcpy(ptr, req->headers[i].key, req->headers[i].key_len);
     ptr += req->headers[i].key_len;

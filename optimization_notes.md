@@ -1,5 +1,5 @@
 #TODO fare un bel markdown dove spiego le ottimizzazioni fatte
-#TODO benchmark e grafico che misura il miglioramento dopo ogni ottimizzazione?
+#TODO benchmark e grafico che misura il miglioramento dopo ogni ottimizzazione? (oppure semplicemente differenza tra prima e dopo)
 
 object pool
 epoll
@@ -31,6 +31,7 @@ zero copy
 NUMA
 software pipelining
 memory mapped files
+inline assemlby __asm__ volatile
 
 gcc extensions:
 aggressive Ofast compilation
@@ -40,13 +41,14 @@ fixed-point arithmetic for prices
 __attribute__((cold)) e __attribute__((hot))
 __attribute__((aligned(16)))
 __attribute__((fallthrough))
-__attribute__((noinline)) e __attribute__((always_inline))
+__attribute__((noinline)) e __attribute__((always_inline)) e __attribute__((flatten))
 __attribute__((packed))
 __attribute__((pure)) e __attribute__((const))
 __attribute__((malloc))
 __attribute__((unused))
 __attribute__visibility__((hidden))
 __builtin_expect per conditionals
+__builtin_prefetch
 
 #pragmas: #TODO https://gcc.gnu.org/onlinedocs/gcc/Pragmas.html
 - ivdep

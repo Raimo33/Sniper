@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 21:02:36 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/17 17:19:35 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/17 20:40:17 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,14 +37,16 @@ void init_fix(fix_client_t *fix, const keys_t *keys)
   close(fd);
 }
 
-bool handle_fix_connection_event(const fix_client_t *fix, const uint32_t events)
+bool handle_fix_connection_event(const fix_client_t *fix)
 {
   static uint8_t sequence;
 
+  //TODO altri prefetch sequenziali in base a cosa serve allo step successivo
   switch (sequence) //TODO computed gotos (1-2% performance increase)
   {
     case 0:
       connect(FIX_FILENO, (struct sockaddr *)&fix->addr, sizeof(fix->addr));
+      PREFETCHW(&fix->ssl_sock.ssl, L0);
       sequence++;
       break;
     case 1 ... 5: //TODO stabilire il numero effettivo di step
@@ -63,7 +65,7 @@ bool handle_fix_connection_event(const fix_client_t *fix, const uint32_t events)
       send_limit_query(fix)
       sequence++;
       break;
-    case 9: __attribute__((fallthrough));
+    case 9: FALLTHROUGH;
       receive_limit_query(fix);
       sequence++;
     default:

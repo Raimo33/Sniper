@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 17:42:49 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/16 15:03:36 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/17 19:55:43 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 # include <sys/epoll.h>
 # include <stdbool.h>
 
+# include "extensions.h"
 # include "signals.h"
 # include "ws.h"
 # include "fix.h"
@@ -30,9 +31,9 @@ typedef struct
     // Can add more event loop related state here
 } event_loop_ctx_t;
 
-__attribute__((cold)) void  init_event_loop(event_loop_ctx_t *ctx);
-__attribute__((cold)) void  establish_connections(const event_loop_ctx_t *ctx, const fix_client_t *fix, const ws_client_t *ws, const rest_client_t *rest);
-__attribute__((cold)) void  listen_events(const event_loop_ctx_t *ctx, const fix_client_t *fix, const ws_client_t *ws, const rest_client_t *rest);
-__attribute__((cold)) void  free_event_loop(const event_loop_ctx_t *ctx);
+COLD void  init_event_loop(event_loop_ctx_t *ctx);
+COLD void  establish_connections(const event_loop_ctx_t *ctx, const fix_client_t *fix, const ws_client_t *ws, const rest_client_t *rest);
+COLD void  listen_events(const event_loop_ctx_t *ctx, const fix_client_t *fix, const ws_client_t *ws, const rest_client_t *rest);
+COLD void  free_event_loop(const event_loop_ctx_t *ctx);
 
 #endif

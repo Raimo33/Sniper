@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 17:53:55 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/17 17:19:35 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/17 20:38:29 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ void init_rest(rest_client_t *rest, const keys_t *keys)
   close(fd);
 }
 
-bool handle_rest_connection_event(const rest_client_t *rest, const uint32_t events)
+bool handle_rest_connection_event(const rest_client_t *rest)
 {
   static uint8_t sequence;
 
@@ -43,6 +43,7 @@ bool handle_rest_connection_event(const rest_client_t *rest, const uint32_t even
   {
     case 0:
       connect(REST_FILENO, (struct sockaddr *)&rest->addr, sizeof(rest->addr));
+      PREFETCHW(&rest->ssl_sock.ssl, L0);
       sequence++;
       break;
     case 1 ... 5: //TODO stabilire il numero effettivo di step

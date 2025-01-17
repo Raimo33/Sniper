@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 18:15:15 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/17 17:35:12 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/17 19:55:43 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,9 +16,11 @@
 # include <stdint.h>
 # include <signal.h>
 
+# include "extensions.h"
+
 # define SIG_FILENO 3U
 
-void __attribute__((cold)) init_signals(void);
-void __attribute__((cold)) free_signals(void);
+void COLD init_signals(void);
+void COLD free_signals(void);
 
 #endif

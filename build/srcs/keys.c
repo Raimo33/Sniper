@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 19:01:43 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/14 19:36:06 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/17 20:15:46 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ void init_keys(keys_t *keys, WC_RNG *rng)
   const byte *priv_key = getenv("PRIV_KEY");
   const byte *api_key  = getenv("API_KEY");
 
-  assert(priv_key && api_key, "Missing environment variables");
+  assert(priv_key && api_key, STR_LEN_PAIR("Missing keys"));
 
   memcpy(keys->api_key, api_key, API_KEY_SIZE);
   wc_ed25519_import_private_only(priv_key, ED25519_PRIV_KEY_SIZE, keys->priv_key);

@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 19:43:46 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/17 17:33:03 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/17 19:58:33 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 # include <stdint.h>
 
+# include "extensions.h"
 # include "logger.h"
 
 # define HTTP_GET 0
@@ -66,7 +67,7 @@ typedef struct
   const uint8_t headers_count;
 } http_response_t;
 
-void __attribute__((hot)) build_http_request(const http_request_t *req, char *buf);
-void __attribute__((hot)) parse_http_response(const char *buf, http_request_t *req);
+void HOT build_http_request(const http_request_t *req, char *buf);
+void HOT parse_http_response(const char *buf, http_request_t *req);
 
 #endif

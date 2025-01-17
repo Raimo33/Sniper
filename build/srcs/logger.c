@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 18:09:22 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/16 15:47:18 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/17 20:27:54 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ void log(const char *msg, const uint8_t msg_len)
 {
   const uint16_t next_head = (g_log_ring.head + msg_len + 1) % LOG_RING_SIZE;
   
-  if (__builtin_expect(next_head == g_log_ring.tail, false))
+  if (UNLIKELY(next_head == g_log_ring.tail))
     return;
 
   char *dest = &g_log_ring.data[g_log_ring.head];
@@ -40,10 +40,12 @@ void flush_logs(void)
   struct iovec iov[2];
   uint8_t iovcnt = 1;
 
-  if (__builtin_expect(g_log_ring.head == g_log_ring.tail, false))
+  if (UNLIKELY(g_log_ring.head == g_log_ring.tail))
     return;
 
-  if (__builtin_expect(g_log_ring.head > g_log_ring.tail, true))
+  PREFETCHR(&g_log_ring.data[g_log_ring.tail], L0);
+
+  if (LIKELY(g_log_ring.head > g_log_ring.tail))
   {
     iov[0].iov_base = &g_log_ring.data[g_log_ring.tail];
     iov[0].iov_len = g_log_ring.head - g_log_ring.tail;

@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 16:52:43 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/17 17:35:03 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/17 20:32:08 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 # include <arpa/inet.h>
 # include <netdb.h>
 
+# include "extensions.h"
 # include "ssl.h"
 
 # define REST_HOST "api.binance.com"
@@ -37,9 +38,9 @@ typedef struct
   const keys_t *keys;
 } rest_client_t;
 
-void __attribute__((cold)) init_rest(rest_client_t *rest, const keys_t *keys);
-bool __attribute__((hot))  handle_rest_connection_event(const rest_client_t *rest, const uint32_t events);
-void __attribute__((hot))  handle_rest_event(const rest_client_t *rest);
-void __attribute__((cold)) free_rest(const rest_client_t *rest);
+void COLD init_rest(rest_client_t *rest, const keys_t *keys);
+bool HOT  handle_rest_connection_event(const rest_client_t *rest);
+void HOT  handle_rest_event(const rest_client_t *rest);
+void COLD free_rest(const rest_client_t *rest);
 
 #endif
