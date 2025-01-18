@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 19:57:09 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/18 10:17:08 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/18 10:55:53 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,6 @@ static const str_len_pair_t versions[] = {
   {STR_LEN_PAIR("HTTP/1.1")}
 };
 
-//TODO buf e req devono essere aligned correttamente (16)
 void build_http_request(const http_request_t *req, char *buf)
 {
   memcpy(buf, methods[req->method].str, methods[req->method].len);
@@ -61,9 +60,9 @@ void build_http_request(const http_request_t *req, char *buf)
     memcpy(buf, req->body, req->body_len);
 }
 
-void parse_http_response(const char *buf, http_request_t *req)
+void parse_http_response(const char *buf, http_response_t *res)
 {
-  //TODO
+  //TODO strtok, spostare semplicemente i puntatori
 }
 
 inline uint16_t compute_request_len(const http_request_t *req)

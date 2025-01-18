@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/29 17:07:42 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/18 09:57:48 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/18 10:59:19 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,10 +17,15 @@
 #include "headers/ws.h"
 #include "headers/rest.h"
 #include "headers/event_loop.h"
+#include "headers/keys.h"
+#include "headers/ssl.h"
+#include "headers/shared_buffers.h"
 
 //https://developers.binance.com/docs/binance-spot-api-docs/faqs/spot_glossary
 
 void *cleanup_label = NULL;
+byte send_buffer[SEND_BUFFER_SIZE] ALIGNED(16) = {0};
+byte recv_buffer[RECV_BUFFER_SIZE] ALIGNED(16) = {0};
 
 int32_t main(void)
 {

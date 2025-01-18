@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 16:53:00 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/18 10:00:07 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/18 10:53:34 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@
 # include "ssl.h"
 # include "keys.h"
 # include "http_parser.h"
+# include "shared_buffers.h"
 
 # define WS_HOST "data-stream.binance.com"
 # define WS_PORT 9443U

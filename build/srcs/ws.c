@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 20:53:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/18 10:19:25 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/18 11:22:51 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,10 +71,7 @@ void handle_ws_event(const ws_client_t *ws)
 
 static void send_upgrade(const ws_client_t *ws)
 {
-  byte ws_key[WS_KEY_SIZE];
-  generate_ws_key(ws_key);
-
-  static const http_request_t request ALIGNED(16) =
+  static http_request_t request ALIGNED(16) =
   {
     .method = HTTP_GET,
     .path = WS_PATH,
@@ -86,22 +83,37 @@ static void send_upgrade(const ws_client_t *ws)
       { STR_LEN_PAIR("Upgrade"), STR_LEN_PAIR("websocket") },
       { STR_LEN_PAIR("Connection"), STR_LEN_PAIR("Upgrade") },
       { STR_LEN_PAIR("Sec-WebSocket-Version"), STR_LEN_PAIR("13") },
-      { STR_LEN_PAIR("Sec-WebSocket-Key"), ws_key, WS_KEY_SIZE },
+      { STR_LEN_PAIR("Sec-WebSocket-Key"), NULL, WS_KEY_SIZE }
     }
     .body = NULL,
     .body_len = 0
   };
 
-  const uint16_t req_len = compute_requet_len(&request);
-  char raw_request[req_len + 1];
-  build_http_request(&request, raw_request);
-  wolfSSL_write(ws->ssl_sock.ssl, raw_request, sizeof(raw_request));
+  byte ws_key[WS_KEY_SIZE];
+  generate_ws_key(ws_key);
+  request.headers[4].value = ws_key;
+
+  static const uint16_t req_len = compute_request_len(&request);
+  static byte raw_request[req_len] ALIGNED(16);
+
+  if (raw_request == NULL)
+    build_http_request(&request, raw_request);
+
+  wolfSSL_send(ws->ssl_sock.ssl, raw_request, req_len, MSG_NOSIGNAL);
 }
+//TODO forse fare un generico loop che riceve e invia messaggi usando i buffer condivisi
 
 static void receive_upgrade(const ws_client_t *ws)
 {
   //base64 decode, 258EAFA5-E914-47DA-95CA-C5AB0DC85B11, sha1
   //TODO wolfSSL_read, FULL_READ perche siamo in non-blocking ET
+  uint16_t bytes_read;
+
+  while (true)
+  {
+    bytes_read = wolfSSL_recv(ws->ssl_sock.ssl, recv_buffer, RECV_BUFFER_SIZE, MSG_DONTWAIT);
+    if (bytes_read > 0)
+  }
 }
 
 void free_ws(const ws_client_t *ws)
