@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 21:02:36 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/18 21:55:47 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/18 22:30:48 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ void init_fix(fix_client_t *fix, const keys_t *keys)
 }
 
 //TODO handle_fix_connection
-inline bool handle_fix_connection_event(const fix_client_t *fix, const char fd_state)
+inline bool handle_fix_connection(const fix_client_t *fix, const char fd_state)
 {
   static bool connected;
 

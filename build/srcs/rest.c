@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 17:53:55 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/18 21:55:30 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/18 22:30:44 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ void init_rest(rest_client_t *rest, const keys_t *keys)
 }
 
 //TODO handle_rest_connection
-inline bool handle_rest_connection_event(const rest_client_t *rest, const char fd_state)
+inline bool handle_rest_connection(const rest_client_t *rest, const char fd_state)
 {
   static bool connected;
 

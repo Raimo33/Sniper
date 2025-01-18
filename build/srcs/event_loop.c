@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 17:40:24 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/18 21:46:00 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/18 22:30:19 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,6 +56,7 @@ void establish_connections(const event_loop_ctx_t *ctx, const fix_client_t *fix,
     n = epoll_wait(ctx->epoll_fd, events, MAX_EVENTS, -1);
     for (event = new_events; n > 0; n--, event++)
     {
+      PREFETCHR(event + 1, L0);
       if (UNLIKELY(event.events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP)))
       {
         fd_states[event->data.fd] = 'e';

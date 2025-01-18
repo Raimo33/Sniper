@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 20:53:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/18 22:25:14 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/18 22:30:34 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ void init_ws(ws_client_t *ws)
   close(fd);
 }
 
-inline bool handle_ws_connection_event(const ws_client_t *ws, const char fd_state)
+inline bool handle_ws_connection(const ws_client_t *ws, const char fd_state)
 {
   static void *states[] = { &&connect, &&ssl_handshake, &&upgrade_request, &&upgrade_response };
   static uint8_t sequence;
@@ -43,8 +43,6 @@ inline bool handle_ws_connection_event(const ws_client_t *ws, const char fd_stat
     panic(STR_LEN_PAIR("Websocket connection error"));
 
   goto *states[sequence];
-
-//TODO prefetching??
 
 connect:
   connect(WS_FILENO, (struct sockaddr *)&ws->addr, sizeof(ws->addr));
