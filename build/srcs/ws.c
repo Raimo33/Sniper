@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 20:53:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/18 10:08:40 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/18 10:19:25 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,7 +92,7 @@ static void send_upgrade(const ws_client_t *ws)
     .body_len = 0
   };
 
-  uint16_t req_len = compute_requet_len(&request);
+  const uint16_t req_len = compute_requet_len(&request);
   char raw_request[req_len + 1];
   build_http_request(&request, raw_request);
   wolfSSL_write(ws->ssl_sock.ssl, raw_request, sizeof(raw_request));
