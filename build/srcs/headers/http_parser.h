@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 19:43:46 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/17 19:58:33 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/18 10:12:47 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,37 +37,41 @@ typedef struct
 typedef struct
 {
   const char *key;
-  const char *value;
-
   const uint16_t key_len;
+
+  const char *value;
   const uint16_t value_len;
 } header_t;
 
 typedef struct
 {
   const header_t *headers;
+  const uint8_t headers_count;
+
   const char *body;
+  const uint16_t body_len;
+
   const char *path;
+  const uint8_t path_len;
+
   const uint8_t method  : 2;
   const uint8_t version : 1;
-
-  const uint16_t body_len;
-  const uint8_t headers_count;
-  const uint8_t path_len;
 } http_request_t;
 
 typedef struct
 {
   const header_t *headers;
-  const char *body;
-  const uint16_t status_code;
-  const uint8_t version : 1;
-
-  const uint16_t body_len;
   const uint8_t headers_count;
+
+  const char *body;
+  const uint16_t body_len;
+
+  const uint16_t status_code : 10;
+  const uint8_t version : 1;
 } http_response_t;
 
 void HOT build_http_request(const http_request_t *req, char *buf);
 void HOT parse_http_response(const char *buf, http_request_t *req);
+inline uint16_t HOT compute_request_len(const http_request_t *req);
 
 #endif

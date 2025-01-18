@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 20:53:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/17 20:43:23 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/18 10:08:40 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,21 +71,31 @@ void handle_ws_event(const ws_client_t *ws)
 
 static void send_upgrade(const ws_client_t *ws)
 {
-  static const http_request_t request = //TODO
-  const char request[] ALIGNED(16) =
-    "GET " WS_PATH " HTTP/1.1"
-    "\r\nHost: " WS_HOST ":" WS_PORT_STR
-    "\r\nUpgrade: websocket"
-    "\r\nConnection: Upgrade"
-    "\r\nSec-WebSocket-Version: 13"
-    "\r\nSec-WebSocket-Key: ";
+  byte ws_key[WS_KEY_SIZE];
+  generate_ws_key(ws_key);
 
-  char buffer[STR_LEN(request) + WS_KEY_SIZE] ALIGNED(16);
+  static const http_request_t request ALIGNED(16) =
+  {
+    .method = HTTP_GET,
+    .path = WS_PATH,
+    .path_len = STR_LEN(WS_PATH),
+    .version = HTTP_1_1,
+    .headers_count = 5,
+    .headers = {
+      { STR_LEN_PAIR("Host"), STR_LEN_PAIR(WS_HOST) },
+      { STR_LEN_PAIR("Upgrade"), STR_LEN_PAIR("websocket") },
+      { STR_LEN_PAIR("Connection"), STR_LEN_PAIR("Upgrade") },
+      { STR_LEN_PAIR("Sec-WebSocket-Version"), STR_LEN_PAIR("13") },
+      { STR_LEN_PAIR("Sec-WebSocket-Key"), ws_key, WS_KEY_SIZE },
+    }
+    .body = NULL,
+    .body_len = 0
+  };
 
-  memcpy(buffer, request, STR_LEN(request));
-  generate_ws_key(buffer + STR_LEN(request));
-
-  wolfSSL_write(ws->ssl_sock.ssl, buffer, sizeof(buffer));
+  uint16_t req_len = compute_requet_len(&request);
+  char raw_request[req_len + 1];
+  build_http_request(&request, raw_request);
+  wolfSSL_write(ws->ssl_sock.ssl, raw_request, sizeof(raw_request));
 }
 
 static void receive_upgrade(const ws_client_t *ws)

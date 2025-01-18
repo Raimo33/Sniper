@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/29 17:07:42 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/17 17:18:09 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/18 09:57:48 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,6 @@ void *cleanup_label = NULL;
 
 int32_t main(void)
 {
-  WC_RNG rng;
   keys_t keys;
   event_loop_ctx_t loop;
   fix_client_t fix;
@@ -34,7 +33,7 @@ int32_t main(void)
 
   init_logger();
   init_signals();
-  init_keys(&keys, &rng);
+  init_keys(&keys);
   init_ssl();
   init_fix(&fix, &keys);
   init_ws(&ws);
@@ -50,7 +49,7 @@ cleanup:
   free_ws(&ws);
   free_fix(&fix);
   free_ssl();
-  free_keys(&keys, &rng);
+  free_keys(&keys);
   free_signals();
   free_logger();  
 }
