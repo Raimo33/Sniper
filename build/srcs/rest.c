@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 17:53:55 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/17 20:38:29 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/18 21:55:30 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,31 +35,14 @@ void init_rest(rest_client_t *rest, const keys_t *keys)
   close(fd);
 }
 
-bool handle_rest_connection_event(const rest_client_t *rest)
+//TODO handle_rest_connection
+inline bool handle_rest_connection_event(const rest_client_t *rest, const char fd_state)
 {
-  static uint8_t sequence;
+  static bool connected;
 
-  switch (sequence) //TODO computed gotos (1-2% performance increase)
-  {
-    case 0:
-      connect(REST_FILENO, (struct sockaddr *)&rest->addr, sizeof(rest->addr));
-      PREFETCHW(&rest->ssl_sock.ssl, L0);
-      sequence++;
-      break;
-    case 1 ... 5: //TODO stabilire il numero effettivo di step
-      wolfSSL_connect(rest->ssl_sock.ssl);
-      sequence++;
-      break;
-    default:
-      return true;
-  }
+  //TODO state machine con goto
 
-  return false;
-}
-
-void handle_rest_event(const rest_client_t *rest)
-{
-  //TODO
+  return connected;
 }
 
 void free_rest(const rest_client_t *rest)

@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 18:09:22 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/17 20:27:54 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/18 22:27:53 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,20 @@ void log(const char *msg, const uint8_t msg_len)
   dest[msg_len] = '\n';
 
   g_log_ring.head = next_head;
+}
+
+void check_logs(const char fd_state)
+{
+  switch (fd_state)
+  {
+    case 'w':
+      flush_logs();
+      break;
+    case '\0':
+      break;
+    case 'e':
+      panic(STR_LEN_PAIR("Error on log fd"));
+  }
 }
 
 void flush_logs(void)

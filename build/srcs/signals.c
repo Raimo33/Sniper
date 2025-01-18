@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 18:15:10 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/14 19:39:45 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/18 22:28:04 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,19 @@ void init_signals(void)
   const uint16_t fd = signalfd(-1, &mask, SFD_NONBLOCK);
   dup2(fd, SIG_FILENO);
   close(fd);
+}
+
+inline void check_signals(const char fd_state)
+{
+  switch (fd_state)
+  {
+    case '\0':
+      break;
+    case 'r':
+      panic(STR_LEN_PAIR("Signal received"));
+    case 'e':
+      panic(STR_LEN_PAIR("Error on signal fd"));
+  }
 }
 
 void free_signals(void)

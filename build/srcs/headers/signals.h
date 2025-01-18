@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 18:15:15 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/17 19:55:43 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/18 21:26:02 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
 # define SIG_FILENO 3U
 
 void COLD init_signals(void);
+inline void HOT check_signals(const char fd_state);
 void COLD free_signals(void);
 
 #endif

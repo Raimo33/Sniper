@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 16:53:00 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/18 10:53:34 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/18 21:56:18 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,8 +39,7 @@ typedef struct
 } ws_client_t;
 
 void COLD init_ws(ws_client_t *ws);
-bool HOT  handle_ws_connection_event(const ws_client_t *ws);
-void HOT  handle_ws_event(const ws_client_t *ws);
+inline bool HOT handle_ws_connection(const ws_client_t *ws, const char fd_state);
 void COLD free_ws(const ws_client_t *ws);
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 21:02:36 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/17 20:40:17 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/18 21:55:47 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,47 +37,14 @@ void init_fix(fix_client_t *fix, const keys_t *keys)
   close(fd);
 }
 
-bool handle_fix_connection_event(const fix_client_t *fix)
+//TODO handle_fix_connection
+inline bool handle_fix_connection_event(const fix_client_t *fix, const char fd_state)
 {
-  static uint8_t sequence;
+  static bool connected;
 
-  //TODO altri prefetch sequenziali in base a cosa serve allo step successivo
-  switch (sequence) //TODO computed gotos (1-2% performance increase)
-  {
-    case 0:
-      connect(FIX_FILENO, (struct sockaddr *)&fix->addr, sizeof(fix->addr));
-      PREFETCHW(&fix->ssl_sock.ssl, L0);
-      sequence++;
-      break;
-    case 1 ... 5: //TODO stabilire il numero effettivo di step
-      wolfSSL_connect(fix->ssl_sock.ssl);
-      sequence++;
-      break;
-    case 6:
-      send_logon(fix)
-      sequence++;
-      break;
-    case 7:
-      receive_logon(fix);
-      sequence++;
-      break;
-    case 8:
-      send_limit_query(fix)
-      sequence++;
-      break;
-    case 9: FALLTHROUGH;
-      receive_limit_query(fix);
-      sequence++;
-    default:
-      return true;
-  }
+  //TODO state machine con goto
 
-  return false;
-}
-
-void handle_fix_event(const fix_client_t *fix)
-{
-  //TODO
+  return connected;
 }
 
 static void send_logon(const fix_client_t *fix)

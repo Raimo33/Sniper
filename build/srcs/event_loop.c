@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 17:40:24 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/17 20:32:21 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/18 21:46:00 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,94 +43,38 @@ void init_event_loop(event_loop_ctx_t *ctx)
   });
 }
 
-// panic(); //TODO con jump o goto o assembly, implementare anche assert che chiama panic
 void establish_connections(const event_loop_ctx_t *ctx, const fix_client_t *fix, const ws_client_t *ws, const rest_client_t *rest)
 {
-  struct epoll_event events[MAX_EVENTS] = {0};
+  struct epoll_event new_events[MAX_EVENTS] = {0};
+  char fd_states[MAX_FDS] = {'\0'}; //read, write, error
   struct epoll_event *event;
-  uint8_t connected = 0;
+  uint8_t conn_count = 0;
   uint8_t n;
 
-  while (LIKELY(connected < 3))
+  while (LIKELY(conn_count < 3))
   {
     n = epoll_wait(ctx->epoll_fd, events, MAX_EVENTS, -1);
-    event = events;
-    while (n--)
+    for (event = new_events; n > 0; n--, event++)
     {
-      PREFETCHR(event + 1, L0);
-      //TODO computed gotos (1-2% performance increase)
-      switch (event.events)
+      if (UNLIKELY(event.events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP)))
       {
-        case EPOLLERR: FALLTHROUGH;
-        case EPOLLHUP: FALLTHROUGH;
-        case EPOLLRDHUP:
-          panic(STR_LEN_PAIR("Connection error")); //TODO eventualmente getsockopt per capire l'errore
-          break;
+        fd_states[event->data.fd] = 'e';
+        continue;
       }
-      switch (event.data.fd) //TODO computed gotos (1-2% performance increase)
-      {
-        case SIG_FILENO:
-          panic(STR_LEN_PAIR("Signal intercepted"));
-          break;
-        case WS_FILENO:
-          connected += handle_ws_connection_event(ws);
-          break;
-        case FIX_FILENO:
-          connected += handle_fix_connection_event(fix);
-          break;
-        case REST_FILENO:
-          connected += handle_rest_connection_event(rest);
-          break;
-        case LOG_FILENO:
-          flush_logs();
-          break;
-      }
-      event++;
+      fd_states[event->data.fd] = (event.events & EPOLLIN) ? 'r' : 'w';
     }
+
+    check_signals(fd_states[SIG_FILENO]);
+    conn_count += handle_ws_connection(ws, fd_states[WS_FILENO]);
+    conn_count += handle_fix_connection(fix, fd_states[FIX_FILENO]);
+    conn_count += handle_rest_connection(rest, fd_states[REST_FILENO]);
+    check_logs(fd_states[LOG_FILENO]);
   }
 }
 
 void listen_events(const event_loop_ctx_t *ctx, const fix_client_t *fix, const ws_client_t *ws, const rest_client_t *rest)
 {
-  struct epoll_event events[MAX_EVENTS] = {0};
-  struct epoll_event *event;
-  uint8_t n;
-
-  while (true)
-  {
-    n = epoll_wait(ctx->epoll_fd, events, MAX_EVENTS, -1);
-    event = events;
-    while (n--)
-    {
-      PREFETCHR(event + 1, L0);
-      switch (event.events) //TODO computed gotos (1-2% performance increase)
-      {
-        case EPOLLERR: FALLTHROUGH;
-        case EPOLLHUP: FALLTHROUGH;
-        case EPOLLRDHUP:
-          panic(STR_LEN_PAIR("Connection error")); //TODO eventualmente getsockopt per capire l'errore
-          break;
-      }
-      switch (event.data.fd) //TODO computed gotos (1-2% performance increase)
-      {
-        case SIG_FILENO:
-          panic(STR_LEN_PAIR("Signal intercepted"));
-        case WS_FILENO:
-          handle_ws_event(ws, event.events);
-          break;
-        case FIX_FILENO:
-          handle_fix_event(fix, event.events);
-          break;
-        case REST_FILENO:
-          handle_rest_event(rest, event.events);
-          break;
-        case LOG_FILENO:
-          flush_logs();
-          break;
-      }
-      event++;
-    }
-  }
+  //TODO: Implement this (take inspiration from establish_connections)
 }
 
 void free_event_loop(const event_loop_ctx_t *ctx)

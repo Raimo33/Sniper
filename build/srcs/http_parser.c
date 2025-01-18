@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 19:57:09 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/18 10:55:53 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/18 18:22:32 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,22 +63,4 @@ void build_http_request(const http_request_t *req, char *buf)
 void parse_http_response(const char *buf, http_response_t *res)
 {
   //TODO strtok, spostare semplicemente i puntatori
-}
-
-inline uint16_t compute_request_len(const http_request_t *req)
-{
-  uint16_t len = methods[req->method].len + 1 + req->path_len + versions[req->version].len + 2;
-
-  PREFETCHR(&req->body_len, L0);
-  for (uint8_t i = 0; LIKELY(i < req->headers_count); i++)
-  {
-    PREFETCHR(&req->headers[i + 1].key_len, L0);
-    PREFETCHR(&req->headers[i + 1].value_len, L0);
-    len += req->headers[i].key_len + 2 + req->headers[i].value_len + 2;
-  }
-  len += 2;
-
-  len += req->body_len;
-
-  return len;
 }
