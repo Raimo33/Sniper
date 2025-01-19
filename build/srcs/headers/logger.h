@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 18:08:11 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/19 09:51:55 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/19 18:39:36 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,8 +21,8 @@
 
 # include "extensions.h"
 
-# define LOG_RING_SIZE 4096U
-# define LOG_FILENO    7U
+# define LOG_RING_SIZE 4096
+# define LOG_FILENO    7
 
 # define STR_LEN_PAIR(s) s, sizeof(s) - 1
 # define STR_LEN(s) sizeof(s) - 1

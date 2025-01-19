@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 21:02:36 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/19 10:00:22 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/19 19:16:49 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ static void send_limit_query(const fix_client_t *restrict fix);
 static void receive_limit_query(const fix_client_t *restrict fix);
 
 //TODO pool di connessioni
-void init_fix(fix_client_t *restrict fix, const keys_t *restrict keys)
+void init_fix(fix_client_t *restrict fix, const keys_t *restrict keys, const WOLFSSL_CTX *restrict ssl_ctx)
 {
   fix->addr = (struct sockaddr_in){
     .sin_family = AF_INET,
@@ -31,7 +31,7 @@ void init_fix(fix_client_t *restrict fix, const keys_t *restrict keys)
 
   const uint16_t fd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
   setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &(bool){1}, sizeof(bool));
-  init_ssl_socket(fd, &fix->ssl_sock);
+  fix->ssl = init_ssl_socket(fd, ssl_ctx);
 
   dup2(fd, FIX_FILENO);
   close(fd);
@@ -79,6 +79,6 @@ static void receive_limit_query(const fix_client_t *restrict fix)
 
 void free_fix(const fix_client_t *restrict fix)
 {
-  free_ssl_socket(&fix->ssl_sock);
+  free_ssl_socket(fix->ssl);
   close(FIX_FILENO);
 }

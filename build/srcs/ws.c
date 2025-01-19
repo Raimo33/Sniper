@@ -6,17 +6,17 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 20:53:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/19 15:43:14 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/19 19:41:11 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "headers/ws.h"
 
-static uint8_t send_upgrade_request(const ws_client_t *restrict ws);
-static uint8_t receive_upgrade_response(const ws_client_t *restrict ws);
+static bool send_upgrade_request(const ws_client_t *restrict ws);
+static bool receive_upgrade_response(const ws_client_t *restrict ws);
 
 //TODO pool di connessioni
-void init_ws(ws_client_t *restrict ws)
+void init_ws(ws_client_t *restrict ws, const WOLFSSL_CTX *restrict ssl_ctx)
 {
   ws->addr = (struct sockaddr_in){
     .sin_family = AF_INET,
@@ -28,7 +28,7 @@ void init_ws(ws_client_t *restrict ws)
   
   const uint16_t fd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
   setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &(uint8_t){1}, sizeof(uint8_t));
-  init_ssl_socket(fd, &ws->ssl_sock);
+  ws->ssl = init_ssl_socket(fd, ssl_ctx);
 
   dup2(fd, WS_FILENO);
   close(fd);
@@ -55,17 +55,17 @@ ssl_handshake:
   return false;
 
 upgrade_request:
-  if (send_upgrade_request(ws) > 0)
+  if (send_upgrade_request(ws))
     sequence++;
   return false;
 
 upgrade_response:
-  if (receive_upgrade_response(ws) > 0)
+  if (receive_upgrade_response(ws))
     sequence++;
   return true;
 }
 
-static uint8_t send_upgrade_request(const ws_client_t *restrict ws)
+static bool send_upgrade_request(const ws_client_t *restrict ws)
 {
   static byte ws_key[WS_KEY_SIZE] ALIGNED(16);
   static http_request_t request ALIGNED(16) =
@@ -85,33 +85,30 @@ static uint8_t send_upgrade_request(const ws_client_t *restrict ws)
     .body = NULL,
     .body_len = 0
   };
+  static uint16_t req_len = -1;
+  static char buffer[MAX_REQUEST_LEN] ALIGNED(16);
 
-  //TODO constxepr function which calculates the length of the request (c23?)
-  static const uint16_t req_len = STR_LEN(
-    "GET " WS_PATH " HTTP/1.1\r\n"
-    "Host: " WS_HOST "\r\n"
-    "Upgrade: websocket\r\n"
-    "Connection: Upgrade\r\n"
-    "Sec-WebSocket-Version: 13\r\n"
-    "Sec-WebSocket-Key: ") + WS_KEY_SIZE + STR_LEN("\r\n\r\n");
-
-  static byte raw_request[req_len] ALIGNED(16);
-
-  if (//prima volta)
+  if (req_len == -1)
+  {
     generate_ws_key(ws_key);
-    build_http_request(&request, raw_request);
+    build_http_request(&request, buffer, &len);
+  }
 
-  return wolfSSL_send(ws->ssl_sock.ssl, raw_request, req_len, MSG_NOSIGNAL);
+  return !!wolfSSL_send(ws->ssl_sock.ssl, buffer, len, MSG_NOSIGNAL);
 }
 
-static uint8_t receive_upgrade_response(const ws_client_t *restrict ws)
+static bool receive_upgrade_response(const ws_client_t *restrict ws)
 {
-  //base64 decode, 258EAFA5-E914-47DA-95CA-C5AB0DC85B11, sha1
+  static char buffer[MAX_RESPONSE_LEN] ALIGNED(16);
+  static http_response_t response ALIGNED(16);
+
+  wolfssl_recv(ws->ssl_sock.ssl, buffer, MAX_RESPONSE_LEN, MSG_NOSIGNAL | MSG_DONTWAIT);
+  //TODO base64 decode, 258EAFA5-E914-47DA-95CA-C5AB0DC85B11, sha1
   //parsing, controllo dello status code 101, controllo dell'header Sec-WebSocket-Accept etc
 }
 
 void free_ws(const ws_client_t *restrict ws)
 {
-  free_ssl_socket(&ws->ssl_sock);
+  free_ssl_socket(ws->ssl);
   close(WS_FILENO);
 }

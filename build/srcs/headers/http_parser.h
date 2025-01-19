@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 19:43:46 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/19 15:29:26 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/19 18:40:12 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,13 +26,14 @@
 # define HTTP_1_0 0
 # define HTTP_1_1 1
 
+# define MAX_REQUEST_LEN 4096
+# define MAX_RESPONSE_LEN 4096
+
 typedef struct
 {
   const char *str;
   const uint8_t len;
 } str_len_pair_t;
-
-//TODO in caso si scelga di usare allocazione dinamica allora usare array dinamici invece di puntatori (per risparmiare gli 8 byte del puntatore)
 
 typedef struct
 {
@@ -70,7 +71,7 @@ typedef struct
   const uint8_t version : 1;
 } http_response_t;
 
-void HOT build_http_request(const http_request_t *restrict req, char *restrict buf);
+void HOT build_http_request(const http_request_t *restrict req, char *restrict buf, uint16_t *restrict len);
 void HOT parse_http_response(const char *restrict buf, http_response_t *restrict res);
 
 #endif

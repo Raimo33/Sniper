@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 19:57:09 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/19 15:29:03 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/19 18:37:36 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,8 +23,10 @@ static const str_len_pair_t versions[] = {
   {STR_LEN_PAIR("HTTP/1.1")}
 };
 
-void build_http_request(const http_request_t *restrict req, char *restrict buf)
+void build_http_request(const http_request_t *restrict req, char *restrict buf, uint16_t *restrict len)
 {
+  const char *restrict buf_start = buf;
+
   memcpy(buf, methods[req->method].str, methods[req->method].len);
   buf += methods[req->method].len;
 
@@ -62,8 +64,10 @@ void build_http_request(const http_request_t *restrict req, char *restrict buf)
   *(uint16_t *)buf = crlf;
   buf += 2;
 
-  if (req->body_len)
-    memcpy(buf, req->body, req->body_len);
+  memcpy(buf, req->body, req->body_len);
+  buf += req->body_len;
+  
+  *len = buf - buf_start;
 }
 
 void parse_http_response(const char *restrict buf, http_response_t *restrict res)

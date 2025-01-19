@@ -6,13 +6,13 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 17:53:55 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/19 09:54:50 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/19 19:16:39 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "headers/rest.h"
 
-void init_rest(rest_client_t *restrict rest, const keys_t *restrict keys)
+void init_rest(rest_client_t *restrict rest, const keys_t *restrict keys, const WOLFSSL_CTX *restrict ssl_ctx)
 {
   rest->addr = (struct sockaddr_in){
     .sin_family = AF_INET,
@@ -29,7 +29,7 @@ void init_rest(rest_client_t *restrict rest, const keys_t *restrict keys)
   setsockopt(fd, IPPROTO_TCP, TCP_KEEPIDLE, &(uint8_t){REST_KEEPALIVE_IDLE}, sizeof(uint8_t));
   setsockopt(fd, IPPROTO_TCP, TCP_KEEPINTVL, &(uint8_t){REST_KEEPALIVE_INTVL}, sizeof(uint8_t));
   setsockopt(fd, IPPROTO_TCP, TCP_KEEPCNT, &(uint8_t){REST_KEEPALIVE_CNT}, sizeof(uint8_t));
-  init_ssl_socket(fd, &rest->ssl_sock);
+  rest->ssl = init_ssl_socket(fd, ssl_ctx);
 
   dup2(fd, REST_FILENO);
   close(fd);
@@ -47,6 +47,6 @@ inline bool handle_rest_connection(const rest_client_t *restrict rest, const cha
 
 void free_rest(const rest_client_t *restrict rest)
 {
-  free_ssl_socket(&rest->ssl_sock);
+  free_ssl_socket(rest->ssl);
   close(REST_FILENO);
 }

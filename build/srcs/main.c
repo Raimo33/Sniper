@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/29 17:07:42 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/18 22:09:54 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/19 19:19:40 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,7 @@ int32_t main(void)
 {
   keys_t keys;
   event_loop_ctx_t loop;
+  WOLFSSL_CTX *ssl_ctx;
   fix_client_t fix;
   ws_client_t ws;
   rest_client_t rest;
@@ -37,10 +38,10 @@ int32_t main(void)
   init_logger();
   init_signals();
   init_keys(&keys);
-  init_ssl();
-  init_fix(&fix, &keys);
-  init_ws(&ws);
-  init_rest(&rest, &keys);
+  init_ssl(&ssl_ctx);
+  init_fix(&fix, &keys, ssl_ctx);
+  init_ws(&ws, ssl_ctx);
+  init_rest(&rest, &keys, ssl_ctx);
   init_event_loop(&loop);
 
   establish_connections(&loop, &fix, &ws, &rest);
@@ -51,7 +52,7 @@ cleanup:
   free_rest(&rest);
   free_ws(&ws);
   free_fix(&fix);
-  free_ssl();
+  free_ssl(ssl_ctx);
   free_keys(&keys);
   free_signals();
   free_logger();  

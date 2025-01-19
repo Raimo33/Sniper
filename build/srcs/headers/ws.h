@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 16:53:00 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/19 09:55:56 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/19 19:15:59 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,18 +27,18 @@
 # include "shared_buffers.h"
 
 # define WS_HOST "data-stream.binance.com"
-# define WS_PORT 9443U
+# define WS_PORT 9443
 # define WS_PORT_STR "9443"
-# define WS_FILENO 5U
+# define WS_FILENO 5
 # define WS_PATH "/stream?timeUnit=microsecond?streams=usdcusdt@trade/usdpusdt@trade/usdtdai@trade/fdusdusdt@trade/fdusdusdc@trade/tusdusdt@trade/eureuri@trade"
 
 typedef struct
 {
   struct sockaddr_in addr;
-  ssl_sock_t ssl_sock;
+  SSL *ssl;
 } ws_client_t;
 
-void COLD init_ws(ws_client_t *restrict ws);
+void COLD init_ws(ws_client_t *restrict ws, const WOLFSSL_CTX *restrict ssl_ctx);
 inline bool HOT handle_ws_connection(const ws_client_t *restrict ws, const char fd_state);
 void COLD free_ws(const ws_client_t *restrict ws);
 
