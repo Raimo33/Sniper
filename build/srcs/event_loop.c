@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 17:40:24 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/19 09:44:46 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/19 14:53:44 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 void init_event_loop(event_loop_ctx_t *restrict ctx)
 {
   ctx->epoll_fd = epoll_create1(0);
-  const uint8_t signal_events = EPOLLIN | EPOLLONESHOT | EPOLLPRI | EPOLLET;
+  const uint8_t signal_events = EPOLLIN | EPOLLONESHOT | EPOLLET;
   const uint8_t socket_events = EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLERR | EPOLLET;
   const uint8_t log_events = EPOLLOUT | EPOLLHUP | EPOLLERR | EPOLLET;
   
@@ -45,24 +45,27 @@ void init_event_loop(event_loop_ctx_t *restrict ctx)
 
 void establish_connections(const event_loop_ctx_t *restrict ctx, const fix_client_t *fix, const ws_client_t *ws, const rest_client_t *rest)
 {
-  struct epoll_event new_events[MAX_EVENTS] = {0};
-  char fd_states[MAX_FDS] = {'\0'}; //read, write, error
+  struct epoll_event events[MAX_EVENTS] ALIGNED(64) = {0};
+  char fd_states[MAX_FDS] ALIGNED(64) = {0};
   struct epoll_event *event;
   uint8_t conn_count = 0;
   uint8_t n;
+  uint8_t event_fd;
+  uint8_t event_mask;
 
   while (LIKELY(conn_count < 3))
   {
     n = epoll_wait(ctx->epoll_fd, events, MAX_EVENTS, -1);
-    for (event = new_events; n > 0; n--, event++)
+    for (event = events; n > 0; n--, event++)
     {
+      event_fd = event->data.fd;
+      event_mask = event->events;
+  
       PREFETCHR(event + 1, L0);
-      if (UNLIKELY(event.events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP)))
-      {
-        fd_states[event->data.fd] = 'e';
-        continue;
-      }
-      fd_states[event->data.fd] = (event.events & EPOLLIN) ? 'r' : 'w';
+      if (event_mask & (EPOLLERR | EPOLLHUP | EPOLLRDHUP))
+        fd_states[event_fd] = 'e';
+      else
+        fd_states[event_fd] = 'r' * !!(event_mask & EPOLLIN) + 'w' * !!(event_mask & EPOLLOUT); 
     }
 
     check_signals(fd_states[SIG_FILENO]);
