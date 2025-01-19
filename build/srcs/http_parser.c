@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 19:57:09 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/19 10:35:33 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/19 15:29:03 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,4 +69,6 @@ void build_http_request(const http_request_t *restrict req, char *restrict buf)
 void parse_http_response(const char *restrict buf, http_response_t *restrict res)
 {
   //TODO strtok, spostare semplicemente i puntatori, SIMD per cercare i separatori in parallelo
+  
+
 }

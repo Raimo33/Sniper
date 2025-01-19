@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 20:53:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/19 10:02:39 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/19 15:43:14 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,7 +85,16 @@ static uint8_t send_upgrade_request(const ws_client_t *restrict ws)
     .body = NULL,
     .body_len = 0
   };
-  static const uint16_t req_len = //TODO compute at compile time
+
+  //TODO constxepr function which calculates the length of the request (c23?)
+  static const uint16_t req_len = STR_LEN(
+    "GET " WS_PATH " HTTP/1.1\r\n"
+    "Host: " WS_HOST "\r\n"
+    "Upgrade: websocket\r\n"
+    "Connection: Upgrade\r\n"
+    "Sec-WebSocket-Version: 13\r\n"
+    "Sec-WebSocket-Key: ") + WS_KEY_SIZE + STR_LEN("\r\n\r\n");
+
   static byte raw_request[req_len] ALIGNED(16);
 
   if (//prima volta)

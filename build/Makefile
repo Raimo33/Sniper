@@ -6,7 +6,7 @@
 #    By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/03/19 14:52:58 by egualand          #+#    #+#              #
-#    Updated: 2025/01/16 16:40:30 by craimond         ###   ########.fr        #
+#    Updated: 2025/01/19 15:54:13 by craimond         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -23,9 +23,10 @@ HDRS := $(addprefix $(HDRS_DIR)/, sniper.h)
 INCS := $(INCS_DIR) $(HDRS_DIR)
 
 CC := gcc
+CVERSION := 23
 #TODO eventualmente Ofast e --fast-math potrebbe rompere codice, da testare
 #TODO studiare compiler optimizations
-CFLAGS := -Wall -Wextra -Werror -Ofast -fopt-info-vec-all -march=native -static -fomit-frame-pointer -flto
+CFLAGS := -std=c$(CVERSION) -Wall -Wextra -Werror -Ofast -fopt-info-vec-all -march=native -static -fomit-frame-pointer -flto
 RM := rm -rf
 
 VALGRIND_SUPP := valgrind.supp

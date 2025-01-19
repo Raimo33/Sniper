@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/17 19:45:40 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/19 09:37:48 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/19 15:29:10 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,13 +18,13 @@
 # define PREFETCH(x, rw, locality)  __builtin_prefetch(x, rw, locality)
 # define PREFETCHW(x, locality)     __builtin_prefetch(x, 1, locality)
 # define PREFETCHR(x, locality)     __builtin_prefetch(x, 0, locality)
+# define UNREACHABLE                __builtin_unreachable()
 # define FALLTHROUGH                __attribute__((fallthrough))
 # define COLD                       __attribute__((cold))
 # define HOT                        __attribute__((hot))
 # define CONST                      __attribute__((const))
 # define PURE                       __attribute__((pure))
 # define UNUSED                     __attribute__((unused))
-# define UNREACHABLE                __builtin_unreachable()
 # define PACKED                     __attribute__((packed))
 # define ALIGNED(x)                 __attribute__((aligned(x)))
 # define NORETURN                   __attribute__((noreturn))
