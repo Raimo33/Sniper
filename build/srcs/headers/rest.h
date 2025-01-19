@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 16:52:43 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/18 21:55:12 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/19 10:05:55 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,8 +39,8 @@ typedef struct
   const keys_t *keys;
 } rest_client_t;
 
-void COLD init_rest(rest_client_t *rest, const keys_t *keys);
-inline bool HOT handle_rest_connection(const rest_client_t *rest, const char fd_state);
-void COLD free_rest(const rest_client_t *rest);
+void COLD init_rest(rest_client_t *restrict rest, const keys_t *restrict keys);
+inline bool HOT handle_rest_connection(const rest_client_t *restrict rest, const char fd_state);
+void COLD free_rest(const rest_client_t *restrict rest);
 
 #endif

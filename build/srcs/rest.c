@@ -6,13 +6,13 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 17:53:55 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/18 22:30:44 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/19 09:54:50 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "headers/rest.h"
 
-void init_rest(rest_client_t *rest, const keys_t *keys)
+void init_rest(rest_client_t *restrict rest, const keys_t *restrict keys)
 {
   rest->addr = (struct sockaddr_in){
     .sin_family = AF_INET,
@@ -36,7 +36,7 @@ void init_rest(rest_client_t *rest, const keys_t *keys)
 }
 
 //TODO handle_rest_connection
-inline bool handle_rest_connection(const rest_client_t *rest, const char fd_state)
+inline bool handle_rest_connection(const rest_client_t *restrict rest, const char fd_state)
 {
   static bool connected;
 
@@ -45,7 +45,7 @@ inline bool handle_rest_connection(const rest_client_t *rest, const char fd_stat
   return connected;
 }
 
-void free_rest(const rest_client_t *rest)
+void free_rest(const rest_client_t *restrict rest)
 {
   free_ssl_socket(&rest->ssl_sock);
   close(REST_FILENO);

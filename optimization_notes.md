@@ -46,9 +46,11 @@ __attribute__((packed))
 __attribute__((pure)) e __attribute__((const))
 __attribute__((malloc))
 __attribute__((unused))
+__attribute__((unreachable))
 __attribute__visibility__((hidden))
 __builtin_expect per conditionals
 __builtin_prefetch
+restrict keyword
 
 #pragmas: #TODO https://gcc.gnu.org/onlinedocs/gcc/Pragmas.html
 - ivdep

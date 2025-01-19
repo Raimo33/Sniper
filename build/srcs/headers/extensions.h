@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/17 19:45:40 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/17 20:13:59 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/19 09:37:48 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@
 # define CONST                      __attribute__((const))
 # define PURE                       __attribute__((pure))
 # define UNUSED                     __attribute__((unused))
+# define UNREACHABLE                __builtin_unreachable()
 # define PACKED                     __attribute__((packed))
 # define ALIGNED(x)                 __attribute__((aligned(x)))
 # define NORETURN                   __attribute__((noreturn))

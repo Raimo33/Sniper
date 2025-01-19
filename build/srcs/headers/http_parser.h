@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 19:43:46 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/18 22:18:31 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/19 09:49:05 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,8 +70,7 @@ typedef struct
   const uint8_t version : 1;
 } http_response_t;
 
-void HOT build_http_request(const http_request_t *req, char *buf);
-void HOT parse_http_response(const char *buf, http_response_t *res);
-inline uint16_t HOT compute_request_len(const http_request_t *req);
+void HOT build_http_request(const http_request_t *restrict req, char *restrict buf);
+void HOT parse_http_response(const char *restrict buf, http_response_t *restrict res);
 
 #endif

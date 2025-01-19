@@ -6,19 +6,19 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 21:02:36 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/18 22:30:48 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/19 10:00:22 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "headers/fix.h"
 
-static void send_logon(const fix_client_t *fix);
-static void receive_logon(const fix_client_t *fix);
-static void send_limit_query(const fix_client_t *fix);
-static void receive_limit_query(const fix_client_t *fix);
+static void send_logon(const fix_client_t *restrict fix);
+static void receive_logon(const fix_client_t *restrict fix);
+static void send_limit_query(const fix_client_t *restrict fix);
+static void receive_limit_query(const fix_client_t *restrict fix);
 
 //TODO pool di connessioni
-void init_fix(fix_client_t *fix, const keys_t *keys)
+void init_fix(fix_client_t *restrict fix, const keys_t *restrict keys)
 {
   fix->addr = (struct sockaddr_in){
     .sin_family = AF_INET,
@@ -38,7 +38,7 @@ void init_fix(fix_client_t *fix, const keys_t *keys)
 }
 
 //TODO handle_fix_connection
-inline bool handle_fix_connection(const fix_client_t *fix, const char fd_state)
+inline bool handle_fix_connection(const fix_client_t *restrict fix, const char fd_state)
 {
   static bool connected;
 
@@ -47,7 +47,7 @@ inline bool handle_fix_connection(const fix_client_t *fix, const char fd_state)
   return connected;
 }
 
-static void send_logon(const fix_client_t *fix)
+static void send_logon(const fix_client_t *restrict fix)
 {
   //TODO
   //Username (553) API_KEY
@@ -62,22 +62,22 @@ static void send_logon(const fix_client_t *fix)
   //ResponseMode (25036) ONLY_ACKS(2)
 }
 
-static void receive_logon(const fix_client_t *fix)
+static void receive_logon(const fix_client_t *restrict fix)
 {
   //TODO
 }
 
-static void send_limit_query(const fix_client_t *fix)
+static void send_limit_query(const fix_client_t *restrict fix)
 {
   //TODO
 }
 
-static void receive_limit_query(const fix_client_t *fix)
+static void receive_limit_query(const fix_client_t *restrict fix)
 {
   //TODO
 }
 
-void free_fix(const fix_client_t *fix)
+void free_fix(const fix_client_t *restrict fix)
 {
   free_ssl_socket(&fix->ssl_sock);
   close(FIX_FILENO);

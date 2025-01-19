@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 17:42:49 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/18 20:42:59 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/19 09:44:50 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,9 +32,9 @@ typedef struct
     // Can add more event loop related state here
 } event_loop_ctx_t;
 
-COLD void  init_event_loop(event_loop_ctx_t *ctx);
-COLD void  establish_connections(const event_loop_ctx_t *ctx, const fix_client_t *fix, const ws_client_t *ws, const rest_client_t *rest);
-COLD void  listen_events(const event_loop_ctx_t *ctx, const fix_client_t *fix, const ws_client_t *ws, const rest_client_t *rest);
-COLD void  free_event_loop(const event_loop_ctx_t *ctx);
+COLD void  init_event_loop(event_loop_ctx_t *restrict ctx);
+COLD void  establish_connections(const event_loop_ctx_t *restrict ctx, const fix_client_t *fix, const ws_client_t *ws, const rest_client_t *rest);
+COLD void  listen_events(const event_loop_ctx_t *restrict ctx, const fix_client_t *fix, const ws_client_t *ws, const rest_client_t *rest);
+COLD void  free_event_loop(const event_loop_ctx_t *restrict ctx);
 
 #endif

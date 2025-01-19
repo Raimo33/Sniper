@@ -6,13 +6,13 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 17:40:24 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/18 22:30:19 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/19 09:44:46 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "headers/event_loop.h"
 
-void init_event_loop(event_loop_ctx_t *ctx)
+void init_event_loop(event_loop_ctx_t *restrict ctx)
 {
   ctx->epoll_fd = epoll_create1(0);
   const uint8_t signal_events = EPOLLIN | EPOLLONESHOT | EPOLLPRI | EPOLLET;
@@ -43,7 +43,7 @@ void init_event_loop(event_loop_ctx_t *ctx)
   });
 }
 
-void establish_connections(const event_loop_ctx_t *ctx, const fix_client_t *fix, const ws_client_t *ws, const rest_client_t *rest)
+void establish_connections(const event_loop_ctx_t *restrict ctx, const fix_client_t *fix, const ws_client_t *ws, const rest_client_t *rest)
 {
   struct epoll_event new_events[MAX_EVENTS] = {0};
   char fd_states[MAX_FDS] = {'\0'}; //read, write, error
@@ -73,12 +73,12 @@ void establish_connections(const event_loop_ctx_t *ctx, const fix_client_t *fix,
   }
 }
 
-void listen_events(const event_loop_ctx_t *ctx, const fix_client_t *fix, const ws_client_t *ws, const rest_client_t *rest)
+void listen_events(const event_loop_ctx_t *restrict ctx, const fix_client_t *fix, const ws_client_t *ws, const rest_client_t *rest)
 {
   //TODO: Implement this (take inspiration from establish_connections)
 }
 
-void free_event_loop(const event_loop_ctx_t *ctx)
+void free_event_loop(const event_loop_ctx_t *restrict ctx)
 {
   epoll_ctl(ctx->epoll_fd, EPOLL_CTL_DEL, SIG_FILENO, NULL);
   epoll_ctl(ctx->epoll_fd, EPOLL_CTL_DEL, WS_FILENO, NULL);

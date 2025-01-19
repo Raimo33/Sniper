@@ -6,17 +6,17 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 20:53:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/18 22:30:34 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/19 10:02:39 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "headers/ws.h"
 
-static uint8_t send_upgrade_request(const ws_client_t *ws);
-static uint8_t receive_upgrade_response(const ws_client_t *ws);
+static uint8_t send_upgrade_request(const ws_client_t *restrict ws);
+static uint8_t receive_upgrade_response(const ws_client_t *restrict ws);
 
 //TODO pool di connessioni
-void init_ws(ws_client_t *ws)
+void init_ws(ws_client_t *restrict ws)
 {
   ws->addr = (struct sockaddr_in){
     .sin_family = AF_INET,
@@ -34,9 +34,9 @@ void init_ws(ws_client_t *ws)
   close(fd);
 }
 
-inline bool handle_ws_connection(const ws_client_t *ws, const char fd_state)
+inline bool handle_ws_connection(const ws_client_t *restrict ws, const char fd_state)
 {
-  static void *states[] = { &&connect, &&ssl_handshake, &&upgrade_request, &&upgrade_response };
+  static void *restrict states[] = { &&connect, &&ssl_handshake, &&upgrade_request, &&upgrade_response };
   static uint8_t sequence;
 
   if (UNLIKELY(fd_state == 'e'))
@@ -45,7 +45,7 @@ inline bool handle_ws_connection(const ws_client_t *ws, const char fd_state)
   goto *states[sequence];
 
 connect:
-  connect(WS_FILENO, (struct sockaddr *)&ws->addr, sizeof(ws->addr));
+  connect(WS_FILENO, &ws->addr, sizeof(ws->addr));
   sequence++;
   return false;
 
@@ -65,7 +65,7 @@ upgrade_response:
   return true;
 }
 
-static uint8_t send_upgrade_request(const ws_client_t *ws)
+static uint8_t send_upgrade_request(const ws_client_t *restrict ws)
 {
   static byte ws_key[WS_KEY_SIZE] ALIGNED(16);
   static http_request_t request ALIGNED(16) =
@@ -95,13 +95,13 @@ static uint8_t send_upgrade_request(const ws_client_t *ws)
   return wolfSSL_send(ws->ssl_sock.ssl, raw_request, req_len, MSG_NOSIGNAL);
 }
 
-static uint8_t receive_upgrade_response(const ws_client_t *ws)
+static uint8_t receive_upgrade_response(const ws_client_t *restrict ws)
 {
   //base64 decode, 258EAFA5-E914-47DA-95CA-C5AB0DC85B11, sha1
   //parsing, controllo dello status code 101, controllo dell'header Sec-WebSocket-Accept etc
 }
 
-void free_ws(const ws_client_t *ws)
+void free_ws(const ws_client_t *restrict ws)
 {
   free_ssl_socket(&ws->ssl_sock);
   close(WS_FILENO);

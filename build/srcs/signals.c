@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 18:15:10 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/18 22:28:04 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/19 09:37:18 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,8 @@ inline void check_signals(const char fd_state)
       panic(STR_LEN_PAIR("Signal received"));
     case 'e':
       panic(STR_LEN_PAIR("Error on signal fd"));
+    default:
+      UNREACHABLE;
   }
 }
 

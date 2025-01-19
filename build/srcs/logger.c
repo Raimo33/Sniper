@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 18:09:22 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/18 22:27:53 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/19 09:53:19 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,14 +21,14 @@ void init_logger(void)
   fcntl(LOG_FILENO, F_SETFL, flags | O_NONBLOCK);
 }
 
-void log(const char *msg, const uint8_t msg_len)
+void log(const char *restrict msg, const uint8_t msg_len)
 {
   const uint16_t next_head = (g_log_ring.head + msg_len + 1) % LOG_RING_SIZE;
   
   if (UNLIKELY(next_head == g_log_ring.tail))
     return;
 
-  char *dest = &g_log_ring.data[g_log_ring.head];
+  char *restrict dest = &g_log_ring.data[g_log_ring.head];
   memcpy(dest, msg, msg_len);
   dest[msg_len] = '\n';
 
@@ -46,6 +46,8 @@ void check_logs(const char fd_state)
       break;
     case 'e':
       panic(STR_LEN_PAIR("Error on log fd"));
+    default:
+      UNREACHABLE;
   }
 }
 

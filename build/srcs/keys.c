@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 19:01:43 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/18 10:01:23 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/19 10:01:05 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,13 +14,13 @@
 
 static WC_RNG rng;
 
-void init_keys(keys_t *keys)
+void init_keys(keys_t *restrict keys)
 {
   wolfCrypt_Init();
   wc_InitRng(&rng);
 
-  const byte *priv_key = getenv("PRIV_KEY");
-  const byte *api_key  = getenv("API_KEY");
+  const byte *restrict priv_key = getenv("PRIV_KEY");
+  const byte *restrict api_key  = getenv("API_KEY");
 
   assert(priv_key && api_key, STR_LEN_PAIR("Missing keys"));
 
@@ -28,7 +28,7 @@ void init_keys(keys_t *keys)
   wc_ed25519_import_private_only(priv_key, ED25519_PRIV_KEY_SIZE, keys->priv_key);
 }
 
-void generate_ws_key(byte[WS_KEY_SIZE] key)
+void generate_ws_key(byte *restrict key)
 {
   byte random_data[16];
   wc_RNG_GenerateBlock(&rng, random_data, sizeof(random_data));
@@ -39,7 +39,7 @@ void generate_ws_key(byte[WS_KEY_SIZE] key)
   assert(encoded_size == WS_KEY_SIZE, STR_LEN_PAIR("Failed to encode ws key"));
 }
 
-void free_keys(keys_t *keys)
+void free_keys(keys_t *restrict keys)
 {
   wc_ed25519_free(keys->priv_key);
   wc_FreeRng(&rng);
