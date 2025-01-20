@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 20:53:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/19 19:41:11 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/20 14:46:05 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,9 +102,13 @@ static bool receive_upgrade_response(const ws_client_t *restrict ws)
   static char buffer[MAX_RESPONSE_LEN] ALIGNED(16);
   static http_response_t response ALIGNED(16);
 
-  wolfssl_recv(ws->ssl_sock.ssl, buffer, MAX_RESPONSE_LEN, MSG_NOSIGNAL | MSG_DONTWAIT);
+  if (wolfssl_recv(ws->ssl_sock.ssl, buffer, MAX_RESPONSE_LEN, MSG_NOSIGNAL | MSG_DONTWAIT) <= 0)
+    return false;
+
+  parse_http_response(buffer, &response);
+  
   //TODO base64 decode, 258EAFA5-E914-47DA-95CA-C5AB0DC85B11, sha1
-  //parsing, controllo dello status code 101, controllo dell'header Sec-WebSocket-Accept etc
+  //controllo dello status code 101, controllo dell'header Sec-WebSocket-Accept etc
 }
 
 void free_ws(const ws_client_t *restrict ws)

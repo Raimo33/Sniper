@@ -6,21 +6,21 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 19:57:09 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/19 18:37:36 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/20 14:50:34 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "headers/http_parser.h"
 
 static const str_len_pair_t methods[] = {
-  {STR_LEN_PAIR("GET")},
-  {STR_LEN_PAIR("POST")},
-  {STR_LEN_PAIR("PUT")},
-  {STR_LEN_PAIR("DELETE")}
+  [HTTP_GET]    {STR_LEN_PAIR("GET")},
+  [HTTP_POST]   {STR_LEN_PAIR("POST")},
+  [HTTP_PUT]    {STR_LEN_PAIR("PUT")},
+  [HTTP_DELETE] {STR_LEN_PAIR("DELETE")}
 };
 static const str_len_pair_t versions[] = {
-  {STR_LEN_PAIR("HTTP/1.0")},
-  {STR_LEN_PAIR("HTTP/1.1")}
+  [HTTP_1_0] {STR_LEN_PAIR("HTTP/1.0")},
+  [HTTP_1_1] {STR_LEN_PAIR("HTTP/1.1")}
 };
 
 void build_http_request(const http_request_t *restrict req, char *restrict buf, uint16_t *restrict len)
@@ -70,9 +70,8 @@ void build_http_request(const http_request_t *restrict req, char *restrict buf, 
   *len = buf - buf_start;
 }
 
-void parse_http_response(const char *restrict buf, http_response_t *restrict res)
+void parse_http_response(char *restrict buf, http_response_t *restrict res)
 {
   //TODO strtok, spostare semplicemente i puntatori, SIMD per cercare i separatori in parallelo
   
-
 }
