@@ -6,12 +6,12 @@
 #    By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/01/11 18:23:06 by craimond          #+#    #+#              #
-#    Updated: 2025/01/13 17:58:57 by craimond         ###   ########.fr        #
+#    Updated: 2025/01/21 17:47:10 by craimond         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-IMAGE_NAME := sniper
-CONTAINER_NAME := sniper
+IMAGE_NAME := FastAF
+CONTAINER_NAME := FastAF
 
 all: build run
 

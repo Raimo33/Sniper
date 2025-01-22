@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 19:57:09 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/20 14:50:34 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/22 20:38:49 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,10 +23,8 @@ static const str_len_pair_t versions[] = {
   [HTTP_1_1] {STR_LEN_PAIR("HTTP/1.1")}
 };
 
-void build_http_request(const http_request_t *restrict req, char *restrict buf, uint16_t *restrict len)
+void build_http_request(const http_request_t *restrict req, char *restrict buf)
 {
-  const char *restrict buf_start = buf;
-
   memcpy(buf, methods[req->method].str, methods[req->method].len);
   buf += methods[req->method].len;
 
@@ -66,12 +64,39 @@ void build_http_request(const http_request_t *restrict req, char *restrict buf, 
 
   memcpy(buf, req->body, req->body_len);
   buf += req->body_len;
-  
-  *len = buf - buf_start;
 }
 
+//TODO simd
 void parse_http_response(char *restrict buf, http_response_t *restrict res)
 {
-  //TODO strtok, spostare semplicemente i puntatori, SIMD per cercare i separatori in parallelo
-  
+  char *line = strtok(buf, "\r\n");
+  assert(line, STR_LEN_PAIR("Malformed HTTP response: missing status line"));
+
+  line = strchr(line, ' ');
+  assert(line, STR_LEN_PAIR("Malformed HTTP response: missing status code"));
+  line += 1;
+
+  res->status_code = line[0] - '0' * 100 + line[1] - '0' * 10 + line[2] - '0'; //TODO ottimizzare
+  assert(res->status_code >= 100 && res->status_code <= 599, STR_LEN_PAIR("Malformed HTTP response: invalid status code"));
+
+  line = strtok(NULL, "\r\n");
+// Required Edge Cases
+// Basic Protocol
+// Partial/incomplete reads
+// Missing CRLF terminators
+// Missing headers
+// Invalid status codes
+// Malformed request lines
+// Empty lines before headers
+// Security
+// Buffer overflow attempts
+// Header injection
+// Oversized headers/content
+// NULL bytes in headers
+// Invalid UTF-8 sequences
+// Content Handling
+// Chunked encoding
+// Compressed content (gzip, deflate)
+// Multipart/form-data
+// Different charsets
 }

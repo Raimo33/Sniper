@@ -6,11 +6,11 @@
 #    By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/03/19 14:52:58 by egualand          #+#    #+#              #
-#    Updated: 2025/01/19 15:54:13 by craimond         ###   ########.fr        #
+#    Updated: 2025/01/21 17:46:55 by craimond         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-NAME := sniper
+NAME := FastAF
 
 OBJS_DIR := objs
 SRCS_DIR := srcs

@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 20:53:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/20 14:46:05 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/22 19:59:48 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,13 +85,19 @@ static bool send_upgrade_request(const ws_client_t *restrict ws)
     .body = NULL,
     .body_len = 0
   };
-  static uint16_t req_len = -1;
-  static char buffer[MAX_REQUEST_LEN] ALIGNED(16);
+  static uint16_t len = 
+    STR_LEN("GET") + 1 + request.path_len + 1 + STR_LEN("HTTP/1.1") + 2 +
+    request.headers[0].key_len + 2 + request.headers[0].value_len + 2 +
+    request.headers[1].key_len + 2 + request.headers[1].value_len + 2 +
+    request.headers[2].key_len + 2 + request.headers[2].value_len + 2 +
+    request.headers[3].key_len + 2 + request.headers[3].value_len + 2 +
+    request.headers[4].key_len + 2 + request.headers[4].value_len + 2 + 2;
+  static char buffer[len] ALIGNED(16);
 
-  if (req_len == -1)
+  if (LIKELY(!ws_key[0]))
   {
     generate_ws_key(ws_key);
-    build_http_request(&request, buffer, &len);
+    build_http_request(&request, buffer);
   }
 
   return !!wolfSSL_send(ws->ssl_sock.ssl, buffer, len, MSG_NOSIGNAL);
@@ -99,13 +105,17 @@ static bool send_upgrade_request(const ws_client_t *restrict ws)
 
 static bool receive_upgrade_response(const ws_client_t *restrict ws)
 {
-  static char buffer[MAX_RESPONSE_LEN] ALIGNED(16);
-  static http_response_t response ALIGNED(16);
+  static char buffer[512] ALIGNED(16);
+  static header_t headers[8] ALIGNED(16);
+  static http_response_t response ALIGNED(16) = {
+    .headers = headers,
+    .headers_count = sizeof(headers) / sizeof(header_t)
+  };
 
-  if (wolfssl_recv(ws->ssl_sock.ssl, buffer, MAX_RESPONSE_LEN, MSG_NOSIGNAL | MSG_DONTWAIT) <= 0)
+  if (UNLIKELY(wolfssl_recv(ws->ssl_sock.ssl, buffer, sizeof(buffer), MSG_NOSIGNAL | MSG_DONTWAIT) <= 0))
     return false;
 
-  parse_http_response(buffer, &response);
+  parse_http_response(buffer, sizeof(buffer), &response);
   
   //TODO base64 decode, 258EAFA5-E914-47DA-95CA-C5AB0DC85B11, sha1
   //controllo dello status code 101, controllo dell'header Sec-WebSocket-Accept etc
@@ -116,3 +126,15 @@ void free_ws(const ws_client_t *restrict ws)
   free_ssl_socket(ws->ssl);
   close(WS_FILENO);
 }
+
+/*
+
+HTTP/1.1 200 OK\r\n
+Content-Type: text/html; charset=UTF-8\r\n
+Content-Length: 138\r\n
+Connection: keep-alive\r\n
+\r\n
+body
+
+
+*/
