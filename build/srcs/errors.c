@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/17 17:07:01 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/22 20:31:03 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/22 21:45:51 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 inline void assert(const bool condition, const char *restrict msg, const uint8_t len)
 {
-  if (!condition)
+  if (UNLIKELY(!condition))
     panic(msg, len);
 }
 

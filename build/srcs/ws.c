@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 20:53:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/22 19:59:48 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/22 21:32:21 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,10 +112,11 @@ static bool receive_upgrade_response(const ws_client_t *restrict ws)
     .headers_count = sizeof(headers) / sizeof(header_t)
   };
 
-  if (UNLIKELY(wolfssl_recv(ws->ssl_sock.ssl, buffer, sizeof(buffer), MSG_NOSIGNAL | MSG_DONTWAIT) <= 0))
+  const uint16_t len = wolfSSL_recv(ws->ssl_sock.ssl, buffer, sizeof(buffer), MSG_NOSIGNAL | MSG_DONTWAIT);
+  if (len <= 0)
     return false;
-
-  parse_http_response(buffer, sizeof(buffer), &response);
+  
+  parse_http_response(buffer, len, &response);
   
   //TODO base64 decode, 258EAFA5-E914-47DA-95CA-C5AB0DC85B11, sha1
   //controllo dello status code 101, controllo dell'header Sec-WebSocket-Accept etc
