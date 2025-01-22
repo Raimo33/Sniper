@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 19:57:09 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/22 21:57:03 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/22 22:02:38 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,6 +107,7 @@ void parse_http_response(char *restrict buf, const uint16_t len, http_response_t
 
   while (LIKELY(line[0]))
   {
+    //TODO handle missing space after colon & other edge cases
     headers[i].key = strtok_r(line, ": ", &line);
     headers[i].value = strtok_r(line, ": ", &line);
     line = strtok_r(NULL, "\r\n", &buf);
