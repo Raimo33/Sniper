@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 19:57:09 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/23 16:10:22 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/23 19:09:36 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,9 @@ static const str_len_pair_t versions[] = {
   [HTTP_1_1] {STR_LEN_PAIR("HTTP/1.1")}
 };
 
-static void to_lowercase_simd(char *str, uint16_t len);
+static void HOT strlower(char *str, uint16_t len);
+static void HOT header_map_insert(header_map_t *restrict map, const char *restrict key, const uint16_t key_len, const char *restrict value, const uint16_t value_len);
+static char *HOT header_map_get(header_map_t *restrict map, const char *restrict key, const uint16_t key_len);
 
 void build_http_request(const http_request_t *restrict req, char *restrict buf)
 {
@@ -43,19 +45,22 @@ void build_http_request(const http_request_t *restrict req, char *restrict buf)
   static const uint16_t colon_space = (uint16_t)':' << sizeof(char) | ' ';
   static const uint16_t crlf = (uint16_t)'\r' << sizeof(char) | '\n';
 
-  #pragma ivdep
-  for (uint8_t i = 0; LIKELY(i < req->headers_count); i++)
-  {
-    PREFETCHR(&req->headers[i + 1], L0);
+  const header_entry_t *headers = req->headers.entries;
 
-    memcpy(buf, req->headers[i].key, req->headers[i].key_len);
-    buf += req->headers[i].key_len;
+  #pragma ivdep
+  for (uint8_t i = 0; LIKELY(i < HEADER_MAP_SIZE); i++)
+  {
+    if (LIKELY(headers[i].key == NULL))
+      continue;
+    
+    memcpy(buf, headers[i].key, headers[i].key_len);
+    buf += headers[i].key_len;
     
     *(uint16_t *)buf = colon_space;
     buf += 2;
 
-    memcpy(buf, req->headers[i].value, req->headers[i].value_len);
-    buf += req->headers[i].value_len;
+    memcpy(buf, headers[i].value, headers[i].value_len);
+    buf += headers[i].value_len;
     
     *(uint16_t *)buf = crlf;
     buf += 2;
@@ -80,37 +85,34 @@ void parse_http_response(char *restrict buf, const uint16_t len, http_response_t
   res->status_code = (line[0] - '0') * 100 + (line[1] - '0') * 10 + (line[2] - '0');
   assert(res->status_code >= 100 && res->status_code <= 599, STR_LEN_PAIR("Malformed HTTP response: invalid status code"));
 
-  uint8_t i = 0;
   line = strtok_r(NULL, "\r\n", &buf);
   assert(line, STR_LEN_PAIR("Malformed HTTP response: missing CRLF terminator"));
 
   while (LIKELY(line[0]))
   {
-    PREFETCHR(&res->headers[i + 1], L0);
-
-    res->headers[i].key = strtok_r(line, ": ", &line);
-    res->headers[i].value = strtok_r(line, ": ", &line);
+    char *key = strtok_r(line, ": ", &line);
+    char *value = strtok_r(line, ": ", &line);
     line = strtok_r(NULL, "\r\n", &buf);
 
-    assert(res->headers[i].key && res->headers[i].value, STR_LEN_PAIR("Malformed HTTP response: missing header"));
+    assert(key && value, STR_LEN_PAIR("Malformed HTTP response: missing header"));
     assert(line, STR_LEN_PAIR("Malformed HTTP response: missing CRLF terminator"));
 
-    to_lowercase_simd(res->headers[i].key, res->headers[i].key_len);
+    const uint8_t key_len = value - key - 2;
+    const uint8_t value_len = line - value - 2;
 
-    if (UNLIKELY(strcmp(res->headers[i].key, "transfer-encoding") == 0))
+    strlower(key, key_len);
+
+    if (UNLIKELY(strcmp(key, "transfer-encoding") == 0))
       panic(STR_LEN_PAIR("Transfer-Encoding not supported"));
 
-    res->headers[i].key_len = res->headers[i].value - res->headers[i].key - 2;
-    res->headers[i].value_len = line - res->headers[i].value - 2;
-    i++;
+    header_map_insert(&res->headers, key, key_len, value, value_len);
   }
 
-  res->headers_count = i;
   res->body = strtok_r(NULL, "\r\n", &buf);
   res->body_len = len - (line - buf) * (res->body != NULL);
 }
 
-static void to_lowercase_simd(char *str, uint16_t len)
+static void strlower(char *str, uint16_t len)
 {
   __m128i upper_A = _mm_set1_epi8('A');
   __m128i upper_Z = _mm_set1_epi8('Z');
@@ -132,4 +134,40 @@ static void to_lowercase_simd(char *str, uint16_t len)
       *str += 25;
     str++;
   }
+}
+
+static void header_map_insert(header_map_t *restrict map, const char *restrict key, const uint16_t key_len, const char *restrict value, const uint16_t value_len)
+{
+  uint16_t index = (uint16_t)murmurhash3(key, strlen(key), 42) % HEADER_MAP_SIZE;
+  uint16_t original_index = index;
+
+  uint8_t i = 1;
+  while (UNLIKELY(map->entries[index].key))
+  {
+    index = (original_index + i * i) % HEADER_MAP_SIZE;
+    i++;
+  }
+
+  map->entries[index].key = key;
+  map->entries[index].key_len = key_len;
+  map->entries[index].value = value;
+  map->entries[index].value_len = value_len;
+  map->entries_count++;
+}
+
+static char *header_map_get(header_map_t *restrict map, const char *restrict key, const uint16_t key_len)
+{
+  uint16_t original_index = (uint16_t)murmurhash3(key, key_len, 42) % HEADER_MAP_SIZE;
+  uint16_t index = original_index;
+
+  uint8_t i = 1;
+  while (UNLIKELY(map->entries[index].key))
+  {
+    if (LIKELY(map->entries[index].key_len == key_len && memcmp(map->entries[index].key, key, key_len) == 0))
+      return map->entries[index].value;
+    index = (original_index + i * i) % HEADER_MAP_SIZE;
+    i++;
+  }
+
+  return NULL;
 }

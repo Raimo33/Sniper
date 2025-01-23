@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 19:43:46 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/23 16:06:01 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/23 18:53:22 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,8 @@
 # define HTTP_1_0 0
 # define HTTP_1_1 1
 
-//TODO restrict nelle struct??
+# define MAX_HEADERS 8
+# define HEADER_MAP_SIZE MAX_HEADERS * 4
 
 typedef struct
 {
@@ -40,14 +41,20 @@ typedef struct
   char *key;
   char *value;
 
-  uint16_t key_len;
-  uint16_t value_len;
-} header_t;
+  uint8_t key_len;
+  uint8_t value_len;
+} header_entry_t;
+
+typedef struct
+{
+  header_entry_t entries[HEADER_MAP_SIZE];
+  uint8_t entries_count;
+} header_map_t;
 
 typedef struct
 {
   const char *path;
-  const header_t *headers;
+  const header_map_t headers;
   const char *body;
 
   const uint16_t body_len;
@@ -60,7 +67,7 @@ typedef struct
 
 typedef struct
 {
-  header_t *headers;
+  header_map_t headers;
   char *body;
 
   uint16_t body_len;

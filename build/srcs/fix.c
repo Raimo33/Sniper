@@ -6,16 +6,16 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 21:02:36 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/19 19:16:49 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/23 18:46:23 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "headers/fix.h"
 
-static void send_logon(const fix_client_t *restrict fix);
-static void receive_logon(const fix_client_t *restrict fix);
-static void send_limit_query(const fix_client_t *restrict fix);
-static void receive_limit_query(const fix_client_t *restrict fix);
+static void COLD send_logon(const fix_client_t *restrict fix);
+static void COLD receive_logon(const fix_client_t *restrict fix);
+static void COLD send_limit_query(const fix_client_t *restrict fix);
+static void COLD receive_limit_query(const fix_client_t *restrict fix);
 
 //TODO pool di connessioni
 void init_fix(fix_client_t *restrict fix, const keys_t *restrict keys, const WOLFSSL_CTX *restrict ssl_ctx)

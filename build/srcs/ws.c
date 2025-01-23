@@ -6,14 +6,14 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 20:53:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/23 16:36:12 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/23 18:56:20 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "headers/ws.h"
 
-static bool send_upgrade_request(const ws_client_t *restrict ws);
-static bool receive_upgrade_response(const ws_client_t *restrict ws);
+static bool COLD send_upgrade_request(const ws_client_t *restrict ws);
+static bool COLD receive_upgrade_response(const ws_client_t *restrict ws);
 
 //TODO pool di connessioni
 void init_ws(ws_client_t *restrict ws, const WOLFSSL_CTX *restrict ssl_ctx)
@@ -67,6 +67,7 @@ upgrade_response:
 
 static bool send_upgrade_request(ws_client_t *restrict ws)
 {
+  //TODO refactor con mappa
   static bool init;
   static http_request_t request ALIGNED(16) =
   {
