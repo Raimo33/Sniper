@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 19:43:46 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/23 18:53:22 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/23 20:38:19 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,22 +39,22 @@ typedef struct
 typedef struct
 {
   char *key;
-  char *value;
-
   uint8_t key_len;
+
+  char *value;
   uint8_t value_len;
 } header_entry_t;
 
 typedef struct
 {
-  header_entry_t entries[HEADER_MAP_SIZE];
+  header_entry_t entries[HEADER_MAP_SIZE] ALIGNED(16);
   uint8_t entries_count;
 } header_map_t;
 
 typedef struct
 {
   const char *path;
-  const header_map_t headers;
+  const header_entry_t headers[MAX_HEADERS] ALIGNED(16);
   const char *body;
 
   const uint16_t body_len;
@@ -72,10 +72,10 @@ typedef struct
 
   uint16_t body_len;
   uint16_t status_code : 10;
-  uint8_t headers_count;
 } http_response_t;
 
 void HOT build_http_request(const http_request_t *restrict req, char *restrict buf);
 void HOT parse_http_response(char *restrict buf, const uint16_t len, http_response_t *restrict res);
+header_entry_t HOT *header_map_get(header_map_t *restrict map, const char *restrict key, const uint16_t key_len);
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 19:01:43 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/23 18:27:55 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/23 20:41:30 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ void generate_ws_key(uint8_t *restrict key)
   assert(encoded_size == WS_KEY_SIZE, STR_LEN_PAIR("Failed to encode ws key"));
 }
 
-void verify_ws_key(const uint8_t *restrict key, const char *restrict accept, const uint16_t len)
+bool verify_ws_key(const uint8_t *restrict key, const char *restrict accept, const uint16_t len)
 {
   uint8_t decoded_key[WS_KEY_SIZE];
   word32 decoded_size = WS_KEY_SIZE;
@@ -52,7 +52,7 @@ void verify_ws_key(const uint8_t *restrict key, const char *restrict accept, con
 
   uint8_t sha1_hash[20];
   wc_Sha1Hash(concatenated_key, sizeof(concatenated_key), sha1_hash); //TODO deprecated
-  assert(memcmp(decoded_key, sha1_hash, sizeof(sha1_hash)) == 0, STR_LEN_PAIR("Invalid ws key"));
+  return !memcmp(decoded_key, sha1_hash, sizeof(sha1_hash))
 }
 
 uint32_t murmurhash3(const uint8_t *key, const uint16_t len, const uint32_t seed)

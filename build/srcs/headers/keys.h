@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 18:59:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/23 18:27:52 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/23 20:41:37 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ typedef struct
 
 void COLD init_keys(keys_t *restrict keys);
 void COLD generate_ws_keys(uint8_t *restrict key);
-void COLD verify_ws_key(const uint8_t *restrict key, const char *restrict accept, const uint16_t len);
+bool COLD verify_ws_key(const uint8_t *restrict key, const char *restrict accept, const uint16_t len);
 uint32_t HOT murmurhash3(const uint8_t *key, const uint16_t len, const uint32_t seed);
 void COLD free_keys(keys_t *restrict keys);
 

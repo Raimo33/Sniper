@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 19:57:09 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/23 19:09:36 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/23 20:38:54 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,6 @@ static const str_len_pair_t versions[] = {
 
 static void HOT strlower(char *str, uint16_t len);
 static void HOT header_map_insert(header_map_t *restrict map, const char *restrict key, const uint16_t key_len, const char *restrict value, const uint16_t value_len);
-static char *HOT header_map_get(header_map_t *restrict map, const char *restrict key, const uint16_t key_len);
 
 void build_http_request(const http_request_t *restrict req, char *restrict buf)
 {
@@ -45,14 +44,13 @@ void build_http_request(const http_request_t *restrict req, char *restrict buf)
   static const uint16_t colon_space = (uint16_t)':' << sizeof(char) | ' ';
   static const uint16_t crlf = (uint16_t)'\r' << sizeof(char) | '\n';
 
-  const header_entry_t *headers = req->headers.entries;
+  const header_entry_t *headers = req->headers;
 
   #pragma ivdep
   for (uint8_t i = 0; LIKELY(i < HEADER_MAP_SIZE); i++)
   {
-    if (LIKELY(headers[i].key == NULL))
-      continue;
-    
+    PREFETCHR(&headers[i + 1], L0);
+
     memcpy(buf, headers[i].key, headers[i].key_len);
     buf += headers[i].key_len;
     
@@ -88,17 +86,19 @@ void parse_http_response(char *restrict buf, const uint16_t len, http_response_t
   line = strtok_r(NULL, "\r\n", &buf);
   assert(line, STR_LEN_PAIR("Malformed HTTP response: missing CRLF terminator"));
 
+  char *key, *value;
+  uint8_t key_len, value_len;
   while (LIKELY(line[0]))
   {
-    char *key = strtok_r(line, ": ", &line);
-    char *value = strtok_r(line, ": ", &line);
+    key = strtok_r(line, ": ", &line);
+    value = strtok_r(line, ": ", &line);
     line = strtok_r(NULL, "\r\n", &buf);
 
     assert(key && value, STR_LEN_PAIR("Malformed HTTP response: missing header"));
     assert(line, STR_LEN_PAIR("Malformed HTTP response: missing CRLF terminator"));
 
-    const uint8_t key_len = value - key - 2;
-    const uint8_t value_len = line - value - 2;
+    key_len = value - key - 2;
+    value_len = line - value - 2;
 
     strlower(key, key_len);
 
@@ -148,14 +148,16 @@ static void header_map_insert(header_map_t *restrict map, const char *restrict k
     i++;
   }
 
-  map->entries[index].key = key;
-  map->entries[index].key_len = key_len;
-  map->entries[index].value = value;
-  map->entries[index].value_len = value_len;
+  map->entries[index] = (header_entry_t){
+    .key = key,
+    .value = value,
+    .key_len = key_len,
+    .value_len = value_len
+  };
   map->entries_count++;
 }
 
-static char *header_map_get(header_map_t *restrict map, const char *restrict key, const uint16_t key_len)
+header_entry_t *header_map_get(header_map_t *restrict map, const char *restrict key, const uint16_t key_len)
 {
   uint16_t original_index = (uint16_t)murmurhash3(key, key_len, 42) % HEADER_MAP_SIZE;
   uint16_t index = original_index;
@@ -164,7 +166,7 @@ static char *header_map_get(header_map_t *restrict map, const char *restrict key
   while (UNLIKELY(map->entries[index].key))
   {
     if (LIKELY(map->entries[index].key_len == key_len && memcmp(map->entries[index].key, key, key_len) == 0))
-      return map->entries[index].value;
+      return map->entries[index];
     index = (original_index + i * i) % HEADER_MAP_SIZE;
     i++;
   }

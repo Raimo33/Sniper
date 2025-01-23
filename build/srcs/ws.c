@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 20:53:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/23 18:56:20 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/23 20:42:57 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,6 @@ upgrade_response:
 
 static bool send_upgrade_request(ws_client_t *restrict ws)
 {
-  //TODO refactor con mappa
   static bool init;
   static http_request_t request ALIGNED(16) =
   {
@@ -120,16 +119,15 @@ static bool receive_upgrade_response(const ws_client_t *restrict ws)
   
   parse_http_response(buffer, len, &response);
   
-  assert(response.status_code == 101, STR_LEN_PAIR("Websocket upgrade failed"));
+  assert(response.status_code == 101, STR_LEN_PAIR("Websocket upgrade failed: invalid status code"));
+  assert(response.headers_count == 3, STR_LEN_PAIR("Websocket upgrade failed: missing response headers"));
 
-  for (uint8_t i = 0; LIKELY(i < response.headers_count); i++)
-  {
-    if (strcmp(response.headers[i].key, "Sec-WebSocket-Accept") == 0)
-    {
-      verify_ws_key(ws->conn_key, response.headers[i].value, response.headers[i].value_len);
-      return true;
-    }
-  }
+  const header_entry_t *restrict accept_header = header_map_get(&response.headers, STR_LEN_PAIR("Sec-WebSocket-Accept"));
+  assert(key, STR_LEN_PAIR("Websocket upgrade failed: missing Upgrade header"));
+
+  if (verify_ws_key(ws->conn_key, accept_header->value, accept_header->value_len) == false)
+    panic(STR_LEN_PAIR("Websocket upgrade failed: key mismatch"));
+
   return false;
 }
 
@@ -138,15 +136,3 @@ void free_ws(const ws_client_t *restrict ws)
   free_ssl_socket(ws->ssl);
   close(WS_FILENO);
 }
-
-/*
-
-HTTP/1.1 200 OK\r\n
-Content-Type: text/html; charset=UTF-8\r\n
-Content-Length: 138\r\n
-Connection: keep-alive\r\n
-\r\n
-body
-
-
-*/
