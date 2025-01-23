@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 19:43:46 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/22 21:33:09 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/23 16:06:01 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,11 +37,11 @@ typedef struct
 
 typedef struct
 {
-  const char *key;
-  const char *value;
+  char *key;
+  char *value;
 
-  const uint16_t key_len;
-  const uint16_t value_len;
+  uint16_t key_len;
+  uint16_t value_len;
 } header_t;
 
 typedef struct
@@ -60,12 +60,12 @@ typedef struct
 
 typedef struct
 {
-  const header_t *headers;
-  const char *body;
+  header_t *headers;
+  char *body;
 
-  const uint16_t body_len;
-  const uint16_t status_code : 10;
-  const uint8_t headers_count;
+  uint16_t body_len;
+  uint16_t status_code : 10;
+  uint8_t headers_count;
 } http_response_t;
 
 void HOT build_http_request(const http_request_t *restrict req, char *restrict buf);

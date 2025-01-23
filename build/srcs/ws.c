@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 20:53:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/22 21:32:21 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/23 16:36:12 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,9 +65,9 @@ upgrade_response:
   return true;
 }
 
-static bool send_upgrade_request(const ws_client_t *restrict ws)
+static bool send_upgrade_request(ws_client_t *restrict ws)
 {
-  static byte ws_key[WS_KEY_SIZE] ALIGNED(16);
+  static bool init;
   static http_request_t request ALIGNED(16) =
   {
     .method = HTTP_GET,
@@ -80,7 +80,7 @@ static bool send_upgrade_request(const ws_client_t *restrict ws)
       { STR_LEN_PAIR("Upgrade"), STR_LEN_PAIR("websocket") },
       { STR_LEN_PAIR("Connection"), STR_LEN_PAIR("Upgrade") },
       { STR_LEN_PAIR("Sec-WebSocket-Version"), STR_LEN_PAIR("13") },
-      { STR_LEN_PAIR("Sec-WebSocket-Key"), ws_key, WS_KEY_SIZE }
+      { STR_LEN_PAIR("Sec-WebSocket-Key"), ws->conn_key, WS_KEY_SIZE }
     }
     .body = NULL,
     .body_len = 0
@@ -94,10 +94,11 @@ static bool send_upgrade_request(const ws_client_t *restrict ws)
     request.headers[4].key_len + 2 + request.headers[4].value_len + 2 + 2;
   static char buffer[len] ALIGNED(16);
 
-  if (LIKELY(!ws_key[0]))
+  if (LIKELY(!init))
   {
-    generate_ws_key(ws_key);
+    generate_ws_key(ws->conn_key);
     build_http_request(&request, buffer);
+    init = true;
   }
 
   return !!wolfSSL_send(ws->ssl_sock.ssl, buffer, len, MSG_NOSIGNAL);
@@ -118,8 +119,17 @@ static bool receive_upgrade_response(const ws_client_t *restrict ws)
   
   parse_http_response(buffer, len, &response);
   
-  //TODO base64 decode, 258EAFA5-E914-47DA-95CA-C5AB0DC85B11, sha1
-  //controllo dello status code 101, controllo dell'header Sec-WebSocket-Accept etc
+  assert(response.status_code == 101, STR_LEN_PAIR("Websocket upgrade failed"));
+
+  for (uint8_t i = 0; LIKELY(i < response.headers_count); i++)
+  {
+    if (strcmp(response.headers[i].key, "Sec-WebSocket-Accept") == 0)
+    {
+      verify_ws_key(ws->conn_key, response.headers[i].value, response.headers[i].value_len);
+      return true;
+    }
+  }
+  return false;
 }
 
 void free_ws(const ws_client_t *restrict ws)

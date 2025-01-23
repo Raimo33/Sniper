@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 19:57:09 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/22 22:02:38 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/23 16:10:22 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,8 @@ static const str_len_pair_t versions[] = {
   [HTTP_1_0] {STR_LEN_PAIR("HTTP/1.0")},
   [HTTP_1_1] {STR_LEN_PAIR("HTTP/1.1")}
 };
+
+static void to_lowercase_simd(char *str, uint16_t len);
 
 void build_http_request(const http_request_t *restrict req, char *restrict buf)
 {
@@ -66,28 +68,6 @@ void build_http_request(const http_request_t *restrict req, char *restrict buf)
   buf += req->body_len;
 }
 
-//TODO SIMD
-/*
-// Required Edge Cases
-// Basic Protocol
-// Partial/incomplete reads
-// Missing CRLF terminators
-// Missing headers
-// Invalid status codes
-// Malformed request lines
-// Empty lines before headers
-// Security
-// Buffer overflow attempts
-// Header injection
-// Oversized headers/content
-// NULL bytes in headers
-// Invalid UTF-8 sequences
-// Content Handling
-// Chunked encoding
-// Compressed content (gzip, deflate)
-// Multipart/form-data
-// Different charsets
-*/
 void parse_http_response(char *restrict buf, const uint16_t len, http_response_t *restrict res)
 {
   char *line = strtok_r(buf, "\r\n", &buf);
@@ -97,36 +77,59 @@ void parse_http_response(char *restrict buf, const uint16_t len, http_response_t
   assert(line, STR_LEN_PAIR("Malformed HTTP response: missing status code"));
   line += 1;
 
-  const uint16_t status_code = (line[0] - '0') * 100 + (line[1] - '0') * 10 + (line[2] - '0');
-  assert(status_code >= 100 && status_code <= 599, STR_LEN_PAIR("Malformed HTTP response: invalid status code"));
+  res->status_code = (line[0] - '0') * 100 + (line[1] - '0') * 10 + (line[2] - '0');
+  assert(res->status_code >= 100 && res->status_code <= 599, STR_LEN_PAIR("Malformed HTTP response: invalid status code"));
 
-  header_t *headers = res->headers;
   uint8_t i = 0;
   line = strtok_r(NULL, "\r\n", &buf);
   assert(line, STR_LEN_PAIR("Malformed HTTP response: missing CRLF terminator"));
 
   while (LIKELY(line[0]))
   {
-    //TODO handle missing space after colon & other edge cases
-    headers[i].key = strtok_r(line, ": ", &line);
-    headers[i].value = strtok_r(line, ": ", &line);
+    PREFETCHR(&res->headers[i + 1], L0);
+
+    res->headers[i].key = strtok_r(line, ": ", &line);
+    res->headers[i].value = strtok_r(line, ": ", &line);
     line = strtok_r(NULL, "\r\n", &buf);
 
-    assert(headers[i].key && headers[i].value, STR_LEN_PAIR("Malformed HTTP response: missing header"));
+    assert(res->headers[i].key && res->headers[i].value, STR_LEN_PAIR("Malformed HTTP response: missing header"));
     assert(line, STR_LEN_PAIR("Malformed HTTP response: missing CRLF terminator"));
 
-    headers[i].key_len = headers[i].value - headers[i].key - 2;
-    headers[i].value_len = line - headers[i].value - 2;
+    to_lowercase_simd(res->headers[i].key, res->headers[i].key_len);
+
+    if (UNLIKELY(strcmp(res->headers[i].key, "transfer-encoding") == 0))
+      panic(STR_LEN_PAIR("Transfer-Encoding not supported"));
+
+    res->headers[i].key_len = res->headers[i].value - res->headers[i].key - 2;
+    res->headers[i].value_len = line - res->headers[i].value - 2;
     i++;
   }
 
-  line = strtok_r(NULL, "\r\n", &buf);
-  assert(line, STR_LEN_PAIR("Malformed HTTP response: missing CRLF terminator"));
-
-  res->body = strtok_r(NULL, "\r\n", &buf);
-  res->headers = headers;
   res->headers_count = i;
-  res->status_code = status_code;
-  res->body = line;
-  res->body_len = len - (res->body - buf);
+  res->body = strtok_r(NULL, "\r\n", &buf);
+  res->body_len = len - (line - buf) * (res->body != NULL);
+}
+
+static void to_lowercase_simd(char *str, uint16_t len)
+{
+  __m128i upper_A = _mm_set1_epi8('A');
+  __m128i upper_Z = _mm_set1_epi8('Z');
+  __m128i diff = _mm_set1_epi8('a' - 'A');
+
+  while (LIKELY(len >= 16))
+  {
+    __m128i chars = _mm_loadu_si128((__m128i *)(str));
+    __m128i mask = _mm_and_si128(_mm_cmpgt_epi8(chars, upper_A), _mm_cmplt_epi8(chars, upper_Z));
+    __m128i lower_chars = _mm_add_epi8(chars, _mm_and_si128(mask, diff));
+    _mm_storeu_si128((__m128i *)(str), lower_chars);
+    str += 16;
+    len -= 16;
+  }
+
+  while (LIKELY(len--))
+  {
+    if (UNLIKELY(*str >= 'A' && *str <= 'Z'))
+      *str += 25;
+    str++;
+  }
 }
