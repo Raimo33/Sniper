@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 17:40:24 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/19 15:51:22 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/23 21:05:06 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,7 @@ void establish_connections(const event_loop_ctx_t *restrict ctx, const fix_clien
       event_mask = event->events;
   
       PREFETCHR(event + 1, L0);
-      if (event_mask & (EPOLLERR | EPOLLHUP | EPOLLRDHUP))
+      if (UNLIKELY(event_mask & (EPOLLERR | EPOLLHUP | EPOLLRDHUP)))
         fd_states[event_fd] = 'e';
       else
         fd_states[event_fd] = 'r' * !!(event_mask & EPOLLIN) + 'w' * !!(event_mask & EPOLLOUT); 
