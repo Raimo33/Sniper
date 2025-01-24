@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/29 17:07:42 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/19 19:19:40 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/24 18:52:20 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,19 @@
 #include "headers/shared_buffers.h"
 
 //https://developers.binance.com/docs/binance-spot-api-docs/faqs/spot_glossary
+
+/*
+TODO FIXED POINTS
+
+Replace division with precomputed reciprocals.
+
+Vectorize with SIMD.
+
+Inline assembly for critical paths.
+
+Profile-guided and link-time optimizations.
+
+*/
 
 void *cleanup_label = NULL;
 

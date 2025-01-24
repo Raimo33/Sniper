@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 21:02:36 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/24 16:39:57 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/24 19:08:52 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@ static void COLD send_logon(const fix_client_t *restrict fix);
 static void COLD receive_logon(const fix_client_t *restrict fix);
 static void COLD send_limit_query(const fix_client_t *restrict fix);
 static void COLD receive_limit_query(const fix_client_t *restrict fix);
+static void HOT format_price(const fixed_point_t price, char *buffer); //TODO 5. Zero-Cost String Formatting, Precomputed FIX template (e.g., "44=XXXX|")
 
 //TODO pool di connessioni
 void init_fix(fix_client_t *restrict fix, const keys_t *restrict keys, const WOLFSSL_CTX *restrict ssl_ctx)
