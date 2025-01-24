@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 20:53:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/23 20:42:57 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/24 16:40:20 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,18 +50,15 @@ connect:
   return false;
 
 ssl_handshake:
-  if (wolfSSL_connect(ws->ssl_sock.ssl) == SSL_SUCCESS)
-    sequence++;
+  sequence += wolfSSL_connect(ws->ssl) == SSL_SUCCESS;
   return false;
 
 upgrade_request:
-  if (send_upgrade_request(ws))
-    sequence++;
+  sequence += send_upgrade_request(ws);
   return false;
 
 upgrade_response:
-  if (receive_upgrade_response(ws))
-    sequence++;
+  sequence += receive_upgrade_response(ws);
   return true;
 }
 

@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 21:02:36 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/23 18:46:23 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/24 16:39:57 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,14 +37,40 @@ void init_fix(fix_client_t *restrict fix, const keys_t *restrict keys, const WOL
   close(fd);
 }
 
-//TODO handle_fix_connection
 inline bool handle_fix_connection(const fix_client_t *restrict fix, const char fd_state)
 {
-  static bool connected;
+  static void *restrict states[] = { &&connect, &&ssl_handshake, &&send_logon, &&receive_logon, &&send_limit_query, &&receive_limit_query };
+  static uint8_t sequence;
 
-  //TODO state machine con goto
+  if (UNLIKELY(fd_state == 'e'))
+    panic(STR_LEN_PAIR("FIX connection error"));
 
-  return connected;
+  goto *states[sequence];
+
+connect:
+  connect(FIX_FILENO, &fix->addr, sizeof(fix->addr));
+  sequence++;
+  return false;
+
+ssl_handshake:
+  sequence += wolfSSL_connect(fix->ssl) == SSL_SUCCESS;
+  return false;
+
+send_logon:
+  sequence += send_logon(fix)
+  return false;
+
+receive_logon:
+  sequence += receive_logon(fix)
+  return false;
+
+send_limit_query:
+  sequence += send_limit_query(fix)
+  return false;
+
+receive_limit_query:
+  sequence += receive_limit_query(fix)
+  return true;
 }
 
 static void send_logon(const fix_client_t *restrict fix)

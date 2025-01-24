@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 17:53:55 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/19 19:16:39 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/24 16:40:30 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,14 +35,24 @@ void init_rest(rest_client_t *restrict rest, const keys_t *restrict keys, const 
   close(fd);
 }
 
-//TODO handle_rest_connection
 inline bool handle_rest_connection(const rest_client_t *restrict rest, const char fd_state)
 {
-  static bool connected;
+  static void *restrict states[] = { &&connect, &&ssl_handshake };
+  static uint8_t sequence;
 
-  //TODO state machine con goto
+  if (UNLIKELY(fd_state == 'e'))
+    panic(STR_LEN_PAIR("REST connection error"));
 
-  return connected;
+  goto *states[sequence];
+
+connect:
+  connect(REST_FILENO, &rest->addr, sizeof(rest->addr));
+  sequence++;
+  return false;
+
+ssl_handshake:
+  sequence += wolfSSL_connect(rest->ssl) == SSL_SUCCESS;
+  return true;
 }
 
 void free_rest(const rest_client_t *restrict rest)
