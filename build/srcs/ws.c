@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 20:53:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/25 17:32:26 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/25 20:49:27 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,8 @@ inline bool handle_ws_connection(const ws_client_t *restrict client, const uint8
 
 resolve:
   log(STR_LEN_PAIR("Resolving Websocket endpoint: " WS_HOST));
-  sequence += resolve_domain(resolver, STR_LEN_PAIR(WS_HOST), &client->addr, WS_FILENO);  
+  resolve_domain(resolver, STR_LEN_PAIR(WS_HOST), &client->addr, WS_FILENO);
+  sequence++;
   return false;
 
 connect:

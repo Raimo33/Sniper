@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 17:53:55 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/25 17:38:17 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/25 20:49:13 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,8 @@ inline bool handle_rest_connection(const rest_client_t *restrict rest, const uin
 
 resolve:
   log(STR_LEN_PAIR("Resolving REST endpoint: " REST_HOST));
-  sequence += resolve_domain(resolver, STR_LEN_PAIR(REST_HOST), &rest->addr, REST_FILENO);
+  resolve_domain(resolver, STR_LEN_PAIR(REST_HOST), &rest->addr, REST_FILENO);
+  sequence++;
   return false;
 
 connect:

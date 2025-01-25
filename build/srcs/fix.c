@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 21:02:36 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/25 17:38:09 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/25 20:49:19 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,8 @@ inline bool handle_fix_connection(const fix_client_t *restrict client, const uin
 
 resolve:
   log(STR_LEN_PAIR("Resolving FIX endpoint: " FIX_HOST));
-  sequence += resolve_domain(resolver, STR_LEN_PAIR(FIX_HOST), &client->addr, FIX_FILENO);
+  resolve_domain(resolver, STR_LEN_PAIR(FIX_HOST), &client->addr, FIX_FILENO);
+  sequence++;
   return false;
 
 connect:
