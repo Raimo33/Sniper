@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 18:15:10 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/19 09:37:18 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/25 15:23:06 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,16 +26,16 @@ void init_signals(void)
   close(fd);
 }
 
-inline void check_signals(const char fd_state)
+inline void handle_signal(const uint8_t events)
 {
-  switch (fd_state)
+  struct signalfd_siginfo info;
+  read(SIG_FILENO, &info, sizeof(info));
+
+  switch (info.ssi_signo)
   {
-    case '\0':
-      break;
-    case 'r':
-      panic(STR_LEN_PAIR("Signal received"));
-    case 'e':
-      panic(STR_LEN_PAIR("Error on signal fd"));
+    case SIGINT: FALLTHROUGH;
+    case SIGTERM:
+      panic(STR_LEN_PAIR("Received termination signal"));
     default:
       UNREACHABLE;
   }

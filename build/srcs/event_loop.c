@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 17:40:24 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/25 11:55:42 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/25 14:32:07 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,37 +48,42 @@ void init_event_loop(event_loop_ctx_t *restrict ctx)
   });
 }
 
-void establish_connections(const event_loop_ctx_t *restrict ctx, const fix_client_t *fix, const ws_client_t *ws, const rest_client_t *rest, const dns_resolver_t *resolver)
+void establish_connections(const event_loop_ctx_t *restrict ctx, const fix_client_t *fix, const ws_client_t *ws, const rest_client_t *rest)
 {
   struct epoll_event events[MAX_EVENTS] ALIGNED(64) = {0};
-  char fd_states[MAX_FILENO + 1] ALIGNED(64) = {0};
   struct epoll_event *event;
   uint8_t conn_count = 0;
   uint8_t n;
-  uint8_t event_fd;
-  uint8_t event_mask;
+
+  //TODO implement DNS resolution concurrently in the same loop (otherwise signals and logs might not be handled)
+  //TODO maybe notificate the client sockets with their domain names resolved so that epollet will catch the events
 
   while (LIKELY(conn_count < 3))
   {
     n = epoll_wait(ctx->epoll_fd, events, MAX_EVENTS, -1);
     for (event = events; n > 0; n--, event++)
-    {
-      event_fd = event->data.fd;
-      event_mask = event->events;
-  
-      PREFETCHR(event + 1, L0);
-      if (UNLIKELY(event_mask & (EPOLLERR | EPOLLHUP | EPOLLRDHUP)))
-        fd_states[event_fd] = 'e';
-      else
-        fd_states[event_fd] = 'r' * !!(event_mask & EPOLLIN) + 'w' * !!(event_mask & EPOLLOUT); 
+    {    
+      switch (event->data.fd)
+      {
+        case SIG_FILENO:
+          handle_signal(event->events);
+          break;
+        case WS_FILENO:
+          conn_count += handle_ws_connection(ws, event->events);
+          break;
+        case FIX_FILENO:
+          conn_count += handle_fix_connection(fix, event->events);
+          break;
+        case REST_FILENO:
+          conn_count += handle_rest_connection(rest, event->events);
+          break;
+        case LOG_FILENO:
+          handle_logs(event->events);
+          break;
+        default:
+          UNREACHABLE;
+      }
     }
-
-    check_signals(fd_states[SIG_FILENO]);
-    handle_dns_resolution(resolver, fd_states[DNS_FILENO], &ws->addr, &fix->addr, &rest->addr);
-    conn_count += handle_ws_connection(ws, fd_states[WS_FILENO]);
-    conn_count += handle_fix_connection(fix, fd_states[FIX_FILENO]);
-    conn_count += handle_rest_connection(rest, fd_states[REST_FILENO]);
-    check_logs(fd_states[LOG_FILENO]);
   }
 }
 

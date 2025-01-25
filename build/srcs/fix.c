@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 21:02:36 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/25 11:22:58 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/25 15:20:29 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,20 +38,15 @@ void init_fix(fix_client_t *restrict fix, const keys_t *restrict keys, const WOL
   close(fd);
 }
 
-inline bool handle_fix_connection(const fix_client_t *restrict fix, const char fd_state)
+inline bool handle_fix_connection(const fix_client_t *restrict fix, const uint8_t events)
 {
-  static void *restrict states[] = {&&resolve, &&connect, &&ssl_handshake, &&send_logon, &&receive_logon, &&send_limit_query, &&receive_limit_query };
+  static void *restrict states[] = {&&connect, &&ssl_handshake, &&send_logon, &&receive_logon, &&send_limit_query, &&receive_limit_query};
   static uint8_t sequence;
 
-  if (UNLIKELY(fd_state == 'e'))
+  if (UNLIKELY(events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP)))
     panic(STR_LEN_PAIR("FIX connection error"));
 
   goto *states[sequence];
-
-resolve:
-  log(STR_LEN_PAIR("Resolving " FIX_HOST));
-  sequence += (fix->addr.sin_addr.s_addr != INADDR_NONE);
-  return false;
 
 connect:
   log(STR_LEN_PAIR("Connecting to FIX endpoint"));

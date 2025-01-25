@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 16:52:51 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/25 11:06:34 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/25 14:18:43 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,7 +129,7 @@ typedef struct
 } fix_client_t;
 
 void COLD init_fix(fix_client_t *restrict fix, const keys_t *restrict keys, const WOLFSSL_CTX *restrict ssl_ctx);
-inline bool HOT handle_fix_connection(const fix_client_t *restrict fix, const char fd_state);
+inline bool HOT handle_fix_connection(const fix_client_t *restrict fix, const uint8_t events);
 void COLD free_fix(const fix_client_t *restrict fix);
 
 #endif

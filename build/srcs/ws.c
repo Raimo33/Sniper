@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 20:53:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/25 11:22:38 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/25 15:20:05 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,20 +34,15 @@ void init_ws(ws_client_t *restrict ws, const WOLFSSL_CTX *restrict ssl_ctx)
   close(fd);
 }
 
-inline bool handle_ws_connection(const ws_client_t *restrict ws, const char fd_state)
+inline bool handle_ws_connection(const ws_client_t *restrict ws, const uint8_t events)
 {
-  static void *restrict states[] = {&&resolve, &&connect, &&ssl_handshake, &&upgrade_request, &&upgrade_response };
+  static void *restrict states[] = {&&connect, &&ssl_handshake, &&upgrade_request, &&upgrade_response};
   static uint8_t sequence;
 
-  if (UNLIKELY(fd_state == 'e'))
+  if (UNLIKELY(events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP)))
     panic(STR_LEN_PAIR("Websocket connection error"));
 
   goto *states[sequence];
-
-resolve:
-  log(STR_LEN_PAIR("Resolving " WS_HOST));
-  sequence += (ws->addr.sin_addr.s_addr != INADDR_NONE);
-  return false;
 
 connect:
   log(STR_LEN_PAIR("Connecting to Websocket endpoint"));
@@ -74,7 +69,7 @@ upgrade_response:
 static bool send_upgrade_request(ws_client_t *restrict ws)
 {
   static bool init;
-  static http_request_t request ALIGNED(16) =
+  static const http_request_t request ALIGNED(16) =
   {
     .method = HTTP_GET,
     .path = WS_PATH,
@@ -91,23 +86,24 @@ static bool send_upgrade_request(ws_client_t *restrict ws)
     .body = NULL,
     .body_len = 0
   };
-  static uint16_t len = 
+  static const uint16_t len = (
     STR_LEN("GET") + 1 + request.path_len + 1 + STR_LEN("HTTP/1.1") + 2 +
     request.headers[0].key_len + 2 + request.headers[0].value_len + 2 +
     request.headers[1].key_len + 2 + request.headers[1].value_len + 2 +
     request.headers[2].key_len + 2 + request.headers[2].value_len + 2 +
     request.headers[3].key_len + 2 + request.headers[3].value_len + 2 +
-    request.headers[4].key_len + 2 + request.headers[4].value_len + 2 + 2;
+    request.headers[4].key_len + 2 + request.headers[4].value_len + 2 + 2
+  );
   static char buffer[len] ALIGNED(16);
 
-  if (LIKELY(!init))
+  if (UNLIKELY(init == false))
   {
     generate_ws_key(ws->conn_key);
     build_http_request(&request, buffer);
     init = true;
   }
 
-  return !!wolfSSL_send(ws->ssl_sock.ssl, buffer, len, MSG_NOSIGNAL);
+  return !!wolfSSL_send(ws->ssl, buffer, len, MSG_NOSIGNAL);
 }
 
 static bool receive_upgrade_response(const ws_client_t *restrict ws)
