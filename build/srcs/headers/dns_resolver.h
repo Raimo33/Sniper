@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/25 10:38:46 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/25 17:36:32 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/25 18:02:39 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,6 @@
 
 # define DNS_SERVER "1.1.1.1"
 # define DNS_FILENO 8
-# define DNS_RETRIES 3
 # define MAX_ADDRESSES 3
 
 typedef struct PACKED {
