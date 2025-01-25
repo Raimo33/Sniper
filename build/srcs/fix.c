@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 21:02:36 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/24 19:08:52 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/25 11:22:58 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ void init_fix(fix_client_t *restrict fix, const keys_t *restrict keys, const WOL
     .sin_family = AF_INET,
     .sin_port = htons(FIX_PORT),
     .sin_addr = {
-      .s_addr = inet_addr(FIX_HOST) //TODO getaddrinfo e dns resolve
+      .s_addr = INADDR_NONE
     }
   };
   fix->keys = keys;
@@ -40,7 +40,7 @@ void init_fix(fix_client_t *restrict fix, const keys_t *restrict keys, const WOL
 
 inline bool handle_fix_connection(const fix_client_t *restrict fix, const char fd_state)
 {
-  static void *restrict states[] = { &&connect, &&ssl_handshake, &&send_logon, &&receive_logon, &&send_limit_query, &&receive_limit_query };
+  static void *restrict states[] = {&&resolve, &&connect, &&ssl_handshake, &&send_logon, &&receive_logon, &&send_limit_query, &&receive_limit_query };
   static uint8_t sequence;
 
   if (UNLIKELY(fd_state == 'e'))
@@ -48,28 +48,39 @@ inline bool handle_fix_connection(const fix_client_t *restrict fix, const char f
 
   goto *states[sequence];
 
+resolve:
+  log(STR_LEN_PAIR("Resolving " FIX_HOST));
+  sequence += (fix->addr.sin_addr.s_addr != INADDR_NONE);
+  return false;
+
 connect:
+  log(STR_LEN_PAIR("Connecting to FIX endpoint"));
   connect(FIX_FILENO, &fix->addr, sizeof(fix->addr));
   sequence++;
   return false;
 
 ssl_handshake:
+  log(STR_LEN_PAIR("Performing SSL handshake"));
   sequence += wolfSSL_connect(fix->ssl) == SSL_SUCCESS;
   return false;
 
 send_logon:
+  log(STR_LEN_PAIR("Sending logon message"));
   sequence += send_logon(fix)
   return false;
 
 receive_logon:
+  log(STR_LEN_PAIR("Receiving logon message"));
   sequence += receive_logon(fix)
   return false;
 
 send_limit_query:
+  log(STR_LEN_PAIR("Sending limit query"));
   sequence += send_limit_query(fix)
   return false;
 
 receive_limit_query:
+  log(STR_LEN_PAIR("Receiving limit query"));
   sequence += receive_limit_query(fix)
   return true;
 }

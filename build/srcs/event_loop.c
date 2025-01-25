@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 17:40:24 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/23 21:05:06 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/25 11:55:42 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,17 +24,22 @@ void init_event_loop(event_loop_ctx_t *restrict ctx)
     .data = { .fd = SIG_FILENO }
   });
 
-  epoll_ctl(ctx->epoll_fd, EPOLL_CTL_ADD, ws->fd, &(struct epoll_event) {
+  epoll_ctl(ctx->epoll_fd, EPOLL_CTL_ADD, WS_FILENO, &(struct epoll_event) {
     .events = socket_events,
     .data = { .fd = WS_FILENO }
   });
-  epoll_ctl(ctx->epoll_fd, EPOLL_CTL_ADD, fix->fd, &(struct epoll_event) {
+  epoll_ctl(ctx->epoll_fd, EPOLL_CTL_ADD, FIX_FILENO, &(struct epoll_event) {
     .events = socket_events,
     .data = { .fd = FIX_FILENO }
   });
-  epoll_ctl(ctx->epoll_fd, EPOLL_CTL_ADD, rest->fd, &(struct epoll_event) {
+  epoll_ctl(ctx->epoll_fd, EPOLL_CTL_ADD, REST_FILENO, &(struct epoll_event) {
     .events = socket_events,
     .data = { .fd = REST_FILENO }
+  });
+
+  epoll_ctl(ctx->epoll_fd, EPOLL_CTL_ADD, DNS_FILENO, &(struct epoll_event) {
+    .events = socket_events,
+    .data = { .fd = DNS_FILENO }
   });
 
   epoll_ctl(ctx->epoll_fd, EPOLL_CTL_ADD, LOG_FILENO, &(struct epoll_event) {
@@ -43,10 +48,10 @@ void init_event_loop(event_loop_ctx_t *restrict ctx)
   });
 }
 
-void establish_connections(const event_loop_ctx_t *restrict ctx, const fix_client_t *fix, const ws_client_t *ws, const rest_client_t *rest)
+void establish_connections(const event_loop_ctx_t *restrict ctx, const fix_client_t *fix, const ws_client_t *ws, const rest_client_t *rest, const dns_resolver_t *resolver)
 {
   struct epoll_event events[MAX_EVENTS] ALIGNED(64) = {0};
-  char fd_states[MAX_FDS] ALIGNED(64) = {0};
+  char fd_states[MAX_FILENO + 1] ALIGNED(64) = {0};
   struct epoll_event *event;
   uint8_t conn_count = 0;
   uint8_t n;
@@ -69,6 +74,7 @@ void establish_connections(const event_loop_ctx_t *restrict ctx, const fix_clien
     }
 
     check_signals(fd_states[SIG_FILENO]);
+    handle_dns_resolution(resolver, fd_states[DNS_FILENO], &ws->addr, &fix->addr, &rest->addr);
     conn_count += handle_ws_connection(ws, fd_states[WS_FILENO]);
     conn_count += handle_fix_connection(fix, fd_states[FIX_FILENO]);
     conn_count += handle_rest_connection(rest, fd_states[REST_FILENO]);

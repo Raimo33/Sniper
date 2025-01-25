@@ -6,15 +6,14 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/24 19:10:57 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/24 22:14:03 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/25 09:44:43 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "headers/fixed_point.h"
 
-//TODO capire se implementare overflow detection
-//TODO reciprocal multiplication
-//TODO division by zero
+//TODO overflow detection?
+//TODO division by zero?
 //TODO simd support
 
 static const int32_t powers_of_ten[] ALIGNED(64) = {

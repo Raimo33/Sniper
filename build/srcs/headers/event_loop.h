@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 17:42:49 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/19 18:39:45 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/25 11:55:25 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,10 +21,11 @@
 # include "ws.h"
 # include "fix.h"
 # include "rest.h"
+# include "dns_resolver.h"
 # include "logger.h"
 
 # define MAX_EVENTS 128
-# define MAX_FDS 8
+# define MAX_FILENO 8
 
 typedef struct
 {

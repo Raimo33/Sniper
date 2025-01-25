@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 16:52:51 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/24 18:11:16 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/25 11:06:34 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,9 +123,9 @@
 
 typedef struct
 {
-  const struct sockaddr_in addr;
+  struct sockaddr_in addr;
   SSL *ssl;
-  const keys_t *keys;
+  keys_t *keys;
 } fix_client_t;
 
 void COLD init_fix(fix_client_t *restrict fix, const keys_t *restrict keys, const WOLFSSL_CTX *restrict ssl_ctx);

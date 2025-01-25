@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 17:53:55 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/24 16:40:30 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/25 11:22:45 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ void init_rest(rest_client_t *restrict rest, const keys_t *restrict keys, const 
     .sin_family = AF_INET,
     .sin_port = htons(REST_PORT),
     .sin_addr = {
-      .s_addr = inet_addr(REST_HOST) //TODO getaddrinfo e dns resolve
+      .s_addr = INADDR_NONE
     }
   };
   rest->keys = keys;
@@ -37,7 +37,7 @@ void init_rest(rest_client_t *restrict rest, const keys_t *restrict keys, const 
 
 inline bool handle_rest_connection(const rest_client_t *restrict rest, const char fd_state)
 {
-  static void *restrict states[] = { &&connect, &&ssl_handshake };
+  static void *restrict states[] = {&&resolve, &&connect, &&ssl_handshake };
   static uint8_t sequence;
 
   if (UNLIKELY(fd_state == 'e'))
@@ -45,12 +45,19 @@ inline bool handle_rest_connection(const rest_client_t *restrict rest, const cha
 
   goto *states[sequence];
 
+resolve:
+  log(STR_LEN_PAIR("Resolving " REST_HOST));
+  sequence += (rest->addr.sin_addr.s_addr != INADDR_NONE);
+  return false;
+
 connect:
+  log(STR_LEN_PAIR("Connecting to REST endpoint"));
   connect(REST_FILENO, &rest->addr, sizeof(rest->addr));
   sequence++;
   return false;
 
 ssl_handshake:
+  log(STR_LEN_PAIR("Performing SSL handshake"));
   sequence += wolfSSL_connect(rest->ssl) == SSL_SUCCESS;
   return true;
 }
