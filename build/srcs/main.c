@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/29 17:07:42 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/25 14:24:17 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/25 16:15:18 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,19 +23,6 @@
 
 //https://developers.binance.com/docs/binance-spot-api-docs/faqs/spot_glossary
 
-/*
-TODO FIXED POINTS
-
-Replace division with precomputed reciprocals.
-
-Vectorize with SIMD.
-
-Inline assembly for critical paths.
-
-Profile-guided and link-time optimizations.
-
-*/
-
 void *cleanup_label = NULL;
 
 int32_t main(void)
@@ -43,31 +30,31 @@ int32_t main(void)
   keys_t keys;
   event_loop_ctx_t loop;
   WOLFSSL_CTX *ssl_ctx;
-  fix_client_t fix;
-  ws_client_t ws;
-  rest_client_t rest;
-  dns_resolver_t resolver;
+  fix_client_t fix_client;
+  ws_client_t ws_client;
+  rest_client_t rest_client;
+  dns_resolver_t dns_resolver;
   cleanup_label = &&cleanup;
 
   init_logger();
   init_signals();
   init_keys(&keys);
   init_ssl(&ssl_ctx);
-  init_fix(&fix, &keys, ssl_ctx);
-  init_ws(&ws, ssl_ctx);
-  init_rest(&rest, &keys, ssl_ctx);
-  init_dns_resolver(&resolver);
+  init_fix(&fix_client, &keys, ssl_ctx);
+  init_ws(&ws_client, ssl_ctx);
+  init_rest(&rest_client, &keys, ssl_ctx);
+  init_dns_resolver(&dns_resolver);
   init_event_loop(&loop);
 
-  establish_connections(&loop, &fix, &ws, &rest);
-  listen_events(&loop, &fix, &ws, &rest);
+  establish_connections(&loop, &fix_client, &ws_client, &rest_client, &dns_resolver);
+  listen_events(&loop, &fix_client, &ws_client, &rest_client);
 
 cleanup:
   free_event_loop(&loop);
-  free_dns_resolver(&resolver);
-  free_rest(&rest);
-  free_ws(&ws);
-  free_fix(&fix);
+  free_dns_resolver(&dns_resolver);
+  free_rest(&rest_client);
+  free_ws(&ws_client);
+  free_fix(&fix_client);
   free_ssl(ssl_ctx);
   free_keys(&keys);
   free_signals();

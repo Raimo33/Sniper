@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 20:53:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/25 15:20:05 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/25 17:32:26 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,36 +34,40 @@ void init_ws(ws_client_t *restrict ws, const WOLFSSL_CTX *restrict ssl_ctx)
   close(fd);
 }
 
-inline bool handle_ws_connection(const ws_client_t *restrict ws, const uint8_t events)
+inline bool handle_ws_connection(const ws_client_t *restrict client, const uint8_t events, const dns_resolver_t *restrict resolver)
 {
-  static void *restrict states[] = {&&connect, &&ssl_handshake, &&upgrade_request, &&upgrade_response};
-  static uint8_t sequence;
+  static void *restrict states[] = {&&resolve, &&connect, &&ssl_handshake, &&upgrade_request, &&upgrade_response};
+  static uint8_t sequence = 0;
 
   if (UNLIKELY(events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP)))
     panic(STR_LEN_PAIR("Websocket connection error"));
 
   goto *states[sequence];
 
+resolve:
+  log(STR_LEN_PAIR("Resolving Websocket endpoint: " WS_HOST));
+  sequence += resolve_domain(resolver, STR_LEN_PAIR(WS_HOST), &client->addr, WS_FILENO);  
+  return false;
+
 connect:
-  log(STR_LEN_PAIR("Connecting to Websocket endpoint"));
-  connect(WS_FILENO, &ws->addr, sizeof(ws->addr));
+  log(STR_LEN_PAIR("Connecting to Websocket endpoint: " WS_HOST));
+  connect(WS_FILENO, &client->addr, sizeof(client->addr));
   sequence++;
   return false;
 
 ssl_handshake:
   log(STR_LEN_PAIR("Performing SSL handshake"));
-  sequence += wolfSSL_connect(ws->ssl) == SSL_SUCCESS;
+  sequence += wolfSSL_connect(client->ssl) == SSL_SUCCESS;
   return false;
 
 upgrade_request:
   log(STR_LEN_PAIR("Sending Websocket upgrade request"));
-  sequence += send_upgrade_request(ws);
+  sequence += send_upgrade_request(client);
   return false;
 
 upgrade_response:
   log(STR_LEN_PAIR("Receiving Websocket upgrade response"));
-  sequence += receive_upgrade_response(ws);
-  return true;
+  return receive_upgrade_response(client);
 }
 
 static bool send_upgrade_request(ws_client_t *restrict ws)

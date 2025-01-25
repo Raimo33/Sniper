@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 17:40:24 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/25 14:32:07 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/25 17:37:59 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,8 @@ void init_event_loop(event_loop_ctx_t *restrict ctx)
 {
   ctx->epoll_fd = epoll_create1(0);
   const uint8_t signal_events = EPOLLIN | EPOLLONESHOT | EPOLLET;
-  const uint8_t socket_events = EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLERR | EPOLLET;
+  const uint8_t tcp_events = EPOLLIN | EPOLLOUT | EPOLLHUP | EPOLLRDHUP | EPOLLERR | EPOLLET;
+  const uint8_t udp_events = EPOLLIN | EPOLLHUP | EPOLLRDHUP | EPOLLERR | EPOLLET;
   const uint8_t log_events = EPOLLOUT | EPOLLHUP | EPOLLERR | EPOLLET;
   
   epoll_ctl(ctx->epoll_fd, EPOLL_CTL_ADD, SIG_FILENO, &(struct epoll_event) {
@@ -25,20 +26,20 @@ void init_event_loop(event_loop_ctx_t *restrict ctx)
   });
 
   epoll_ctl(ctx->epoll_fd, EPOLL_CTL_ADD, WS_FILENO, &(struct epoll_event) {
-    .events = socket_events,
+    .events = tcp_events,
     .data = { .fd = WS_FILENO }
   });
   epoll_ctl(ctx->epoll_fd, EPOLL_CTL_ADD, FIX_FILENO, &(struct epoll_event) {
-    .events = socket_events,
+    .events = tcp_events,
     .data = { .fd = FIX_FILENO }
   });
   epoll_ctl(ctx->epoll_fd, EPOLL_CTL_ADD, REST_FILENO, &(struct epoll_event) {
-    .events = socket_events,
+    .events = tcp_events,
     .data = { .fd = REST_FILENO }
   });
 
   epoll_ctl(ctx->epoll_fd, EPOLL_CTL_ADD, DNS_FILENO, &(struct epoll_event) {
-    .events = socket_events,
+    .events = udp_events,
     .data = { .fd = DNS_FILENO }
   });
 
@@ -48,15 +49,12 @@ void init_event_loop(event_loop_ctx_t *restrict ctx)
   });
 }
 
-void establish_connections(const event_loop_ctx_t *restrict ctx, const fix_client_t *fix, const ws_client_t *ws, const rest_client_t *rest)
+void establish_connections(const event_loop_ctx_t *restrict ctx, const fix_client_t *fix_client, const ws_client_t *ws_client, const rest_client_t *rest_client, const dns_resolver_t *dns_resolver)
 {
   struct epoll_event events[MAX_EVENTS] ALIGNED(64) = {0};
   struct epoll_event *event;
   uint8_t conn_count = 0;
   uint8_t n;
-
-  //TODO implement DNS resolution concurrently in the same loop (otherwise signals and logs might not be handled)
-  //TODO maybe notificate the client sockets with their domain names resolved so that epollet will catch the events
 
   while (LIKELY(conn_count < 3))
   {
@@ -68,14 +66,17 @@ void establish_connections(const event_loop_ctx_t *restrict ctx, const fix_clien
         case SIG_FILENO:
           handle_signal(event->events);
           break;
+        case DNS_FILENO:
+          handle_dns_responses(dns_resolver, event->events);
+          break;
         case WS_FILENO:
-          conn_count += handle_ws_connection(ws, event->events);
+          conn_count += handle_ws_connection(ws_client, event->events, dns_resolver);
           break;
         case FIX_FILENO:
-          conn_count += handle_fix_connection(fix, event->events);
+          conn_count += handle_fix_connection(fix_client, event->events, dns_resolver);
           break;
         case REST_FILENO:
-          conn_count += handle_rest_connection(rest, event->events);
+          conn_count += handle_rest_connection(rest_client, event->events, dns_resolver);
           break;
         case LOG_FILENO:
           handle_logs(event->events);
@@ -87,7 +88,7 @@ void establish_connections(const event_loop_ctx_t *restrict ctx, const fix_clien
   }
 }
 
-void listen_events(const event_loop_ctx_t *restrict ctx, const fix_client_t *fix, const ws_client_t *ws, const rest_client_t *rest)
+void listen_events(const event_loop_ctx_t *restrict ctx, const fix_client_t *fix_client, const ws_client_t *ws_client, const rest_client_t *rest_client)
 {
   //TODO: Implement this (take inspiration from establish_connections)
 }
