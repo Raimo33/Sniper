@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/25 10:38:46 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/26 12:53:40 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/26 14:06:56 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,10 +27,17 @@
 # define MAX_DOMAIN_LEN 255
 # define MAX_LABEL_LEN 63
 # define DNS_MAX_PACKET_SIZE 512
-# define DNS_FLAG_QR_QUERY (0 << 15)
-# define DNS_FLAG_RD (1 << 8)
-# define DNS_QTYPE_A 1
-# define DNS_QCLASS_IN 1
+
+# define DNS_FLAG_QR     0x8000
+# define DNS_FLAG_OPCODE 0x7800
+# define DNS_FLAG_AA     0x0400
+# define DNS_FLAG_TC     0x0200
+# define DNS_FLAG_RD     0x0100
+# define DNS_FLAG_RA     0x0080
+# define DNS_FLAG_Z      0x0040
+# define DNS_FLAG_AD     0x0020
+# define DNS_FLAG_CD     0x0010
+# define DNS_FLAG_RCODE  0x000F
 
 typedef struct PACKED {
   uint16_t id;

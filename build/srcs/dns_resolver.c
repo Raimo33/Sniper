@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/25 11:15:29 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/26 13:17:55 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/26 15:10:14 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,7 @@ void resolve_domain(dns_resolver_t *restrict resolver, const char *restrict doma
 
   const dns_header_t header = (dns_header_t) {
     .id = htons(id),
-    .flags = htons(DNS_FLAG_QR_QUERY | DNS_FLAG_RD),
+    .flags = htons(DNS_FLAG_QR | DNS_FLAG_RD),
     .qdcount = htons(1),
     .ancount = 0,
     .nscount = 0,
@@ -126,9 +126,44 @@ static void encode_domain(const char *restrict domain, uint16_t domain_len, char
   *qname++ = 0;
 }
 
-static void parse_dns_response(const uint8_t *restrict buffer, const uint16_t len, uint16_t *restrict id, char *restrict ip)
+static void parse_dns_response(const uint8_t *buf, const uint16_t len, uint16_t *restrict id, char *restrict ip)
 {
-  //TODO
+  const dns_header_t *header = buf;
+  *id = ntohs(header->id);
+
+  assert(header->flags & DNS_FLAG_QR, STR_LEN_PAIR("Invalid DNS response"));
+  assert(header->flags & DNS_FLAG_RD, STR_LEN_PAIR("DNS server does not support recursion"));
+
+  buf += sizeof(dns_header_t);
+  while (LIKELY(*buf != '\0'))
+    buf += *buf + 1;
+  buf += 1 + sizeof(header->qtype) + sizeof(header->qclass);
+
+  dns_answer_t *answer;
+  uint16_t type, class, rdlength;
+  uint8_t ancount = ntohs(header->ancount);
+  while (LIKELY(ancount--))
+  {
+    bool is_compressed = (*buf & 0xC0) == 0xC0;
+    buf += 2 * is_compressed;
+    while (UNLIKELY(is_compressed == false && *buf != '\0'))
+      buf += *buf + 1;
+    buf += (is_compressed == false);
+
+    answer = buf;
+    type = ntohs(answer->type);
+    class = ntohs(answer->class);
+    rdlength = ntohs(answer->rdlength);
+
+    if (LIKELY(type == DNS_QTYPE_A && class == DNS_QCLASS_IN))
+    {
+      assert(rdlength == sizeof(uint32_t), STR_LEN_PAIR("Invalid A record length"));
+      memcpy(ip, answer->rdata, sizeof(uint32_t));
+      return;
+    }
+    buf += sizeof(dns_answer_t) - sizeof(answer->rdata) + rdlength;
+  }
+  panic(STR_LEN_PAIR("No valid record in DNS response"));
 }
 
 void free_dns_resolver(const dns_resolver_t *restrict resolver)
