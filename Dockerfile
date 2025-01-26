@@ -6,23 +6,23 @@
 #    By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/12/29 17:07:44 by craimond          #+#    #+#              #
-#    Updated: 2025/01/13 17:59:51 by craimond         ###   ########.fr        #
+#    Updated: 2025/01/26 20:42:03 by craimond         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-FROM alpine:3.21
+FROM clearlinux:latest 
 
-SHELL ["/bin/ash", "-c"]
+RUN swupd update
+RUN swupd bundle-add make c-basic os-core-dev
 
-RUN apk add --no-cache gcc jemalloc-dev wolfssl-dev
+COPY ./conf/sysctl.conf /etc/sysctl.conf
+COPY ./build /build
 
-COPY ./build/ /build/
+RUN useradd -s /bin/bash fastaf
+RUN chown -R fastaf:fastaf /build
 
 WORKDIR /build
-VOLUME /keys
 RUN make
 
-USER nobody
-ENV PRIV_KEY API_KEY
-
-CMD ["./sniper"]
+ENTRYPOINT ["sysctl", "-p"]
+CMD ["chrt", "-f", "99", "./fastAF"]

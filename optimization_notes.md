@@ -32,6 +32,7 @@ NUMA
 software pipelining
 memory mapped files
 inline assemlby __asm__ volatile
+kernel networking
 
 gcc extensions:
 aggressive Ofast compilation
@@ -54,3 +55,6 @@ restrict keyword
 
 #pragmas: #TODO https://gcc.gnu.org/onlinedocs/gcc/Pragmas.html
 - ivdep
+
+constraints:
+intel CPU x86_64 (because of clearlinux OS)

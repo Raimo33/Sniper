@@ -1,3 +1,4 @@
 .vscode/
 .key
 .log
+.env

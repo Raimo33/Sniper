@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 16:35:17 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/19 19:40:04 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/26 17:21:32 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,6 @@ SSL *init_ssl_socket(const uint16_t fd, const WOLFSSL_CTX *restrict ctx)
 {
   SSL *ssl = wolfSSL_new(ctx);
 
-  setsockopt(fd, IPPROTO_TCP, TCP_FASTOPEN, &(int){1}, sizeof(int));
   wolfSSL_set_fd(ssl, fd);
   wolfSSL_set_verify(ssl, SSL_VERIFY_NONE, NULL);
   wolfSSL_set_using_nonblock(ssl, true);

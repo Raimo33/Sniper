@@ -6,7 +6,7 @@
 #    By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/03/19 14:52:58 by egualand          #+#    #+#              #
-#    Updated: 2025/01/24 18:15:01 by craimond         ###   ########.fr        #
+#    Updated: 2025/01/26 20:32:55 by craimond         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -15,16 +15,16 @@ NAME := FastAF
 OBJS_DIR := objs
 SRCS_DIR := srcs
 HDRS_DIR := srcs/headers
-INCS_DIR := /usr/include
+INCS_DIR := /usr/include/linux /usr/include
 
-SRCS := $(addprefix $(SRCS_DIR)/, main.c)
+SRCS := $(addprefix $(SRCS_DIR)/, main.c ws.c fix.c rest.c dns_resolver.c event_loop.c http_parser.c logger.c signals.c errors.c keys.c ssl.c)
 OBJS := $(SRCS:$(SRCS_DIR)/%.c=$(OBJS_DIR)/%.o)
-HDRS := $(addprefix $(HDRS_DIR)/, sniper.h)
-INCS := $(INCS_DIR) $(HDRS_DIR)
+HDRS := $(addprefix $(HDRS_DIR)/, ws.h fix.h rest.h dns_resolver.h event_loop.h http_parser.h logger.h signals.h errors.h keys.h ssl.h extensions.h)
 
 CC := gcc
 CVERSION := 23
 CFLAGS := -std=c$(CVERSION) -Wall -Wextra -Werror -Ofast -ffast-math -fopt-info-vec-all -march=native -static -fomit-frame-pointer -flto
+LDFLAGS := -static -lwolfssl -lwolfcrypt
 RM := rm -rf
 
 VALGRIND_SUPP := valgrind.supp
@@ -46,7 +46,7 @@ init:
 	mkdir -p objs
 
 build: $(OBJS)
-	$(CC) $(CFLAGS) -o $(NAME) $(OBJS)
+	$(CC) $(CFLAGS) -I $(INCS_DIR) $(OBJS) -o $(NAME) $(LDFLAGS)
 
 leaks: all
 	valgrind $(VALGRIND_FLAGS) ./$(NAME)
@@ -60,7 +60,7 @@ memory: all
 	ms_print $(MASSIF_LOG)
 
 objs/%.o: srcs/%.c $(HDRS)
-	$(CC) $(CFLAGS) -I $(INCS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
 	$(RM) $(OBJS) $(VALGRIND_LOG) $(CACHEGRIND_LOG) $(CALLGRIND_LOG) $(MASSIF_LOG)
@@ -70,11 +70,11 @@ fclean: clean
 
 re: fclean all
 
-.PHONY:
-.SILENT:
+.PHONY: clean fclean re
+.SILENT: all init build leaks memory clean fclean re
 .SUFFIXES: .c .o
-.IGNORE: clean fclean
+.IGNORE: clean fclean re leaks memory
 .PRECIOUS: %.o
 .NOTPARALLEL: leaks cache
-.ONESHELL:
+.ONESHELL: leaks memory
 .DEFAULT_GOAL: all

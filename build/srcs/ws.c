@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 20:53:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/26 13:16:10 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/26 17:22:31 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@ void init_ws(ws_client_t *restrict ws, const WOLFSSL_CTX *restrict ssl_ctx)
   };
   
   const uint16_t fd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
+  setsockopt(fd, IPPROTO_TCP, TCP_FASTOPEN, &(uint8_t){1}, sizeof(uint8_t));
   setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &(uint8_t){1}, sizeof(uint8_t));
   ws->ssl = init_ssl_socket(fd, ssl_ctx);
 

@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/29 17:07:42 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/25 16:15:18 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/26 18:51:08 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,15 @@
 #include "headers/keys.h"
 #include "headers/ssl.h"
 
+//TODO Represent currencies as nodes and exchange rates as weighted edges.
+//Precompute All Triangular Cycles 
+//SIMD-Based Cycle Evaluation
+
 //https://developers.binance.com/docs/binance-spot-api-docs/faqs/spot_glossary
+
+//TODO
+//disable_interrupt_coalescing
+//disable_gro_lro
 
 void *cleanup_label = NULL;
 

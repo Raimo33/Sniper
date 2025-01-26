@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 21:02:36 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/26 13:02:58 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/26 17:21:56 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,8 @@ void init_fix(fix_client_t *restrict client, const keys_t *restrict keys, const 
   client->keys = keys;
 
   const uint16_t fd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
-  setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &(bool){1}, sizeof(bool));
+  setsockopt(fd, IPPROTO_TCP, TCP_FASTOPEN, &(uint8_t){1}, sizeof(uint8_t));
+  setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &(uint8_t){1}, sizeof(uint8_t));
   client->ssl = init_ssl_socket(fd, ssl_ctx);
 
   dup2(fd, FIX_FILENO);
