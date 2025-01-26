@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 20:53:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/25 20:49:27 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/26 13:16:10 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ void init_ws(ws_client_t *restrict ws, const WOLFSSL_CTX *restrict ssl_ctx)
 
 inline bool handle_ws_connection(const ws_client_t *restrict client, const uint8_t events, const dns_resolver_t *restrict resolver)
 {
-  static void *restrict states[] = {&&resolve, &&connect, &&ssl_handshake, &&upgrade_request, &&upgrade_response};
+  static void *restrict states[] = {
   static uint8_t sequence = 0;
 
   if (UNLIKELY(events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP)))
@@ -44,9 +44,15 @@ inline bool handle_ws_connection(const ws_client_t *restrict client, const uint8
 
   goto *states[sequence];
 
-resolve:
+dns_query:
   log(STR_LEN_PAIR("Resolving Websocket endpoint: " WS_HOST));
   resolve_domain(resolver, STR_LEN_PAIR(WS_HOST), &client->addr, WS_FILENO);
+  sequence++;
+  return false;
+
+dns_response:
+  log(STR_LEN_PAIR("Resolved Websocket endpoint: " WS_HOST));
+  read(WS_FILENO, &client->addr.sin_addr.s_addr, sizeof(client->addr.sin_addr.s_addr));
   sequence++;
   return false;
 

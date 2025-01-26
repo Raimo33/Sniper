@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 17:53:55 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/25 20:49:13 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/26 13:15:39 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ void init_rest(rest_client_t *restrict client, const keys_t *restrict keys, cons
 
 inline bool handle_rest_connection(const rest_client_t *restrict rest, const uint8_t events, const dns_resolver_t *restrict resolver)
 {
-  static void *restrict states[] = {&&resolve, &&connect, &&ssl_handshake};
+  static void *restrict states[] = {&&dns_query, &&dns_response, &&connect, &&ssl_handshake};
   static uint8_t sequence = 0;
 
   if (UNLIKELY(events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP)))
@@ -45,9 +45,15 @@ inline bool handle_rest_connection(const rest_client_t *restrict rest, const uin
 
   goto *states[sequence];
 
-resolve:
+dns_query:
   log(STR_LEN_PAIR("Resolving REST endpoint: " REST_HOST));
   resolve_domain(resolver, STR_LEN_PAIR(REST_HOST), &rest->addr, REST_FILENO);
+  sequence++;
+  return false;
+
+dns_response:
+  log(STR_LEN_PAIR("Resolved REST endpoint: " REST_HOST));
+  read(REST_FILENO, &rest->addr.sin_addr.s_addr, sizeof(rest->addr.sin_addr.s_addr));
   sequence++;
   return false;
 

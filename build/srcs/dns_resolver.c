@@ -6,13 +6,14 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/25 11:15:29 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/25 22:03:24 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/26 13:17:55 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "headers/dns_resolver.h"
 
 static void encode_domain(const char *restrict domain, const uint16_t domain_len, char *restrict qname);
+static void parse_dns_response(const uint8_t *restrict buffer, const uint16_t len, uint16_t *restrict id, char *restrict ip);
 
 void init_dns_resolver(dns_resolver_t *restrict resolver)
 {
@@ -30,21 +31,36 @@ void init_dns_resolver(dns_resolver_t *restrict resolver)
 void handle_dns_responses(const dns_resolver_t *restrict resolver, const uint8_t events)
 {
   if (UNLIKELY(events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP)))
-    panic("DNS resolver connection error");
+    panic(STR_LEN_PAIR("DNS resolver connection error"));
 
-  //TODO ricezione delle risposte (e' stato ricevuto un EPOLLIN)
-  //TODO parsing minimo, potrebbero esservi piu risposte, ma non a meta'. all or nothing
-  //TODO matching dell'ID con l'entry
-  //TODO armare il fd del client con EPOLLOUT
-  return;
+  uint8_t buffer[DNS_MAX_PACKET_SIZE];
+  struct sockaddr_in src_addr;
+  socklen_t src_addr_len = sizeof(src_addr);
+  char src_ip[INET_ADDRSTRLEN];
+  uint16_t len;
+  uint16_t id;
+  uint32_t resolved_ip;
+
+  while (true)
+  {
+    len = recvfrom(DNS_FILENO, buffer, DNS_MAX_PACKET_SIZE, MSG_DONTWAIT, &src_addr, &src_addr_len);
+    if (UNLIKELY(len < 0))
+      break;
+
+    inet_ntop(AF_INET, &src_addr.sin_addr, src_ip, INET_ADDRSTRLEN);
+    assert(strcmp(src_ip, DNS_SERVER) == 0, STR_LEN_PAIR("Invalid DNS server response"));
+
+    parse_dns_response(buffer, len, &id, &resolved_ip);
+    write(resolver->entries[id].callback_fd, &resolved_ip, sizeof(resolved_ip));
+  }
 }
 
-void resolve_domain(dns_resolver_t *restrict resolver, const char *restrict domain, const uint16_t domain_len, struct sockaddr_in *restrict addr, const uint16_t callback_fd)
+void resolve_domain(dns_resolver_t *restrict resolver, const char *restrict domain, const uint16_t domain_len, const uint16_t callback_fd)
 {
-  assert(domain_len <= 255, STR_LEN_PAIR("Domain too long"));
+  assert(domain_len <= MAX_DOMAIN_LEN, STR_LEN_PAIR("Domain too long"));
 
   const uint8_t id = resolver->count++;
-  resolver->entries[id] = (dns_entry_t) {domain, domain_len, addr, callback_fd};
+  resolver->entries[id] = (dns_entry_t) {domain, domain_len, callback_fd};
 
   const dns_header_t header = (dns_header_t) {
     .id = htons(id),
@@ -76,7 +92,7 @@ void resolve_domain(dns_resolver_t *restrict resolver, const char *restrict doma
     .msg_flags = 0
   };
 
-  sendmsg(DNS_FILENO, &msg, 0);
+  sendmsg(DNS_FILENO, &msg, MSG_DONTWAIT | MSG_NOSIGNAL);
 }
 
 static void encode_domain(const char *restrict domain, uint16_t domain_len, char *restrict qname)
@@ -84,7 +100,7 @@ static void encode_domain(const char *restrict domain, uint16_t domain_len, char
   uint16_t label_start = 0;
   uint8_t label_len;
 
-  assert(domain_len <= 255, STR_LEN_PAIR("Domain too long"));
+  assert(domain_len <= MAX_DOMAIN_LEN, STR_LEN_PAIR("Domain too long"));
 
   for (uint16_t domain_pos = 0; LIKELY(domain_pos <= domain_len); domain_pos++)
   {
@@ -98,7 +114,7 @@ static void encode_domain(const char *restrict domain, uint16_t domain_len, char
         break;
       }
 
-      assert(label_len <= 63, STR_LEN_PAIR("Invalid domain: label too long"));
+      assert(label_len <= MAX_LABEL_LEN, STR_LEN_PAIR("Invalid domain: label too long"));
 
       *qname++ = label_len;
       memcpy(qname, domain + label_start, label_len);
@@ -108,6 +124,11 @@ static void encode_domain(const char *restrict domain, uint16_t domain_len, char
   }
   
   *qname++ = 0;
+}
+
+static void parse_dns_response(const uint8_t *restrict buffer, const uint16_t len, uint16_t *restrict id, char *restrict ip)
+{
+  //TODO
 }
 
 void free_dns_resolver(const dns_resolver_t *restrict resolver)

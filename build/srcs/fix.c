@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 21:02:36 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/25 20:49:19 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/26 13:02:58 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,8 @@ void init_fix(fix_client_t *restrict client, const keys_t *restrict keys, const 
 
 inline bool handle_fix_connection(const fix_client_t *restrict client, const uint8_t events, const dns_resolver_t *restrict resolver)
 {
-  static void *restrict states[] = {&&resolve, &&connect, &&ssl_handshake, &&send_logon, &&receive_logon, &&send_limit_query, &&receive_limit_query};
+  static void *restrict states[] = {&&dns_query, &&dns_response, &&connect, &&ssl_handshake, &&send_logon, &&receive_logon, &&send_limit_query, &&receive_limit_query};
+
   static uint8_t sequence = 0;
 
   if (UNLIKELY(events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP)))
@@ -48,9 +49,15 @@ inline bool handle_fix_connection(const fix_client_t *restrict client, const uin
 
   goto *states[sequence];
 
-resolve:
+dns_query:
   log(STR_LEN_PAIR("Resolving FIX endpoint: " FIX_HOST));
-  resolve_domain(resolver, STR_LEN_PAIR(FIX_HOST), &client->addr, FIX_FILENO);
+  resolve_domain(resolver, STR_LEN_PAIR(FIX_HOST), FIX_FILENO);
+  sequence++;
+  return false;
+
+dns_response:
+  log(STR_LEN_PAIR("Resolved FIX endpoint: " FIX_HOST));
+  read(FIX_FILENO, &client->addr.sin_addr.s_addr, sizeof(client->addr.sin_addr.s_addr));
   sequence++;
   return false;
 

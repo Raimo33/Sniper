@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 18:08:11 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/25 14:18:34 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/26 13:17:02 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 # include <stdbool.h>
 # include <fcntl.h>
 # include <sys/uio.h>
+# include <epoll.h>
 
 # include "extensions.h"
 

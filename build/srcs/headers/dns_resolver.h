@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/25 10:38:46 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/25 21:37:11 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/26 12:53:40 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,13 +24,13 @@
 # define DNS_SERVER "1.1.1.1"
 # define DNS_FILENO 8
 # define MAX_ADDRESSES 3
-
-#define DNS_FLAG_QR_QUERY (0 << 15)
-#define DNS_FLAG_RD       (1 << 8)
-
-#define DNS_QTYPE_A     1
-
-#define DNS_QCLASS_IN   1
+# define MAX_DOMAIN_LEN 255
+# define MAX_LABEL_LEN 63
+# define DNS_MAX_PACKET_SIZE 512
+# define DNS_FLAG_QR_QUERY (0 << 15)
+# define DNS_FLAG_RD (1 << 8)
+# define DNS_QTYPE_A 1
+# define DNS_QCLASS_IN 1
 
 typedef struct PACKED {
   uint16_t id;
@@ -48,17 +48,17 @@ typedef struct PACKED {
 } dns_question_t;
 
 typedef struct PACKED {
+  uint16_t name;
   uint16_t type;
   uint16_t class;
   uint32_t ttl;
   uint16_t rdlength;
-  // Followed by `rdlength` bytes of data (e.g., IP address).
-} dns_rr_t;
+  uint8_t rdata[];
+} dns_answer_t;
 
 typedef struct {
   char *domain;
   uint16_t domain_len;
-  struct sockaddr_in *addr;
   uint16_t callback_fd;
 } dns_entry_t;
 
@@ -69,7 +69,7 @@ typedef struct {
 } dns_resolver_t;
 
 void COLD init_dns_resolver(dns_resolver_t *restrict resolver);
-void COLD resolve_domain(dns_resolver_t *restrict resolver, const char *restrict domain, const uint16_t domain_len, struct sockaddr_in *restrict addr, const uint16_t callback_fd);
+void COLD resolve_domain(dns_resolver_t *restrict resolver, const char *restrict domain, const uint16_t domain_len, const uint16_t callback_fd);
 void COLD handle_dns_responses(const dns_resolver_t *restrict resolver, const uint8_t events);
 void COLD free_dns_resolver(const dns_resolver_t *restrict resolver);
 
