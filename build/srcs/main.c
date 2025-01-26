@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/29 17:07:42 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/26 18:51:08 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/27 00:08:55 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,8 @@
 //TODO
 //disable_interrupt_coalescing
 //disable_gro_lro
+//enable RSS
+//TODO OPENSSL invece di WOLFSSL
 
 void *cleanup_label = NULL;
 
