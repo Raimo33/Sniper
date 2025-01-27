@@ -6,11 +6,13 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/29 17:07:42 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/27 18:38:22 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/27 19:30:34 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "fastaf.h"
+#include "headers/fastaf.h"
+
+static app_resources_t *restrict app;
 
 static inline void free_logger_wrapper(void)       { free_logger(); }
 static inline void free_signals_wrapper(void)      { free_signals(); }
@@ -21,8 +23,6 @@ static inline void free_ws_wrapper(void)           { free_ws(&app->ws_client); }
 static inline void free_rest_wrapper(void)         { free_rest(&app->rest_client); }
 static inline void free_dns_resolver_wrapper(void) { free_dns_resolver(&app->dns_resolver); }
 static inline void free_event_loop_wrapper(void)   { free_event_loop(&app->loop); }
-
-static app_resources_t *restrict app;
 
 int32_t main(void)
 {

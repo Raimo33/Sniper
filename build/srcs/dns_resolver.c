@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/25 11:15:29 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/26 15:10:14 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/27 19:34:46 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@ void handle_dns_responses(const dns_resolver_t *restrict resolver, const uint8_t
       break;
 
     inet_ntop(AF_INET, &src_addr.sin_addr, src_ip, INET_ADDRSTRLEN);
-    assert(strcmp(src_ip, DNS_SERVER) == 0, STR_LEN_PAIR("Invalid DNS server response"));
+    fast_assert(strcmp(src_ip, DNS_SERVER) == 0, STR_LEN_PAIR("Invalid DNS server response"));
 
     parse_dns_response(buffer, len, &id, &resolved_ip);
     write(resolver->entries[id].callback_fd, &resolved_ip, sizeof(resolved_ip));
@@ -57,7 +57,7 @@ void handle_dns_responses(const dns_resolver_t *restrict resolver, const uint8_t
 
 void resolve_domain(dns_resolver_t *restrict resolver, const char *restrict domain, const uint16_t domain_len, const uint16_t callback_fd)
 {
-  assert(domain_len <= MAX_DOMAIN_LEN, STR_LEN_PAIR("Domain too long"));
+  fast_assert(domain_len <= MAX_DOMAIN_LEN, STR_LEN_PAIR("Domain too long"));
 
   const uint8_t id = resolver->count++;
   resolver->entries[id] = (dns_entry_t) {domain, domain_len, callback_fd};
@@ -100,7 +100,7 @@ static void encode_domain(const char *restrict domain, uint16_t domain_len, char
   uint16_t label_start = 0;
   uint8_t label_len;
 
-  assert(domain_len <= MAX_DOMAIN_LEN, STR_LEN_PAIR("Domain too long"));
+  fast_assert(domain_len <= MAX_DOMAIN_LEN, STR_LEN_PAIR("Domain too long"));
 
   for (uint16_t domain_pos = 0; LIKELY(domain_pos <= domain_len); domain_pos++)
   {
@@ -110,11 +110,11 @@ static void encode_domain(const char *restrict domain, uint16_t domain_len, char
 
       if (UNLIKEYLY(label_len == 0))
       {
-        assert(domain_pos == domain_len, STR_LEN_PAIR("Invalid domain: empty label"));
+        fast_assert(domain_pos == domain_len, STR_LEN_PAIR("Invalid domain: empty label"));
         break;
       }
 
-      assert(label_len <= MAX_LABEL_LEN, STR_LEN_PAIR("Invalid domain: label too long"));
+      fast_assert(label_len <= MAX_LABEL_LEN, STR_LEN_PAIR("Invalid domain: label too long"));
 
       *qname++ = label_len;
       memcpy(qname, domain + label_start, label_len);
@@ -131,8 +131,8 @@ static void parse_dns_response(const uint8_t *buf, const uint16_t len, uint16_t 
   const dns_header_t *header = buf;
   *id = ntohs(header->id);
 
-  assert(header->flags & DNS_FLAG_QR, STR_LEN_PAIR("Invalid DNS response"));
-  assert(header->flags & DNS_FLAG_RD, STR_LEN_PAIR("DNS server does not support recursion"));
+  fast_assert(header->flags & DNS_FLAG_QR, STR_LEN_PAIR("Invalid DNS response"));
+  fast_assert(header->flags & DNS_FLAG_RD, STR_LEN_PAIR("DNS server does not support recursion"));
 
   buf += sizeof(dns_header_t);
   while (LIKELY(*buf != '\0'))
@@ -157,7 +157,7 @@ static void parse_dns_response(const uint8_t *buf, const uint16_t len, uint16_t 
 
     if (LIKELY(type == DNS_QTYPE_A && class == DNS_QCLASS_IN))
     {
-      assert(rdlength == sizeof(uint32_t), STR_LEN_PAIR("Invalid A record length"));
+      fast_assert(rdlength == sizeof(uint32_t), STR_LEN_PAIR("Invalid A record length"));
       memcpy(ip, answer->rdata, sizeof(uint32_t));
       return;
     }

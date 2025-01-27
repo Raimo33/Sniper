@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 19:57:09 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/27 19:27:07 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/27 19:34:46 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,8 +73,8 @@ void build_http_request(const http_request_t *restrict req, char *restrict buf)
 
 bool parse_http_response(char *restrict buf, const uint16_t buf_size, http_response_t *restrict res, const uint16_t res_len)
 {
-  assert(res_len <= buf_size, STR_LEN_PAIR("Malformed HTTP response: response length exceeds buffer size"));
-  assert(buf_size >= 4, STR_LEN_PAIR("Buffer too small for HTTP response"));
+  fast_assert(res_len <= buf_size, STR_LEN_PAIR("Malformed HTTP response: response length exceeds buffer size"));
+  fast_assert(buf_size >= 4, STR_LEN_PAIR("Buffer too small for HTTP response"));
 
   const char *headers_end = memmem(buf, buf_size, "\r\n\r\n", 4);
   if (UNLIKELY(!headers_end))
@@ -83,11 +83,11 @@ bool parse_http_response(char *restrict buf, const uint16_t buf_size, http_respo
     goto parse_body;
 
   char *line = memchr(buf, ' ', headers_end - buf);
-  assert(line, STR_LEN_PAIR("Malformed HTTP response: missing status code"));
+  fast_assert(line, STR_LEN_PAIR("Malformed HTTP response: missing status code"));
   line += 1;
 
   res->status_code = atoi(line);
-  assert(res->status_code >= 100 && res->status_code <= 599, STR_LEN_PAIR("Malformed HTTP response: invalid status code"));
+  fast_assert(res->status_code >= 100 && res->status_code <= 599, STR_LEN_PAIR("Malformed HTTP response: invalid status code"));
 
   char *key, *value;
   uint8_t key_len, value_len;
@@ -99,14 +99,16 @@ bool parse_http_response(char *restrict buf, const uint16_t buf_size, http_respo
     key = line;
 
     delim = memchr(line, ':', headers_end - line);
-    assert(delim, STR_LEN_PAIR("Malformed HTTP response: missing header"));
+    fast_assert(delim, STR_LEN_PAIR("Malformed HTTP response: missing header"));
 
     *delim = '\0';
-    value = delim + 1 + (delim[1] == ' ');
+    value = delim + 1;
+    while (UNLIKELY(*value == ' '))
+      value++;
 
     delim = memmem(value, headers_end - value, "\r\n", 2);
     *delim = '\0';
-    line = delim + 1 + (delim[1] == ' ');
+    line = delim + 2;
 
     key_len = key - line - 2;
     value_len = delim - value;
@@ -128,7 +130,7 @@ bool parse_http_response(char *restrict buf, const uint16_t buf_size, http_respo
 parse_body:
   const uint16_t parsed_body_len = res_len - (res->body - buf); 
   const uint16_t available_len = buf_size - res_len;
-  assert(res->body_len <= available_len, STR_LEN_PAIR("Malformed HTTP response: body too long"));
+  fast_assert(res->body_len <= available_len, STR_LEN_PAIR("Malformed HTTP response: body too long"));
 
   return (parsed_body_len == res->body_len);
 }

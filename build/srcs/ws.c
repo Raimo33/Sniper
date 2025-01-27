@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 20:53:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/27 19:28:13 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/27 19:34:46 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,11 +126,11 @@ static bool receive_upgrade_response(const ws_client_t *restrict ws)
   if (LIKELY(parse_http_response(ws->read_buffer, WS_READ_BUFFER_SIZE, &response, len) == false))
     return false;
   
-  assert(response.status_code == 101, STR_LEN_PAIR("Websocket upgrade failed: invalid status code"));
-  assert(response.headers.entries_count == 3, STR_LEN_PAIR("Websocket upgrade failed: missing response headers"));
+  fast_assert(response.status_code == 101, STR_LEN_PAIR("Websocket upgrade failed: invalid status code"));
+  fast_assert(response.headers.entries_count == 3, STR_LEN_PAIR("Websocket upgrade failed: missing response headers"));
 
   const header_entry_t *restrict accept_header = header_map_get(&response.headers, STR_LEN_PAIR("Sec-WebSocket-Accept"));
-  assert(accept_header, STR_LEN_PAIR("Websocket upgrade failed: missing Upgrade header"));
+  fast_assert(accept_header, STR_LEN_PAIR("Websocket upgrade failed: missing Upgrade header"));
 
   if (verify_ws_key(ws->conn_key, accept_header->value, accept_header->value_len) == false)
     panic(STR_LEN_PAIR("Websocket upgrade failed: key mismatch"));

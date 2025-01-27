@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 19:01:43 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/27 14:34:37 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/27 19:34:46 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,14 +22,14 @@ void init_keys(keys_t *restrict keys)
   const uint8_t *restrict priv_key = getenv("PRIV_KEY");
   const uint8_t *restrict api_key  = getenv("API_KEY");
 
-  assert(priv_key && api_key, STR_LEN_PAIR("Missing keys"));
+  fast_assert(priv_key && api_key, STR_LEN_PAIR("Missing keys"));
 
   memcpy(keys->api_key, api_key, API_KEY_SIZE);
   BIO *bio = BIO_new_mem_buf(priv_key, -1);
   PEM_read_bio_PrivateKey(bio, &keys->priv_key, NULL, NULL);
   BIO_free(bio);
 
-  assert(EVP_PKEY_id(keys->priv_key) == EVP_PKEY_ED25519, STR_LEN_PAIR("Invalid private key type"));
+  fast_assert(EVP_PKEY_id(keys->priv_key) == EVP_PKEY_ED25519, STR_LEN_PAIR("Invalid private key type"));
 }
 
 void generate_ws_key(uint8_t *restrict key)
@@ -38,7 +38,7 @@ void generate_ws_key(uint8_t *restrict key)
   RAND_bytes(random_data, sizeof(random_data));
 
   const uint8_t encoded_size = EVP_EncodeBlock(key, random_data, sizeof(random_data));
-  assert(encoded_size == WS_KEY_SIZE, STR_LEN_PAIR("Failed to encode ws key"));
+  fast_assert(encoded_size == WS_KEY_SIZE, STR_LEN_PAIR("Failed to encode ws key"));
 }
 
 bool verify_ws_key(const uint8_t *restrict key, const uint8_t *restrict accept, const uint16_t len)
@@ -46,7 +46,7 @@ bool verify_ws_key(const uint8_t *restrict key, const uint8_t *restrict accept, 
   uint8_t decoded_key[WS_KEY_SIZE];
 
   const uint8_t decoded_size = EVP_DecodeBlock(decoded_key, accept, len);
-  assert(decoded_size == WS_KEY_SIZE, STR_LEN_PAIR("Failed to decode ws key"));
+  fast_assert(decoded_size == WS_KEY_SIZE, STR_LEN_PAIR("Failed to decode ws key"));
 
   uint8_t concatenated_key[WS_KEY_SIZE + STR_LEN(WS_KEY_GUID)];
   memcpy(concatenated_key, key, WS_KEY_SIZE);
