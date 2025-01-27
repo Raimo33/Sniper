@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 19:43:46 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/23 20:38:19 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/27 14:54:53 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,8 +61,8 @@ typedef struct
   const uint8_t path_len;
 
   const uint8_t headers_count;
-  const uint8_t method  : 2;
-  const uint8_t version : 1;
+  const uint8_t method;
+  const uint8_t version;
 } http_request_t;
 
 typedef struct
@@ -71,7 +71,7 @@ typedef struct
   char *body;
 
   uint16_t body_len;
-  uint16_t status_code : 10;
+  uint16_t status_code;
 } http_response_t;
 
 void HOT build_http_request(const http_request_t *restrict req, char *restrict buf);

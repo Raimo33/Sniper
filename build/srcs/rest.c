@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 17:53:55 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/26 17:22:23 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/27 14:04:55 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,25 +47,25 @@ inline bool handle_rest_connection(const rest_client_t *restrict rest, const uin
   goto *states[sequence];
 
 dns_query:
-  log(STR_LEN_PAIR("Resolving REST endpoint: " REST_HOST));
+  log_msg(STR_LEN_PAIR("Resolving REST endpoint: " REST_HOST));
   resolve_domain(resolver, STR_LEN_PAIR(REST_HOST), &rest->addr, REST_FILENO);
   sequence++;
   return false;
 
 dns_response:
-  log(STR_LEN_PAIR("Resolved REST endpoint: " REST_HOST));
+  log_msg(STR_LEN_PAIR("Resolved REST endpoint: " REST_HOST));
   read(REST_FILENO, &rest->addr.sin_addr.s_addr, sizeof(rest->addr.sin_addr.s_addr));
   sequence++;
   return false;
 
 connect:
-  log(STR_LEN_PAIR("Connecting to REST endpoint: " REST_HOST));
+  log_msg(STR_LEN_PAIR("Connecting to REST endpoint: " REST_HOST));
   connect(REST_FILENO, &rest->addr, sizeof(rest->addr));
   sequence++;
   return false;
 
 ssl_handshake:
-  log(STR_LEN_PAIR("Performing SSL handshake"));
+  log_msg(STR_LEN_PAIR("Performing SSL handshake"));
   return wolfSSL_connect(rest->ssl) == SSL_SUCCESS;
 }
 

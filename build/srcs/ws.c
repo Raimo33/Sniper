@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 20:53:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/26 17:22:31 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/27 14:04:56 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,35 +46,35 @@ inline bool handle_ws_connection(const ws_client_t *restrict client, const uint8
   goto *states[sequence];
 
 dns_query:
-  log(STR_LEN_PAIR("Resolving Websocket endpoint: " WS_HOST));
+  log_msg(STR_LEN_PAIR("Resolving Websocket endpoint: " WS_HOST));
   resolve_domain(resolver, STR_LEN_PAIR(WS_HOST), &client->addr, WS_FILENO);
   sequence++;
   return false;
 
 dns_response:
-  log(STR_LEN_PAIR("Resolved Websocket endpoint: " WS_HOST));
+  log_msg(STR_LEN_PAIR("Resolved Websocket endpoint: " WS_HOST));
   read(WS_FILENO, &client->addr.sin_addr.s_addr, sizeof(client->addr.sin_addr.s_addr));
   sequence++;
   return false;
 
 connect:
-  log(STR_LEN_PAIR("Connecting to Websocket endpoint: " WS_HOST));
+  log_msg(STR_LEN_PAIR("Connecting to Websocket endpoint: " WS_HOST));
   connect(WS_FILENO, &client->addr, sizeof(client->addr));
   sequence++;
   return false;
 
 ssl_handshake:
-  log(STR_LEN_PAIR("Performing SSL handshake"));
+  log_msg(STR_LEN_PAIR("Performing SSL handshake"));
   sequence += wolfSSL_connect(client->ssl) == SSL_SUCCESS;
   return false;
 
 upgrade_request:
-  log(STR_LEN_PAIR("Sending Websocket upgrade request"));
+  log_msg(STR_LEN_PAIR("Sending Websocket upgrade request"));
   sequence += send_upgrade_request(client);
   return false;
 
 upgrade_response:
-  log(STR_LEN_PAIR("Receiving Websocket upgrade response"));
+  log_msg(STR_LEN_PAIR("Receiving Websocket upgrade response"));
   return receive_upgrade_response(client);
 }
 

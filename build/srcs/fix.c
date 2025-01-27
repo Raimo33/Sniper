@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 21:02:36 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/26 17:21:56 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/27 14:04:55 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,45 +51,45 @@ inline bool handle_fix_connection(const fix_client_t *restrict client, const uin
   goto *states[sequence];
 
 dns_query:
-  log(STR_LEN_PAIR("Resolving FIX endpoint: " FIX_HOST));
+  log_msg(STR_LEN_PAIR("Resolving FIX endpoint: " FIX_HOST));
   resolve_domain(resolver, STR_LEN_PAIR(FIX_HOST), FIX_FILENO);
   sequence++;
   return false;
 
 dns_response:
-  log(STR_LEN_PAIR("Resolved FIX endpoint: " FIX_HOST));
+  log_msg(STR_LEN_PAIR("Resolved FIX endpoint: " FIX_HOST));
   read(FIX_FILENO, &client->addr.sin_addr.s_addr, sizeof(client->addr.sin_addr.s_addr));
   sequence++;
   return false;
 
 connect:
-  log(STR_LEN_PAIR("Connecting to FIX endpoint: " FIX_HOST));
+  log_msg(STR_LEN_PAIR("Connecting to FIX endpoint: " FIX_HOST));
   connect(FIX_FILENO, &client->addr, sizeof(client->addr));
   sequence++;
   return false;
 
 ssl_handshake:
-  log(STR_LEN_PAIR("Performing SSL handshake"));
+  log_msg(STR_LEN_PAIR("Performing SSL handshake"));
   sequence += wolfSSL_connect(client->ssl) == SSL_SUCCESS;
   return false;
 
 send_logon:
-  log(STR_LEN_PAIR("Sending logon message"));
+  log_msg(STR_LEN_PAIR("Sending logon message"));
   sequence += send_logon(client)
   return false;
 
 receive_logon:
-  log(STR_LEN_PAIR("Receiving logon message"));
+  log_msg(STR_LEN_PAIR("Receiving logon message"));
   sequence += receive_logon(client)
   return false;
 
 send_limit_query:
-  log(STR_LEN_PAIR("Sending limit query"));
+  log_msg(STR_LEN_PAIR("Sending limit query"));
   sequence += send_limit_query(client)
   return false;
 
 receive_limit_query:
-  log(STR_LEN_PAIR("Receiving limit query"));
+  log_msg(STR_LEN_PAIR("Receiving limit query"));
   return receive_limit_query(client);
 }
 

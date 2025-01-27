@@ -6,21 +6,18 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 19:01:43 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/27 13:16:57 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/27 14:34:37 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "headers/keys.h"
-
-static WC_RNG rng;
 
 //TODO refactor ssl
 //TODO refactor event loop con openssl
 
 void init_keys(keys_t *restrict keys)
 {
-  wolfCrypt_Init();
-  wc_InitRng(&rng);
+  OpenSSL_add_all_algorithms();
 
   const uint8_t *restrict priv_key = getenv("PRIV_KEY");
   const uint8_t *restrict api_key  = getenv("API_KEY");
@@ -28,25 +25,27 @@ void init_keys(keys_t *restrict keys)
   assert(priv_key && api_key, STR_LEN_PAIR("Missing keys"));
 
   memcpy(keys->api_key, api_key, API_KEY_SIZE);
-  wc_ed25519_import_private_only(priv_key, ED25519_PRIV_KEY_SIZE, keys->priv_key);
+  BIO *bio = BIO_new_mem_buf(priv_key, -1);
+  PEM_read_bio_PrivateKey(bio, &keys->priv_key, NULL, NULL);
+  BIO_free(bio);
+
+  assert(EVP_PKEY_id(keys->priv_key) == EVP_PKEY_ED25519, STR_LEN_PAIR("Invalid private key type"));
 }
 
 void generate_ws_key(uint8_t *restrict key)
 {
   uint8_t random_data[16];
-  wc_RNG_GenerateBlock(&rng, random_data, sizeof(random_data));
+  RAND_bytes(random_data, sizeof(random_data));
 
-  word32 encoded_size = WS_KEY_SIZE;
-  Base64_Encode(random_data, sizeof(random_data), key, &encoded_size);
-
+  const uint8_t encoded_size = EVP_EncodeBlock(key, random_data, sizeof(random_data));
   assert(encoded_size == WS_KEY_SIZE, STR_LEN_PAIR("Failed to encode ws key"));
 }
 
-bool verify_ws_key(const uint8_t *restrict key, const char *restrict accept, const uint16_t len)
+bool verify_ws_key(const uint8_t *restrict key, const uint8_t *restrict accept, const uint16_t len)
 {
   uint8_t decoded_key[WS_KEY_SIZE];
-  word32 decoded_size = WS_KEY_SIZE;
-  Base64_Decode(accept, len, decoded_key, &decoded_size);
+
+  const uint8_t decoded_size = EVP_DecodeBlock(decoded_key, accept, len);
   assert(decoded_size == WS_KEY_SIZE, STR_LEN_PAIR("Failed to decode ws key"));
 
   uint8_t concatenated_key[WS_KEY_SIZE + STR_LEN(WS_KEY_GUID)];
@@ -54,8 +53,8 @@ bool verify_ws_key(const uint8_t *restrict key, const char *restrict accept, con
   memcpy(concatenated_key + WS_KEY_SIZE, STR_LEN_PAIR(WS_KEY_GUID));
 
   uint8_t sha1_hash[20];
-  wc_Sha1Hash(concatenated_key, sizeof(concatenated_key), sha1_hash); //TODO deprecated
-  return !memcmp(decoded_key, sha1_hash, sizeof(sha1_hash))
+  SHA1(concatenated_key, sizeof(concatenated_key), sha1_hash);
+  return !memcmp(decoded_key, sha1_hash, sizeof(sha1_hash));
 }
 
 uint32_t murmurhash3(const uint8_t *key, const uint16_t len, const uint32_t seed)
@@ -101,7 +100,5 @@ uint32_t murmurhash3(const uint8_t *key, const uint16_t len, const uint32_t seed
 
 void free_keys(keys_t *restrict keys)
 {
-  wc_ed25519_free(keys->priv_key);
-  wc_FreeRng(&rng);
-  wolfCrypt_Cleanup();
+  EVP_PKEY_free(keys->priv_key);
 }

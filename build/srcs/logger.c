@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 18:09:22 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/26 13:03:07 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/27 14:04:56 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ void init_logger(void)
   fcntl(LOG_FILENO, F_SETFL, flags | O_NONBLOCK);
 }
 
-void log(const char *restrict msg, const uint8_t msg_len)
+void log_msg(const char *restrict msg, const uint8_t msg_len)
 {
   const uint16_t next_head = (g_log_ring.head + msg_len + 1) % LOG_RING_SIZE;
   

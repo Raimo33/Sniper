@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 19:57:09 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/23 20:38:54 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/27 14:53:53 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -131,7 +131,7 @@ static void strlower(char *str, uint16_t len)
   while (LIKELY(len--))
   {
     if (UNLIKELY(*str >= 'A' && *str <= 'Z'))
-      *str += 25;
+      tolower(*str);
     str++;
   }
 }
@@ -166,7 +166,7 @@ header_entry_t *header_map_get(header_map_t *restrict map, const char *restrict 
   while (UNLIKELY(map->entries[index].key))
   {
     if (LIKELY(map->entries[index].key_len == key_len && memcmp(map->entries[index].key, key, key_len) == 0))
-      return map->entries[index];
+      return &map->entries[index];
     index = (original_index + i * i) % HEADER_MAP_SIZE;
     i++;
   }
