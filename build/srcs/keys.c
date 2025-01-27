@@ -6,13 +6,16 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 19:01:43 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/23 20:41:30 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/27 13:16:57 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "headers/keys.h"
 
 static WC_RNG rng;
+
+//TODO refactor ssl
+//TODO refactor event loop con openssl
 
 void init_keys(keys_t *restrict keys)
 {
