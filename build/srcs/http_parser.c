@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 19:57:09 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/27 16:43:37 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/27 19:27:07 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,46 +71,66 @@ void build_http_request(const http_request_t *restrict req, char *restrict buf)
   buf += req->body_len;
 }
 
-void parse_http_response(char *restrict buf, http_response_t *restrict res)
+bool parse_http_response(char *restrict buf, const uint16_t buf_size, http_response_t *restrict res, const uint16_t res_len)
 {
-  char *line = strtok_r(buf, "\r\n", &buf);
-  assert(line, STR_LEN_PAIR("Malformed HTTP response: missing status line"));
+  assert(res_len <= buf_size, STR_LEN_PAIR("Malformed HTTP response: response length exceeds buffer size"));
+  assert(buf_size >= 4, STR_LEN_PAIR("Buffer too small for HTTP response"));
 
-  line = strchr(line, ' ');
+  const char *headers_end = memmem(buf, buf_size, "\r\n\r\n", 4);
+  if (UNLIKELY(!headers_end))
+    return false;
+  if (UNLIKELY(res->body))
+    goto parse_body;
+
+  char *line = memchr(buf, ' ', headers_end - buf);
   assert(line, STR_LEN_PAIR("Malformed HTTP response: missing status code"));
   line += 1;
 
-  res->status_code = (line[0] - '0') * 100 + (line[1] - '0') * 10 + (line[2] - '0');
+  res->status_code = atoi(line);
   assert(res->status_code >= 100 && res->status_code <= 599, STR_LEN_PAIR("Malformed HTTP response: invalid status code"));
-
-  line = strtok_r(NULL, "\r\n", &buf);
-  assert(line, STR_LEN_PAIR("Malformed HTTP response: missing CRLF terminator"));
 
   char *key, *value;
   uint8_t key_len, value_len;
-  while (LIKELY(line[0]))
+  char *delim = memmem(buf, buf_size, "\r\n", 2);
+  *delim = '\0';
+  line = delim + 2;
+  while (LIKELY(*line != '\r'))
   {
-    key = strtok_r(line, ": ", &line);
-    value = strtok_r(line, ": ", &line);
-    line = strtok_r(NULL, "\r\n", &buf);
+    key = line;
 
-    assert(key && value, STR_LEN_PAIR("Malformed HTTP response: missing header"));
-    assert(line, STR_LEN_PAIR("Malformed HTTP response: missing CRLF terminator"));
+    delim = memchr(line, ':', headers_end - line);
+    assert(delim, STR_LEN_PAIR("Malformed HTTP response: missing header"));
 
-    key_len = value - key - 2;
-    value_len = line - value - 2;
+    *delim = '\0';
+    value = delim + 1 + (delim[1] == ' ');
+
+    delim = memmem(value, headers_end - value, "\r\n", 2);
+    *delim = '\0';
+    line = delim + 1 + (delim[1] == ' ');
+
+    key_len = key - line - 2;
+    value_len = delim - value;
 
     strlower(key, key_len);
 
-    if (UNLIKELY(strcmp(key, "transfer-encoding") == 0))
+    if (UNLIKELY(memcmp(key, "content-length", key_len) == 0))
+      res->body_len = atoi(value);
+    else if (UNLIKELY(memcmp(key, "transfer-encoding", key_len) == 0))
       panic(STR_LEN_PAIR("Transfer-Encoding not supported"));
 
     header_map_insert(&res->headers, key, key_len, value, value_len);
   }
 
-  //TODO sfruttare content-length, assert che ci sia abbastzanza spazio in res->body
-  res->body = strtok_r(NULL, "\r\n", &buf);
-  res->body_len = //TODO contentlenght
+  if (LIKELY(res->body_len == 0))
+    return true;
+
+  res->body = headers_end + 4;
+parse_body:
+  const uint16_t parsed_body_len = res_len - (res->body - buf); 
+  const uint16_t available_len = buf_size - res_len;
+  assert(res->body_len <= available_len, STR_LEN_PAIR("Malformed HTTP response: body too long"));
+
+  return (parsed_body_len == res->body_len);
 }
 
 static void strlower(char *str, uint16_t len)

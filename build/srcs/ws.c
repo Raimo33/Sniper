@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 20:53:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/27 16:37:45 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/27 18:38:05 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,11 +121,10 @@ static bool send_upgrade_request(ws_client_t *restrict ws)
 static bool receive_upgrade_response(const ws_client_t *restrict ws)
 {
   const uint16_t len = SSL_read(ws->ssl, ws->read_buffer, WS_READ_BUFFER_SIZE);
-  if (LIKELY(len < 0))
-    return false; //TODO non basta, controllare se full request \r\n\r\n
-
-  http_response_t response ALIGNED(16);
-  parse_http_response(ws->read_buffer, &response);
+  
+  static http_response_t response ALIGNED(16);
+  if (LIKELY(parse_http_response(ws->read_buffer, WS_READ_BUFFER_SIZE, &response, len)))
+    return false;
   
   assert(response.status_code == 101, STR_LEN_PAIR("Websocket upgrade failed: invalid status code"));
   assert(response.headers.entries_count == 3, STR_LEN_PAIR("Websocket upgrade failed: missing response headers"));
