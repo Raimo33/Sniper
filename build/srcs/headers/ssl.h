@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 10:10:46 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/27 13:15:58 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/27 15:00:15 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,8 @@
 
 # include "extensions.h"
 # include "keys.h"
+
+//https://docs.openssl.org/master/man3/
 
 void COLD init_ssl(SSL_CTX **restrict ctx);
 SSL *COLD init_ssl_socket(const uint16_t fd, const SSL_CTX *restrict ctx);

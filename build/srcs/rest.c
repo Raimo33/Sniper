@@ -6,13 +6,13 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 17:53:55 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/27 14:04:55 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/27 16:53:19 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "headers/rest.h"
 
-void init_rest(rest_client_t *restrict client, const keys_t *restrict keys, const WOLFSSL_CTX *restrict ssl_ctx)
+void init_rest(rest_client_t *restrict client, const keys_t *restrict keys, const SSL_CTX *restrict ssl_ctx)
 {
   client->addr = (struct sockaddr_in){
     .sin_family = AF_INET,
@@ -48,7 +48,7 @@ inline bool handle_rest_connection(const rest_client_t *restrict rest, const uin
 
 dns_query:
   log_msg(STR_LEN_PAIR("Resolving REST endpoint: " REST_HOST));
-  resolve_domain(resolver, STR_LEN_PAIR(REST_HOST), &rest->addr, REST_FILENO);
+  resolve_domain(resolver, STR_LEN_PAIR(REST_HOST), REST_FILENO);
   sequence++;
   return false;
 
@@ -66,7 +66,10 @@ connect:
 
 ssl_handshake:
   log_msg(STR_LEN_PAIR("Performing SSL handshake"));
-  return wolfSSL_connect(rest->ssl) == SSL_SUCCESS;
+  return SSL_connect(rest->ssl) == true;
+
+//TODO keepalive nelle richieste successive come header
+//TODO fare le query di initializzazione qui?
 }
 
 void free_rest(const rest_client_t *restrict rest)

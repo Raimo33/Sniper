@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 16:52:43 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/27 13:06:34 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/27 14:58:48 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,8 @@
 
 # include "extensions.h"
 # include "ssl.h"
+# include "keys.h"
+# include "dns_resolver.h"
 
 # define REST_HOST "api.binance.com"
 # define REST_PORT 8080
@@ -38,7 +40,7 @@ typedef struct
   keys_t *keys;
 } rest_client_t;
 
-void COLD init_rest(rest_client_t *restrict client, const keys_t *restrict keys, const WOLFSSL_CTX *restrict ssl_ctx);
+void COLD init_rest(rest_client_t *restrict client, const keys_t *restrict keys, const SSL_CTX *restrict ssl_ctx);
 inline bool HOT handle_rest_connection(const rest_client_t *restrict client, const uint8_t events, const dns_resolver_t *restrict resolver);
 void COLD free_rest(const rest_client_t *restrict client);
 

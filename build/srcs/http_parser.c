@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 19:57:09 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/27 14:53:53 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/27 16:43:37 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,7 +71,7 @@ void build_http_request(const http_request_t *restrict req, char *restrict buf)
   buf += req->body_len;
 }
 
-void parse_http_response(char *restrict buf, const uint16_t len, http_response_t *restrict res)
+void parse_http_response(char *restrict buf, http_response_t *restrict res)
 {
   char *line = strtok_r(buf, "\r\n", &buf);
   assert(line, STR_LEN_PAIR("Malformed HTTP response: missing status line"));
@@ -108,8 +108,9 @@ void parse_http_response(char *restrict buf, const uint16_t len, http_response_t
     header_map_insert(&res->headers, key, key_len, value, value_len);
   }
 
+  //TODO sfruttare content-length, assert che ci sia abbastzanza spazio in res->body
   res->body = strtok_r(NULL, "\r\n", &buf);
-  res->body_len = len - (line - buf) * (res->body != NULL);
+  res->body_len = //TODO contentlenght
 }
 
 static void strlower(char *str, uint16_t len)

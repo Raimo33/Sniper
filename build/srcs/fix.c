@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 21:02:36 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/27 14:04:55 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/27 15:04:46 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ static void COLD receive_limit_query(const fix_client_t *restrict client);
 static void HOT format_price(const fixed_point_t price, char *buffer); //TODO 5. Zero-Cost String Formatting, Precomputed FIX template (e.g., "44=XXXX|")
 
 //TODO pool di connessioni
-void init_fix(fix_client_t *restrict client, const keys_t *restrict keys, const WOLFSSL_CTX *restrict ssl_ctx)
+void init_fix(fix_client_t *restrict client, const keys_t *restrict keys, const SSL_CTX *restrict ssl_ctx)
 {
   client->addr = (struct sockaddr_in){
     .sin_family = AF_INET,
@@ -70,7 +70,7 @@ connect:
 
 ssl_handshake:
   log_msg(STR_LEN_PAIR("Performing SSL handshake"));
-  sequence += wolfSSL_connect(client->ssl) == SSL_SUCCESS;
+  sequence += SSL_connect(client->ssl) == true;
   return false;
 
 send_logon:

@@ -6,13 +6,11 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 16:35:17 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/27 13:07:49 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/27 15:11:42 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "headers/ssl.h"
-
-//https://docs.openssl.org/master/man3/
 
 void init_ssl(SSL_CTX **restrict ctx)
 {  

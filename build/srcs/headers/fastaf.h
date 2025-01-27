@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/27 14:15:47 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/27 14:21:04 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/27 15:12:04 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,5 +48,7 @@ typedef struct
 //disable_gro_lro
 //enable RSS
 //TODO OPENSSL invece di WOLFSSL
+
+//TODO SSL_shutdown() //attenzione al non-blocking
 
 #endif
