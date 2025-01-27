@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 20:53:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/27 18:38:05 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/27 19:28:13 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,7 +123,7 @@ static bool receive_upgrade_response(const ws_client_t *restrict ws)
   const uint16_t len = SSL_read(ws->ssl, ws->read_buffer, WS_READ_BUFFER_SIZE);
   
   static http_response_t response ALIGNED(16);
-  if (LIKELY(parse_http_response(ws->read_buffer, WS_READ_BUFFER_SIZE, &response, len)))
+  if (LIKELY(parse_http_response(ws->read_buffer, WS_READ_BUFFER_SIZE, &response, len) == false))
     return false;
   
   assert(response.status_code == 101, STR_LEN_PAIR("Websocket upgrade failed: invalid status code"));
