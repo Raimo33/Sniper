@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/29 17:07:42 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/27 00:08:55 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/27 09:30:42 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,9 @@
 #include "headers/keys.h"
 #include "headers/ssl.h"
 
-//TODO Represent currencies as nodes and exchange rates as weighted edges.
+//TODO
+//fetch api to find all available pairs, with their fees and minimum order size
+//Represent currencies as nodes and exchange rates as weighted edges.
 //Precompute All Triangular Cycles 
 //SIMD-Based Cycle Evaluation
 

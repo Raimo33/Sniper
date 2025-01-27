@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 18:59:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/23 20:41:37 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/27 13:13:11 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,13 @@
 # define KEYS_H
 
 # include <stdint.h>
-# include <wolfssl/wolfcrypt/ed25519.h>
-# include <wolfssl/wolfcrypt/base64.h>
+# include <openssl/rand.h>
+# include <openssl/sha.h>
+# include <openssl/evp.h>
+# include <openssl/ec.h>
+# include <openssl/pem.h>
+# include <openssl/bio.h>
+# include <openssl/buffer.h>
 
 # include "extensions.h"
 

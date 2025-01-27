@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 16:52:43 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/25 17:38:29 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/27 13:06:34 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,6 @@
 
 # include "extensions.h"
 # include "ssl.h"
-# include "shared_buffers.h"
 
 # define REST_HOST "api.binance.com"
 # define REST_PORT 8080

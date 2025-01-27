@@ -6,7 +6,7 @@
 #    By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/03/19 14:52:58 by egualand          #+#    #+#              #
-#    Updated: 2025/01/27 00:09:32 by craimond         ###   ########.fr        #
+#    Updated: 2025/01/27 09:29:35 by craimond         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -24,7 +24,7 @@ INCS := $(addprefix -I, $(INCS_DIR))
 
 CC := gcc
 CVERSION := 23
-CFLAGS := -std=c$(CVERSION) -Wall -Wextra -Werror -static -Ofast -ffast-math -fopt-info-vec-all -march=native -static -fomit-frame-pointer -flto
+CFLAGS := -std=c$(CVERSION) -Wall -Wextra -Werror -fwrapv -static -Ofast -ffast-math -fopt-info-vec-all -march=native -static -fomit-frame-pointer -flto
 LDFLAGS := -static -lwolfssl -lwolfcrypt
 RM := rm -rf
 
