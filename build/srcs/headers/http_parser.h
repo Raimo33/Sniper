@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 19:43:46 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/27 18:24:45 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/28 20:44:07 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,16 +19,11 @@
 # include "extensions.h"
 # include "logger.h"
 
-# define HTTP_GET 0
-# define HTTP_POST 1
-# define HTTP_PUT 2
-# define HTTP_DELETE 3
-
-# define HTTP_1_0 0
-# define HTTP_1_1 1
-
 # define MAX_HEADERS 8
 # define HEADER_MAP_SIZE MAX_HEADERS * 4
+# define MAX_HEADER_KEY_SIZE 32
+# define MAX_HEADER_VALUE_SIZE 64
+# define MAX_BODY_SIZE 1024
 
 typedef struct
 {
@@ -38,44 +33,27 @@ typedef struct
 
 typedef struct
 {
-  char *key;
+  char key[MAX_HEADER_KEY_SIZE];
+  char value[MAX_HEADER_VALUE_SIZE];
   uint8_t key_len;
-
-  char *value;
   uint8_t value_len;
 } header_entry_t;
 
 typedef struct
 {
-  header_entry_t entries[HEADER_MAP_SIZE] ALIGNED(16);
+  header_entry_t entries[HEADER_MAP_SIZE];
   uint8_t entries_count;
 } header_map_t;
 
 typedef struct
 {
-  char *path;
-  header_entry_t headers[MAX_HEADERS] ALIGNED(16);
-  char *body;
-
-  uint16_t body_len;
-  uint8_t path_len;
-
-  uint8_t headers_count;
-  uint8_t method;
-  uint8_t version;
-} http_request_t;
-
-typedef struct
-{
   header_map_t headers;
-  char *body;
-
+  char body[MAX_BODY_SIZE];
   uint16_t body_len;
   uint16_t status_code;
 } http_response_t;
 
-void HOT build_http_request(const http_request_t *restrict req, char *restrict buf);
-bool HOT parse_http_response(char *restrict buf, const uint16_t buf_size, http_response_t *restrict res, const uint16_t res_len);
+uint16_t HOT parse_http_response(char *restrict buffer, http_response_t *restrict response, const uint16_t buffer_size, const uint16_t response_len);
 header_entry_t HOT *header_map_get(header_map_t *restrict map, const char *restrict key, const uint16_t key_len);
 
 #endif

@@ -6,17 +6,17 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 20:53:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/27 19:34:46 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/28 20:43:44 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "headers/ws.h"
 
-static bool COLD send_upgrade_request(ws_client_t *restrict ws);
-static bool COLD receive_upgrade_response(const ws_client_t *restrict ws);
+static bool COLD send_upgrade_request(ws_client_t *restrict client);
+static bool COLD receive_upgrade_response(const ws_client_t *restrict client);
 
 //TODO pool di connessioni
-void init_ws(ws_client_t *restrict ws, const SSL_CTX *restrict ssl_ctx)
+void init_ws(ws_client_t *restrict client, const SSL_CTX *restrict ssl_ctx)
 {
   ws->addr = (struct sockaddr_in){
     .sin_family = AF_INET,
@@ -78,69 +78,54 @@ upgrade_response:
   return receive_upgrade_response(client);
 }
 
-static bool send_upgrade_request(ws_client_t *restrict ws)
+static bool send_upgrade_request(ws_client_t *restrict client)
 {
-  static http_request_t request ALIGNED(16) =
-  {
-    .method = HTTP_GET,
-    .path = WS_PATH,
-    .path_len = STR_LEN(WS_PATH),
-    .version = HTTP_1_1,
-    .headers_count = 5,
-    .headers = {
-      { STR_LEN_PAIR("Host"), STR_LEN_PAIR(WS_HOST) },
-      { STR_LEN_PAIR("Upgrade"), STR_LEN_PAIR("websocket") },
-      { STR_LEN_PAIR("Connection"), STR_LEN_PAIR("Upgrade") },
-      { STR_LEN_PAIR("Sec-WebSocket-Version"), STR_LEN_PAIR("13") },
-      { STR_LEN_PAIR("Sec-WebSocket-Key"), NULL, WS_KEY_SIZE }
-    },
-    .body = NULL,
-    .body_len = 0
-  };
-  static const uint16_t len = (
-    STR_LEN("GET") + 1 + STR_LEN(WS_PATH) + 1 + STR_LEN("HTTP/1.1") + 2 +
-    STR_LEN("Host") + 2 + STR_LEN(WS_HOST) + 2 +
-    STR_LEN("Upgrade") + 2 + STR_LEN("websocket") + 2 +
-    STR_LEN("Connection") + 2 + STR_LEN("Upgrade") + 2 +
-    STR_LEN("Sec-WebSocket-Version") + 2 + STR_LEN("13") + 2 +
-    STR_LEN("Sec-WebSocket-Key") + 2 + WS_KEY_SIZE + 4
-  );
+  static const char first_part[] = 
+    "GET " WS_PATH " HTTP/1.1\r\n"
+    "Host: " WS_HOST ":" WS_PORT_STR "\r\n"
+    "Upgrade: websocket\r\n"
+    "Connection: Upgrade\r\n"
+    "Sec-WebSocket-Version: 13\r\n"
+    "Sec-WebSocket-Key: ";
+  static const char second_part[] = "\r\n\r\n";
+  static const uint16_t len = sizeof(first_part) + WS_KEY_SIZE + sizeof(second_part) - 1;
+  static uint16_t bytes_written = 0;
 
-  if (UNLIKELY(request.headers[4].value == NULL))
-  {
-    generate_ws_key(ws->conn_key);
-    request.headers[4].value = ws->conn_key;
-    build_http_request(&request, ws->write_buffer);
-  }
+  generate_ws_key(client->conn_key); //TODO call only once
+  //TODO merge the two parts in a single buffer
 
-  const uint16_t bytes_sent = SSL_write(ws->ssl, ws->write_buffer, len);
-  memset(ws->write_buffer, 0, len);
-  return bytes_sent == len;
+  bytes_written += SSL_write(client->ssl, client->write_buffer, len);
+  memmove(client->write_buffer, client->write_buffer + bytes_written, WS_WRITE_BUFFER_SIZE - bytes_written);
+  return (bytes_written == len);
 }
 
-static bool receive_upgrade_response(const ws_client_t *restrict ws)
+static bool receive_upgrade_response(const ws_client_t *restrict client)
 {
-  const uint16_t len = SSL_read(ws->ssl, ws->read_buffer, WS_READ_BUFFER_SIZE);
-  
   static http_response_t response ALIGNED(16);
-  if (LIKELY(parse_http_response(ws->read_buffer, WS_READ_BUFFER_SIZE, &response, len) == false))
+
+  const uint16_t bytes_read = SSL_read(client->ssl, client->read_buffer, WS_READ_BUFFER_SIZE);
+  if (LIKELY(bytes_read <= 0))
     return false;
-  
+
+  const uint16_t parsed_bytes = parse_http_response(client->read_buffer, &response, WS_READ_BUFFER_SIZE, bytes_read);
+  if (LIKELY(parsed_bytes <= 0))
+    return false;
+
   fast_assert(response.status_code == 101, STR_LEN_PAIR("Websocket upgrade failed: invalid status code"));
   fast_assert(response.headers.entries_count == 3, STR_LEN_PAIR("Websocket upgrade failed: missing response headers"));
 
   const header_entry_t *restrict accept_header = header_map_get(&response.headers, STR_LEN_PAIR("Sec-WebSocket-Accept"));
   fast_assert(accept_header, STR_LEN_PAIR("Websocket upgrade failed: missing Upgrade header"));
 
-  if (verify_ws_key(ws->conn_key, accept_header->value, accept_header->value_len) == false)
+  if (verify_ws_key(client->conn_key, accept_header->value, accept_header->value_len) == false)
     panic(STR_LEN_PAIR("Websocket upgrade failed: key mismatch"));
 
-  memset(ws->read_buffer, 0, len);
+  memmove(client->write_buffer, client->write_buffer + parsed_bytes, WS_WRITE_BUFFER_SIZE - parsed_bytes);
   return false;
 }
 
-void free_ws(const ws_client_t *restrict ws)
+void free_ws(const ws_client_t *restrict client)
 {
-  free_ssl_socket(ws->ssl);
+  free_ssl_socket(client->ssl);
   close(WS_FILENO);
 }
