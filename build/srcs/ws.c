@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 20:53:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/28 20:43:44 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/28 22:05:46 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,38 +89,49 @@ static bool send_upgrade_request(ws_client_t *restrict client)
     "Sec-WebSocket-Key: ";
   static const char second_part[] = "\r\n\r\n";
   static const uint16_t len = sizeof(first_part) + WS_KEY_SIZE + sizeof(second_part) - 1;
-  static uint16_t bytes_written = 0;
 
   generate_ws_key(client->conn_key); //TODO call only once
   //TODO merge the two parts in a single buffer
 
-  bytes_written += SSL_write(client->ssl, client->write_buffer, len);
-  memmove(client->write_buffer, client->write_buffer + bytes_written, WS_WRITE_BUFFER_SIZE - bytes_written);
-  return (bytes_written == len);
+  //TODO ESTRARRE LOGICA DA UN'ALTRA PARTE
+  /********************/
+  fast_assert(client->write_offset < WS_WRITE_BUFFER_SIZE, STR_LEN_PAIR("Request buffer overflow"));
+  const uint16_t ret = SSL_write(client->ssl, client->write_buffer + client->write_offset, len);
+  if (UNLIKELY(ret <= 0))
+    return false;
+  
+  client->write_offset += ret;
+  return (client->write_offset == len);
+  /******************** */
 }
 
 static bool receive_upgrade_response(const ws_client_t *restrict client)
 {
-  static http_response_t response ALIGNED(16);
-
-  const uint16_t bytes_read = SSL_read(client->ssl, client->read_buffer, WS_READ_BUFFER_SIZE);
-  if (LIKELY(bytes_read <= 0))
+  //TODO ESTRARRE LOGICA DA UN'ALTRA PARTE
+  /*88888888888888888888888888888888888*/
+  fast_assert(client->read_offset < WS_READ_BUFFER_SIZE, STR_LEN_PAIR("Response buffer overflow"));
+  const uint16_t ret = SSL_read(client->ssl, client->read_buffer + client->read_offset, WS_READ_BUFFER_SIZE);
+  if (UNLIKELY(ret <= 0))
     return false;
 
-  const uint16_t parsed_bytes = parse_http_response(client->read_buffer, &response, WS_READ_BUFFER_SIZE, bytes_read);
-  if (LIKELY(parsed_bytes <= 0))
+  client->read_offset += ret;
+  const uint16_t parsed_bytes = parse_http_response(client->read_buffer, client->http_response, client->read_offset);
+  if (UNLIKELY(parsed_bytes <= 0))
     return false;
+  memmove(client->read_buffer, client->read_buffer + parsed_bytes, client->read_offset - parsed_bytes);
+  client->read_offset -= parsed_bytes;
+  /************************************* */
 
-  fast_assert(response.status_code == 101, STR_LEN_PAIR("Websocket upgrade failed: invalid status code"));
-  fast_assert(response.headers.entries_count == 3, STR_LEN_PAIR("Websocket upgrade failed: missing response headers"));
+  const http_response_t *response = &client->http_response;
+  fast_assert(response->status_code == 101, STR_LEN_PAIR("Websocket upgrade failed: invalid status code"));
+  fast_assert(response->headers.entries_count == 3, STR_LEN_PAIR("Websocket upgrade failed: missing response headers"));
 
-  const header_entry_t *restrict accept_header = header_map_get(&response.headers, STR_LEN_PAIR("Sec-WebSocket-Accept"));
+  const header_entry_t *accept_header = header_map_get(&response->headers, STR_LEN_PAIR("Sec-WebSocket-Accept"));
   fast_assert(accept_header, STR_LEN_PAIR("Websocket upgrade failed: missing Upgrade header"));
 
   if (verify_ws_key(client->conn_key, accept_header->value, accept_header->value_len) == false)
     panic(STR_LEN_PAIR("Websocket upgrade failed: key mismatch"));
 
-  memmove(client->write_buffer, client->write_buffer + parsed_bytes, WS_WRITE_BUFFER_SIZE - parsed_bytes);
   return false;
 }
 

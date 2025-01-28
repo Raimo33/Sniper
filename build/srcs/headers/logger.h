@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 18:08:11 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/27 14:04:55 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/28 21:19:49 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,16 +21,14 @@
 # include <sys/epoll.h>
 
 # include "extensions.h"
+# include "str_utils.h"
 
 # define LOG_RING_SIZE 4096
-# define LOG_FILENO    7
-
-# define STR_LEN_PAIR(s) s, sizeof(s) - 1
-# define STR_LEN(s) sizeof(s) - 1
+# define LOG_FILENO 7
 
 typedef struct
 {
-  char     data[LOG_RING_SIZE] ALIGNED(16);
+  char data[LOG_RING_SIZE] ALIGNED(16);
   uint16_t head;
   uint16_t tail;
 } t_log_ring;

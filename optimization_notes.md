@@ -16,6 +16,7 @@ stack allocation
 in-memory order books ((binary heap))
 CPU caching
 SIMD
+SIMD within a register
 memory alignment
 memory pools
 wolfSSL (TLS)

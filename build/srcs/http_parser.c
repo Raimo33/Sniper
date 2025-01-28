@@ -6,19 +6,16 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 19:57:09 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/28 20:33:06 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/28 21:33:08 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "headers/http_parser.h"
 
-static void HOT strlower(char *str, uint16_t len);
 static void HOT header_map_insert(header_map_t *restrict map, const char *restrict key, const uint16_t key_len, const char *restrict value, const uint16_t value_len);
 
-uint16_t parse_http_response(char *restrict buffer, http_response_t *response, const uint16_t buffer_size, const uint16_t response_len)
+uint16_t parse_http_response(char *restrict buffer, http_response_t *response, const uint16_t buffer_size)
 {
-  fast_assert(response_len <= buffer_size, STR_LEN_PAIR("Malformed HTTP response: response length exceeds buffer size"));
-
   const char *headers_end = find_headers_end(buffer, buffer_size);
   if (UNLIKELY(!headers_end))
     return 0;
@@ -38,9 +35,10 @@ parse_body:
   //TODO returns the number of bytes parsed. ONLY WHEN FULL REQUEST IS PARSED
 }
 
-static void strlower(char *str, uint16_t len)
+char *find_headers_end(char *restrict buffer, uint16_t buffer_size)
 {
-  //TODO https://dotat.at/@/2022-06-27-tolower-swar.html bit trickery
+  const char *headers_end = memmem(buffer, buffer_size, "\r\n\r\n", 4);
+
 }
 
 static void header_map_insert(header_map_t *restrict map, const char *restrict key, const uint16_t key_len, const char *restrict value, const uint16_t value_len)

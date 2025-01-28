@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 16:53:00 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/27 16:01:08 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/28 21:50:36 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,9 @@ typedef struct
   uint8_t conn_key[WS_KEY_SIZE] ALIGNED(16);
   char write_buffer[WS_WRITE_BUFFER_SIZE] ALIGNED(16);
   char read_buffer[WS_READ_BUFFER_SIZE] ALIGNED(16);
+  http_response_t http_response ALIGNED(16);
+  uint16_t write_offset;
+  uint16_t read_offset;
 } ws_client_t;
 
 void COLD init_ws(ws_client_t *restrict client, const SSL_CTX *restrict ssl_ctx);
