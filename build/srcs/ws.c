@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 20:53:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/29 15:27:08 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/29 20:59:05 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ static bool COLD receive_upgrade_response(const ws_client_t *restrict client);
 //TODO pool di connessioni
 void init_ws(ws_client_t *restrict client, const SSL_CTX *restrict ssl_ctx)
 {
-  ws->addr = (struct sockaddr_in){
+  client->addr = (struct sockaddr_in){
     .sin_family = AF_INET,
     .sin_port = htons(WS_PORT),
     .sin_addr = {
@@ -27,9 +27,13 @@ void init_ws(ws_client_t *restrict client, const SSL_CTX *restrict ssl_ctx)
   };
   
   const uint16_t fd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
-  setsockopt(fd, IPPROTO_TCP, TCP_FASTOPEN, &(uint8_t){1}, sizeof(uint8_t));
-  setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &(uint8_t){1}, sizeof(uint8_t));
-  ws->ssl = init_ssl_socket(fd, ssl_ctx);
+  setsockopt(fd, IPPROTO_TCP, TCP_FASTOPEN, &(bool){true}, sizeof(bool));
+  setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &(bool){true}, sizeof(bool));
+  setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE, &(bool){true}, sizeof(bool));
+  setsockopt(fd, IPPROTO_TCP, TCP_KEEPIDLE, &(uint8_t){WS_KEEPALIVE_IDLE}, sizeof(uint8_t));
+  setsockopt(fd, IPPROTO_TCP, TCP_KEEPINTVL, &(uint8_t){WS_KEEPALIVE_INTVL}, sizeof(uint8_t));
+  setsockopt(fd, IPPROTO_TCP, TCP_KEEPCNT, &(uint8_t){WS_KEEPALIVE_CNT}, sizeof(uint8_t));
+  client->ssl = init_ssl_socket(fd, ssl_ctx);
 
   dup2(fd, WS_FILENO);
   close(fd);

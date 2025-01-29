@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 16:53:00 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/29 15:04:20 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/29 21:01:00 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,10 @@
 # define WS_PATH "/stream?timeUnit=microsecond?streams=usdcusdt@trade/usdpusdt@trade/usdtdai@trade/fdusdusdt@trade/fdusdusdc@trade/tusdusdt@trade/eureuri@trade"
 # define WS_READ_BUFFER_SIZE 4096
 # define WS_WRITE_BUFFER_SIZE 4096
+//TODO double check binance timeouts
+# define WS_KEEPALIVE_IDLE 300
+# define WS_KEEPALIVE_INTVL 30
+# define WS_KEEPALIVE_CNT 3
 
 typedef struct
 {

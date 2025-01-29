@@ -6,7 +6,7 @@
 #    By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/03/19 14:52:58 by egualand          #+#    #+#              #
-#    Updated: 2025/01/27 15:31:53 by craimond         ###   ########.fr        #
+#    Updated: 2025/01/29 21:33:16 by craimond         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -17,9 +17,9 @@ SRCS_DIR := srcs
 HDRS_DIR := srcs/headers
 INCS_DIR := /usr/include
 
-SRCS := $(addprefix $(SRCS_DIR)/, fastaf.c ws.c fix.c rest.c dns_resolver.c event_loop.c http_parser.c logger.c signals.c errors.c keys.c ssl.c)
+SRCS := $(addprefix $(SRCS_DIR)/, fastaf.c ws.c fix.c rest.c dns_resolver.c event_loop.c http_parser.c logger.c signals.c errors.c keys.c ssl.c fixed_point.c message_broker.c str_utils.c)
 OBJS := $(SRCS:$(SRCS_DIR)/%.c=$(OBJS_DIR)/%.o)
-HDRS := $(addprefix $(HDRS_DIR)/, fastaf.h ws.h fix.h rest.h dns_resolver.h event_loop.h http_parser.h logger.h signals.h errors.h keys.h ssl.h extensions.h)
+HDRS := $(addprefix $(HDRS_DIR)/, fastaf.h ws.h fix.h rest.h dns_resolver.h event_loop.h http_parser.h logger.h signals.h errors.h keys.h ssl.h fixed_point.h message_broker.h str_utils.h extensions.h)
 INCS := $(addprefix -I, $(INCS_DIR))
 
 CC := gcc

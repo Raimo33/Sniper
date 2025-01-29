@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 16:52:51 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/27 15:31:34 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/29 21:12:40 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,9 @@
 # define FIX_HOST "fix-oe.binance.com"
 # define FIX_PORT 9000
 # define FIX_FILENO 4
+# define FIX_KEEPALIVE_IDLE 300
+# define FIX_KEEPALIVE_INTVL 30
+# define FIX_KEEPALIVE_CNT 3
 
 //https://developers.binance.com/docs/binance-spot-api-docs/fix-api#message-components
 //https://github.com/binance/binance-spot-api-docs/blob/master/fix-api.md
