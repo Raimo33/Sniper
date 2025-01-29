@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 20:53:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/28 22:05:46 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/29 15:27:08 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,34 +93,15 @@ static bool send_upgrade_request(ws_client_t *restrict client)
   generate_ws_key(client->conn_key); //TODO call only once
   //TODO merge the two parts in a single buffer
 
-  //TODO ESTRARRE LOGICA DA UN'ALTRA PARTE
-  /********************/
-  fast_assert(client->write_offset < WS_WRITE_BUFFER_SIZE, STR_LEN_PAIR("Request buffer overflow"));
-  const uint16_t ret = SSL_write(client->ssl, client->write_buffer + client->write_offset, len);
-  if (UNLIKELY(ret <= 0))
-    return false;
-  
-  client->write_offset += ret;
-  return (client->write_offset == len);
-  /******************** */
+  return try_ssl_send(client->ssl, client->write_buffer, len, &client->write_offset);
 }
 
 static bool receive_upgrade_response(const ws_client_t *restrict client)
 {
-  //TODO ESTRARRE LOGICA DA UN'ALTRA PARTE
-  /*88888888888888888888888888888888888*/
-  fast_assert(client->read_offset < WS_READ_BUFFER_SIZE, STR_LEN_PAIR("Response buffer overflow"));
-  const uint16_t ret = SSL_read(client->ssl, client->read_buffer + client->read_offset, WS_READ_BUFFER_SIZE);
-  if (UNLIKELY(ret <= 0))
+  if (UNLIKELY(try_ssl_recv_http(client->ssl, client->read_buffer, WS_READ_BUFFER_SIZE, &client->read_offset, &client->http_response) == false))
     return false;
 
-  client->read_offset += ret;
-  const uint16_t parsed_bytes = parse_http_response(client->read_buffer, client->http_response, client->read_offset);
-  if (UNLIKELY(parsed_bytes <= 0))
-    return false;
-  memmove(client->read_buffer, client->read_buffer + parsed_bytes, client->read_offset - parsed_bytes);
-  client->read_offset -= parsed_bytes;
-  /************************************* */
+  //TODO check Connection: closed header
 
   const http_response_t *response = &client->http_response;
   fast_assert(response->status_code == 101, STR_LEN_PAIR("Websocket upgrade failed: invalid status code"));

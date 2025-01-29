@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 19:57:09 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/28 21:33:08 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/29 15:39:03 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,31 +14,23 @@
 
 static void HOT header_map_insert(header_map_t *restrict map, const char *restrict key, const uint16_t key_len, const char *restrict value, const uint16_t value_len);
 
-uint16_t parse_http_response(char *restrict buffer, http_response_t *response, const uint16_t buffer_size)
+bool is_full_http_response(const char *restrict buffer, const uint16_t buffer_size)
 {
-  const char *headers_end = find_headers_end(buffer, buffer_size);
-  if (UNLIKELY(!headers_end))
-    return 0;
+  if (memmem(buffer, buffer_size, "0\r\n\r\n", 4) != NULL)
+    return true;
+  //assert se non c'e' risposta entro bufer size. risposta troppo grande che non entra nel buffer
+  const char *headers_end = memmem(buffer, buffer_size, "\r\n\r\n", 4);
+  if (headers_end == NULL)
+    return false;
 
-  if (UNLIKELY(response->body_len > 0))
-    goto parse_body;
-
-  parse_status_code(buffer, headers_end, response);
-  parse_headers(buffer, headers_end, response);
-
-  if (LIKELY(response->body_len == 0))
-    return //TODO returns the number of bytes parsed. ONLY WHEN FULL REQUEST IS PARSED
-
-  response->body = headers_end + 4;
-  
-parse_body:
-  //TODO returns the number of bytes parsed. ONLY WHEN FULL REQUEST IS PARSED
+  const char *content_length = memmem(buffer, buffer_size, STR_LEN_PAIR("Content-Length:")); //TODO case insensitiveness
 }
 
-char *find_headers_end(char *restrict buffer, uint16_t buffer_size)
+uint16_t parse_http_response(char *restrict buffer, http_response_t *response, const uint16_t buffer_size)
 {
-  const char *headers_end = memmem(buffer, buffer_size, "\r\n\r\n", 4);
-
+  //TODOclean, role based parsing all in one. fast AF!!
+  //TODO strlower
+  //TODO ritorna parsed_bytes
 }
 
 static void header_map_insert(header_map_t *restrict map, const char *restrict key, const uint16_t key_len, const char *restrict value, const uint16_t value_len)
@@ -46,12 +38,8 @@ static void header_map_insert(header_map_t *restrict map, const char *restrict k
   uint16_t index = (uint16_t)murmurhash3(key, strlen(key), 42) % HEADER_MAP_SIZE;
   uint16_t original_index = index;
 
-  uint8_t i = 1;
-  while (UNLIKELY(map->entries[index].key))
-  {
+  for (uint8_t i = 1; map->entries[index].key; i++)
     index = (original_index + i * i) % HEADER_MAP_SIZE;
-    i++;
-  }
 
   map->entries[index] = (header_entry_t){
     .key = key,
@@ -70,7 +58,7 @@ header_entry_t *header_map_get(header_map_t *restrict map, const char *restrict 
   uint8_t i = 1;
   while (UNLIKELY(map->entries[index].key))
   {
-    if (LIKELY(map->entries[index].key_len == key_len && memcmp(map->entries[index].key, key, key_len) == 0))
+    if (LIKELY(memcmp(map->entries[index].key, key, key_len) == 0))
       return &map->entries[index];
     index = (original_index + i * i) % HEADER_MAP_SIZE;
     i++;

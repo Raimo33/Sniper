@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 16:53:00 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/28 21:50:36 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/29 15:04:20 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@
 # include "keys.h"
 # include "http_parser.h"
 # include "dns_resolver.h"
+# include "message_broker.h"
 
 # define WS_HOST "data-stream.binance.com"
 # define WS_PORT 9443
@@ -41,7 +42,7 @@ typedef struct
   uint8_t conn_key[WS_KEY_SIZE] ALIGNED(16);
   char write_buffer[WS_WRITE_BUFFER_SIZE] ALIGNED(16);
   char read_buffer[WS_READ_BUFFER_SIZE] ALIGNED(16);
-  http_response_t http_response ALIGNED(16);
+  http_response_t http_response;
   uint16_t write_offset;
   uint16_t read_offset;
 } ws_client_t;

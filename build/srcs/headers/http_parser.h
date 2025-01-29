@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 19:43:46 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/28 21:22:38 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/29 15:31:20 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@
 
 # include "extensions.h"
 # include "logger.h"
-# include "str.h"
+# include "str_utils.h"
 
 # define MAX_HEADERS 8
 # define HEADER_MAP_SIZE MAX_HEADERS * 4
@@ -48,6 +48,7 @@ typedef struct
   uint16_t status_code;
 } http_response_t;
 
+bool HOT is_full_http_response(const char *restrict buffer, const uint16_t buffer_size);
 uint16_t HOT parse_http_response(char *restrict buffer, http_response_t *restrict response, const uint16_t buffer_size);
 header_entry_t HOT *header_map_get(header_map_t *restrict map, const char *restrict key, const uint16_t key_len);
 
