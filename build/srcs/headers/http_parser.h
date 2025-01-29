@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 19:43:46 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/29 15:31:20 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/29 18:24:14 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@ typedef struct
   uint16_t status_code;
 } http_response_t;
 
-bool HOT is_full_http_response(const char *restrict buffer, const uint16_t buffer_size);
+bool HOT is_full_http_response(const char *restrict buffer, const uint16_t buffer_size, const uint16_t response_len);
 uint16_t HOT parse_http_response(char *restrict buffer, http_response_t *restrict response, const uint16_t buffer_size);
 header_entry_t HOT *header_map_get(header_map_t *restrict map, const char *restrict key, const uint16_t key_len);
 
