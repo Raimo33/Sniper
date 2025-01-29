@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 19:57:09 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/29 19:55:03 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/29 20:56:33 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,20 +110,41 @@ static uint16_t parse_body(char *restrict buffer, char *restrict body, header_ma
 
 static uint16_t parse_chunked_body(char *restrict buffer, char *restrict body, const uint16_t buffer_size)
 {
-  //TODO implement chunked body parsing
+  const char *body_start = buffer;
+  const char *body_end = memmem(buffer, buffer_size, STR_LEN_PAIR("0\r\n\r\n"));
+  uint16_t body_used = 0;
+
+  while (LIKELY(buffer < body_end))
+  {
+    const uint16_t chunk_size = atoi(buffer);
+    buffer = memmem(buffer, body_end - buffer, STR_LEN_PAIR("\r\n"));
+    fast_assert(buffer, STR_LEN_PAIR("Malformed chunk: missing clrf"));
+    buffer += STR_LEN("\r\n");
+    const uint16_t available_space = MAX_BODY_SIZE - body_used; 
+    assert(chunk_size < available_space, STR_LEN_PAIR("Body size exceeds available space"));
+    memcpy(body, buffer, chunk_size);
+    body += chunk_size;
+    body_used += chunk_size;
+  }
+  body_end += STR_LEN("0\r\n\r\n");
+
+  return body_end - body_start;
 }
 
 static uint16_t parse_unified_body(char *restrict buffer, char *restrict body, const char *restrict content_length, const uint16_t buffer_size)
 {
   const uint16_t body_size = atoi(content_length);
+  fast_assert(body_size < MAX_BODY_SIZE, STR_LEN_PAIR("Body size exceeds available space"));
   memcpy(body, buffer, body_size);
   return body_size;
 }
 
 static void header_map_insert(header_map_t *restrict map, const char *restrict key, const uint16_t key_len, const char *restrict value, const uint16_t value_len)
 {
-  uint16_t index = (uint16_t)murmurhash3(key, strlen(key), 42) % HEADER_MAP_SIZE;
-  uint16_t original_index = index;
+  fast_assert(map->entries_count < MAX_HEADERS, STR_LEN_PAIR("Too many headers"));
+
+  const uint16_t original_index = (uint16_t)murmurhash3(key, key_len, 42) % HEADER_MAP_SIZE;
+  uint16_t index = original_index;
 
   for (uint8_t i = 1; map->entries[index].key; i++)
     index = (original_index + i * i) % HEADER_MAP_SIZE;
@@ -143,7 +164,7 @@ static void header_map_insert(header_map_t *restrict map, const char *restrict k
 
 header_entry_t *header_map_get(header_map_t *restrict map, const char *restrict key, const uint16_t key_len)
 {
-  uint16_t original_index = (uint16_t)murmurhash3(key, key_len, 42) % HEADER_MAP_SIZE;
+  const uint16_t original_index = (uint16_t)murmurhash3(key, key_len, 42) % HEADER_MAP_SIZE;
   uint16_t index = original_index;
 
   uint8_t i = 1;
