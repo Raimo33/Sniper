@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 19:57:09 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/30 19:07:06 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/30 20:45:54 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -154,7 +154,7 @@ static void header_map_insert(header_map_t *restrict map, const header_entry_t *
   map->entries_count++;
 }
 
-header_entry_t *header_map_get(header_map_t *restrict map, const char *restrict key, const uint16_t key_len)
+header_entry_t *header_map_get(const header_map_t *restrict map, const char *restrict key, const uint16_t key_len)
 {
   const uint16_t original_index = (uint16_t)murmurhash3(key, key_len, 42) % HEADER_MAP_SIZE;
   uint16_t index = original_index;

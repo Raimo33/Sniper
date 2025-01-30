@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 21:02:36 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/30 18:27:40 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/30 21:08:30 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,16 +34,16 @@ void init_fix(fix_client_t *restrict client, const keys_t *restrict keys, const 
   setsockopt(fd, IPPROTO_TCP, TCP_FASTOPEN, &(bool){true}, sizeof(bool));
   setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &(bool){true}, sizeof(bool));
   setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE, &(bool){true}, sizeof(bool));
-  setsockopt(fd, IPPROTO_TCP, TCP_KEEPIDLE, &(uint8_t){FIX_KEEPALIVE_IDLE}, sizeof(uint8_t));
-  setsockopt(fd, IPPROTO_TCP, TCP_KEEPINTVL, &(uint8_t){FIX_KEEPALIVE_INTVL}, sizeof(uint8_t));
-  setsockopt(fd, IPPROTO_TCP, TCP_KEEPCNT, &(uint8_t){FIX_KEEPALIVE_CNT}, sizeof(uint8_t));
+  setsockopt(fd, IPPROTO_TCP, TCP_KEEPIDLE, &(uint16_t){FIX_KEEPALIVE_IDLE}, sizeof(uint16_t));
+  setsockopt(fd, IPPROTO_TCP, TCP_KEEPINTVL, &(uint16_t){FIX_KEEPALIVE_INTVL}, sizeof(uint16_t));
+  setsockopt(fd, IPPROTO_TCP, TCP_KEEPCNT, &(uint16_t){FIX_KEEPALIVE_CNT}, sizeof(uint16_t));
   client->ssl = init_ssl_socket(fd, ssl_ctx);
 
   dup2(fd, FIX_FILENO);
   close(fd);
 }
 
-inline bool handle_fix_connection(const fix_client_t *restrict client, const uint8_t events, const dns_resolver_t *restrict resolver)
+bool handle_fix_connection(fix_client_t *restrict client, const uint8_t events, dns_resolver_t *restrict resolver)
 {
   static void *restrict states[] = {&&dns_query, &&dns_response, &&connect, &&ssl_handshake, &&send_logon, &&receive_logon, &&send_limit_query, &&receive_limit_query};
 
@@ -68,7 +68,7 @@ dns_response:
 
 connect:
   log_msg(STR_LEN_PAIR("Connecting to FIX endpoint: " FIX_HOST));
-  connect(FIX_FILENO, &client->addr, sizeof(client->addr));
+  connect(FIX_FILENO, (struct sockaddr *)&client->addr, sizeof(client->addr));
   sequence++;
   return false;
 
@@ -110,21 +110,36 @@ static bool send_logon(const fix_client_t *restrict client)
       // SendingTime (52)
   //MessageHandling (25035) Unordered(1)
   //ResponseMode (25036) ONLY_ACKS(2)
+  (void)client;
+  return false;
 }
 
 static bool receive_logon(const fix_client_t *restrict client)
 {
   //TODO
+  (void)client;
+  return false;
 }
 
 static bool send_limit_query(const fix_client_t *restrict client)
 {
   //TODO
+  (void)client;
+  return false;
 }
 
 static bool receive_limit_query(const fix_client_t *restrict client)
 {
   //TODO
+  (void)client;
+  return false;
+}
+
+UNUSED static void format_price(const fixed_point_t price, char *buffer)
+{
+  //TODO
+  (void)price;
+  (void)buffer;
 }
 
 void free_fix(const fix_client_t *restrict client)

@@ -6,14 +6,14 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 20:53:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/29 20:59:05 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/30 20:42:23 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "headers/ws.h"
 
 static bool COLD send_upgrade_request(ws_client_t *restrict client);
-static bool COLD receive_upgrade_response(const ws_client_t *restrict client);
+static bool COLD receive_upgrade_response(ws_client_t *restrict client);
 
 //TODO pool di connessioni
 void init_ws(ws_client_t *restrict client, const SSL_CTX *restrict ssl_ctx)
@@ -30,16 +30,16 @@ void init_ws(ws_client_t *restrict client, const SSL_CTX *restrict ssl_ctx)
   setsockopt(fd, IPPROTO_TCP, TCP_FASTOPEN, &(bool){true}, sizeof(bool));
   setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &(bool){true}, sizeof(bool));
   setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE, &(bool){true}, sizeof(bool));
-  setsockopt(fd, IPPROTO_TCP, TCP_KEEPIDLE, &(uint8_t){WS_KEEPALIVE_IDLE}, sizeof(uint8_t));
-  setsockopt(fd, IPPROTO_TCP, TCP_KEEPINTVL, &(uint8_t){WS_KEEPALIVE_INTVL}, sizeof(uint8_t));
-  setsockopt(fd, IPPROTO_TCP, TCP_KEEPCNT, &(uint8_t){WS_KEEPALIVE_CNT}, sizeof(uint8_t));
+  setsockopt(fd, IPPROTO_TCP, TCP_KEEPIDLE, &(uint16_t){WS_KEEPALIVE_IDLE}, sizeof(uint16_t));
+  setsockopt(fd, IPPROTO_TCP, TCP_KEEPINTVL, &(uint16_t){WS_KEEPALIVE_INTVL}, sizeof(uint16_t));
+  setsockopt(fd, IPPROTO_TCP, TCP_KEEPCNT, &(uint16_t){WS_KEEPALIVE_CNT}, sizeof(uint16_t));
   client->ssl = init_ssl_socket(fd, ssl_ctx);
 
   dup2(fd, WS_FILENO);
   close(fd);
 }
 
-inline bool handle_ws_connection(const ws_client_t *restrict client, const uint8_t events, const dns_resolver_t *restrict resolver)
+bool handle_ws_connection(ws_client_t *restrict client, const uint8_t events, dns_resolver_t *restrict resolver)
 {
   static void *restrict states[] = {&&dns_query, &&dns_response, &&connect, &&ssl_handshake, &&upgrade_request, &&upgrade_response};
   static uint8_t sequence = 0;
@@ -63,7 +63,7 @@ dns_response:
 
 connect:
   log_msg(STR_LEN_PAIR("Connecting to Websocket endpoint: " WS_HOST));
-  connect(WS_FILENO, &client->addr, sizeof(client->addr));
+  connect(WS_FILENO, (struct sockaddr *)&client->addr, sizeof(client->addr));
   sequence++;
   return false;
 
@@ -100,7 +100,7 @@ static bool send_upgrade_request(ws_client_t *restrict client)
   return try_ssl_send(client->ssl, client->write_buffer, len, &client->write_offset);
 }
 
-static bool receive_upgrade_response(const ws_client_t *restrict client)
+static bool receive_upgrade_response(ws_client_t *restrict client)
 {
   if (UNLIKELY(try_ssl_recv_http(client->ssl, client->read_buffer, WS_READ_BUFFER_SIZE, &client->read_offset, &client->http_response) == false))
     return false;

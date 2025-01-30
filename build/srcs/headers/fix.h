@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 16:52:51 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/30 15:00:44 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/30 21:14:37 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -130,11 +130,11 @@ typedef struct
 {
   struct sockaddr_in addr;
   SSL *ssl;
-  keys_t *keys;
+  const keys_t *keys;
 } fix_client_t;
 
 void COLD init_fix(fix_client_t *restrict client, const keys_t *restrict keys, const SSL_CTX *restrict ssl_ctx);
-extern inline bool HOT handle_fix_connection(const fix_client_t *restrict client, const uint8_t events, const dns_resolver_t *restrict resolver);
+bool HOT handle_fix_connection(fix_client_t *restrict client, const uint8_t events, dns_resolver_t *restrict resolver);
 void COLD free_fix(const fix_client_t *restrict client);
 
 #endif

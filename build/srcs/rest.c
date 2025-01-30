@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 17:53:55 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/30 15:11:00 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/30 20:57:12 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,16 +27,16 @@ void init_rest(rest_client_t *restrict client, const keys_t *restrict keys, cons
   setsockopt(fd, IPPROTO_TCP, TCP_FASTOPEN, &(bool){true}, sizeof(bool));
   setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &(bool){true}, sizeof(bool));
   setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE, &(bool){true}, sizeof(bool));
-  setsockopt(fd, IPPROTO_TCP, TCP_KEEPIDLE, &(uint8_t){REST_KEEPALIVE_IDLE}, sizeof(uint8_t));
-  setsockopt(fd, IPPROTO_TCP, TCP_KEEPINTVL, &(uint8_t){REST_KEEPALIVE_INTVL}, sizeof(uint8_t));
-  setsockopt(fd, IPPROTO_TCP, TCP_KEEPCNT, &(uint8_t){REST_KEEPALIVE_CNT}, sizeof(uint8_t));
+  setsockopt(fd, IPPROTO_TCP, TCP_KEEPIDLE, &(uint16_t){REST_KEEPALIVE_IDLE}, sizeof(uint16_t));
+  setsockopt(fd, IPPROTO_TCP, TCP_KEEPINTVL, &(uint16_t){REST_KEEPALIVE_INTVL}, sizeof(uint16_t));
+  setsockopt(fd, IPPROTO_TCP, TCP_KEEPCNT, &(uint16_t){REST_KEEPALIVE_CNT}, sizeof(uint16_t));
   client->ssl = init_ssl_socket(fd, ssl_ctx);
 
   dup2(fd, REST_FILENO);
   close(fd);
 }
 
-inline bool handle_rest_connection(const rest_client_t *restrict rest, const uint8_t events, const dns_resolver_t *restrict resolver)
+bool handle_rest_connection(rest_client_t *restrict rest, const uint8_t events, dns_resolver_t *restrict resolver)
 {
   static void *restrict states[] = {&&dns_query, &&dns_response, &&connect, &&ssl_handshake};
   static uint8_t sequence = 0;
@@ -60,7 +60,7 @@ dns_response:
 
 connect:
   log_msg(STR_LEN_PAIR("Connecting to REST endpoint: " REST_HOST));
-  connect(REST_FILENO, &rest->addr, sizeof(rest->addr));
+  connect(REST_FILENO, (struct sockaddr *)&rest->addr, sizeof(rest->addr));
   sequence++;
   return false;
 

@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 17:40:24 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/25 17:37:59 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/30 20:35:03 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,7 @@ void init_event_loop(event_loop_ctx_t *restrict ctx)
   });
 }
 
-void establish_connections(const event_loop_ctx_t *restrict ctx, const fix_client_t *fix_client, const ws_client_t *ws_client, const rest_client_t *rest_client, const dns_resolver_t *dns_resolver)
+void establish_connections(const event_loop_ctx_t *restrict ctx, fix_client_t *fix_client, ws_client_t *ws_client, rest_client_t *rest_client, dns_resolver_t *dns_resolver)
 {
   struct epoll_event events[MAX_EVENTS] ALIGNED(64) = {0};
   struct epoll_event *event;

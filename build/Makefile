@@ -6,7 +6,7 @@
 #    By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/03/19 14:52:58 by craimond          #+#    #+#              #
-#    Updated: 2025/01/30 18:57:09 by craimond         ###   ########.fr        #
+#    Updated: 2025/01/30 20:27:50 by craimond         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -24,7 +24,7 @@ DEPS := $(OBJS:.o=.d)
 
 CC := gcc
 CSTANDARD := gnu23
-CFLAGS := -std=$(CSTANDARD) -Wall -Wextra -Werror -fwrapv -static -Ofast -ffast-math -fopt-info-vec-all -march=native -fomit-frame-pointer -flto -MMD
+CFLAGS := -std=$(CSTANDARD) -Wall -Wextra -Werror -fwrapv -fgnu89-inline -static -Ofast -ffast-math -fopt-info-vec-all -march=native -fomit-frame-pointer -flto -MMD
 LDFLAGS := -static -lssl -lcrypto 
 RM := rm -rf
 

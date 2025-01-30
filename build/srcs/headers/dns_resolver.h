@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/25 10:38:46 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/26 14:06:56 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/30 21:37:33 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 # include <stdint.h>
 # include <stdbool.h>
+# include <string.h>
 # include <arpa/inet.h>
 # include <sys/epoll.h>
 
@@ -38,14 +39,16 @@
 # define DNS_FLAG_AD     0x0020
 # define DNS_FLAG_CD     0x0010
 # define DNS_FLAG_RCODE  0x000F
+# define DNS_QTYPE_A     1
+# define DNS_QCLASS_IN   1
 
 typedef struct PACKED {
-  uint16_t id;
-  uint16_t flags;
-  uint16_t qdcount;
-  uint16_t ancount;
-  uint16_t nscount;
-  uint16_t arcount;
+  const uint16_t id;
+  const uint16_t flags;
+  const uint16_t qdcount;
+  const uint16_t ancount;
+  const uint16_t nscount;
+  const uint16_t arcount;
 } dns_header_t;
 
 typedef struct PACKED {
@@ -55,16 +58,16 @@ typedef struct PACKED {
 } dns_question_t;
 
 typedef struct PACKED {
-  uint16_t name;
-  uint16_t type;
-  uint16_t class;
-  uint32_t ttl;
-  uint16_t rdlength;
-  uint8_t rdata[];
+  const uint16_t name;
+  const uint16_t type;
+  const uint16_t class;
+  const uint32_t ttl;
+  const uint16_t rdlength;
+  const uint8_t rdata[];
 } dns_answer_t;
 
 typedef struct {
-  char *domain;
+  const char *domain;
   uint16_t domain_len;
   uint16_t callback_fd;
 } dns_entry_t;

@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 18:15:10 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/30 15:13:41 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/30 20:04:39 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ void init_signals(void)
   close(fd);
 }
 
-inline void handle_signal(const uint8_t events)
+void handle_signal(const uint8_t events)
 {
   struct signalfd_siginfo info;
   read(SIG_FILENO, &info, sizeof(info));
