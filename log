@@ -5,7 +5,7 @@
 #1 DONE 0.0s
 
 #2 [internal] load metadata for docker.io/library/clearlinux:latest
-#2 DONE 0.4s
+#2 DONE 0.8s
 
 #3 [internal] load .dockerignore
 #3 transferring context: 2B done
@@ -15,85 +15,96 @@
 #4 DONE 0.0s
 
 #5 [internal] load build context
-#5 transferring context: 1.67kB done
+#5 transferring context: 11.10kB done
 #5 DONE 0.0s
 
-#6 [3/9] RUN swupd bundle-add make c-basic os-core-dev devpkg-openssl
+#6 [2/9] RUN swupd update
 #6 CACHED
 
-#7 [7/9] RUN chown -R fastaf:fastaf /build
+#7 [3/9] RUN swupd bundle-add make c-basic os-core-dev devpkg-openssl
 #7 CACHED
 
-#8 [2/9] RUN swupd update
+#8 [4/9] COPY ./conf/sysctl.conf /etc/sysctl.conf
 #8 CACHED
 
-#9 [4/9] COPY ./conf/sysctl.conf /etc/sysctl.conf
-#9 CACHED
+#9 [5/9] COPY ./build /build
+#9 DONE 1.2s
 
 #10 [6/9] RUN useradd -s /bin/bash fastaf
-#10 CACHED
+#10 DONE 0.3s
 
-#11 [5/9] COPY ./build /build
-#11 CACHED
+#11 [7/9] RUN chown -R fastaf:fastaf /build
+#11 DONE 0.6s
 
 #12 [8/9] WORKDIR /build
-#12 CACHED
+#12 DONE 0.1s
 
 #13 [9/9] RUN make
-#13 0.167 gcc -std=gnu23 -Wall -Wextra -Werror -fwrapv -static -Ofast -ffast-math -fopt-info-vec-all -march=native -static -fomit-frame-pointer -flto -c srcs/fastaf.c -o objs/fastaf.o
-#13 0.251 In file included from srcs/headers/fastaf.h:21,
-#13 0.251                  from srcs/fastaf.c:13:
-#13 0.251 srcs/headers/rest.h:44:24: error: inline function 'handle_rest_connection' declared but never defined [-Werror]
-#13 0.251    44 | extern inline bool HOT handle_rest_connection(const rest_client_t *restrict client, const uint8_t events, const dns_resolver_t *restrict resolver);
-#13 0.251       |                        ^~~~~~~~~~~~~~~~~~~~~~
-#13 0.251 In file included from srcs/headers/fastaf.h:20:
-#13 0.251 srcs/headers/ws.h:55:24: error: inline function 'handle_ws_connection' declared but never defined [-Werror]
-#13 0.251    55 | extern inline bool HOT handle_ws_connection(const ws_client_t *restrict client, const uint8_t events, const dns_resolver_t *restrict resolver);
-#13 0.251       |                        ^~~~~~~~~~~~~~~~~~~~
-#13 0.251 In file included from srcs/headers/fastaf.h:19:
-#13 0.251 srcs/headers/fix.h:137:24: error: inline function 'handle_fix_connection' declared but never defined [-Werror]
-#13 0.251   137 | extern inline bool HOT handle_fix_connection(const fix_client_t *restrict client, const uint8_t events, const dns_resolver_t *restrict resolver);
-#13 0.251       |                        ^~~~~~~~~~~~~~~~~~~~~
-#13 0.251 In file included from srcs/headers/fix.h:28:
-#13 0.251 srcs/headers/fixed_point.h:30:47: error: inline function 'fast_div' declared but never defined [-Werror]
-#13 0.251    30 | extern inline fixed_point_t HOT ALWAYS_INLINE fast_div(const fixed_point_t a, const fixed_point_t b);
-#13 0.251       |                                               ^~~~~~~~
-#13 0.251 srcs/headers/fixed_point.h:29:47: error: inline function 'fast_mul' declared but never defined [-Werror]
-#13 0.251    29 | extern inline fixed_point_t HOT ALWAYS_INLINE fast_mul(const fixed_point_t a, const fixed_point_t b);
-#13 0.251       |                                               ^~~~~~~~
-#13 0.251 srcs/headers/fixed_point.h:28:47: error: inline function 'fast_sub' declared but never defined [-Werror]
-#13 0.251    28 | extern inline fixed_point_t HOT ALWAYS_INLINE fast_sub(const fixed_point_t a, const fixed_point_t b);
-#13 0.251       |                                               ^~~~~~~~
-#13 0.251 srcs/headers/fixed_point.h:27:47: error: inline function 'fast_add' declared but never defined [-Werror]
-#13 0.251    27 | extern inline fixed_point_t HOT ALWAYS_INLINE fast_add(const fixed_point_t a, const fixed_point_t b);
-#13 0.251       |                                               ^~~~~~~~
-#13 0.251 In file included from srcs/headers/fastaf.h:18:
-#13 0.251 srcs/headers/signals.h:24:24: error: inline function 'handle_signal' declared but never defined [-Werror]
-#13 0.251    24 | extern inline void HOT handle_signal(const uint8_t events);
-#13 0.251       |                        ^~~~~~~~~~~~~
-#13 0.251 In file included from srcs/headers/fastaf.h:17:
-#13 0.251 srcs/headers/errors.h:23:38: error: inline function 'fast_assert' declared but never defined [-Werror]
-#13 0.251    23 | extern inline void HOT ALWAYS_INLINE fast_assert(const bool condition, const char *restrict msg, const uint8_t len);
-#13 0.251       |                                      ^~~~~~~~~~~
-#13 0.251 In file included from srcs/headers/fastaf.h:16:
-#13 0.251 srcs/headers/logger.h:38:24: error: inline function 'handle_logs' declared but never defined [-Werror]
-#13 0.251    38 | extern inline void HOT handle_logs(const uint8_t events);
-#13 0.251       |                        ^~~~~~~~~~~
-#13 0.265 cc1: all warnings being treated as errors
-#13 0.267 make: *** [Makefile:66: objs/fastaf.o] Error 1
+#13 0.268 gcc -std=gnu23 -Wall -Wextra -Werror -fwrapv -fgnu89-inline -static -Ofast -ffast-math -fopt-info-vec-all -march=native -fomit-frame-pointer -flto -MMD -Isrcs/headers -I/usr/include -c srcs/fastaf.c -o srcs/fastaf.o
+#13 0.389 gcc -std=gnu23 -Wall -Wextra -Werror -fwrapv -fgnu89-inline -static -Ofast -ffast-math -fopt-info-vec-all -march=native -fomit-frame-pointer -flto -MMD -Isrcs/headers -I/usr/include -c srcs/ws.c -o srcs/ws.o
+#13 0.503 gcc -std=gnu23 -Wall -Wextra -Werror -fwrapv -fgnu89-inline -static -Ofast -ffast-math -fopt-info-vec-all -march=native -fomit-frame-pointer -flto -MMD -Isrcs/headers -I/usr/include -c srcs/fix.c -o srcs/fix.o
+#13 0.583 srcs/fix.c: In function 'init_fix':
+#13 0.583 srcs/fix.c:31:16: error: assignment discards 'const' qualifier from pointer target type [-Werror=discarded-qualifiers]
+#13 0.583    31 |   client->keys = keys;
+#13 0.583       |                ^
+#13 0.584 srcs/fix.c: In function 'handle_fix_connection':
+#13 0.584 srcs/fix.c:71:23: error: passing argument 2 of 'connect' from incompatible pointer type [-Wincompatible-pointer-types]
+#13 0.584    71 |   connect(FIX_FILENO, &client->addr, sizeof(client->addr));
+#13 0.584       |                       ^~~~~~~~~~~~~
+#13 0.584       |                       |
+#13 0.584       |                       struct sockaddr_in *
+#13 0.584 In file included from srcs/headers/fix.h:17,
+#13 0.584                  from srcs/fix.c:13:
+#13 0.584 /usr/include/sys/socket.h:126:52: note: expected 'const struct sockaddr *' but argument is of type 'struct sockaddr_in *'
+#13 0.584   126 | extern int connect (int __fd, __CONST_SOCKADDR_ARG __addr, socklen_t __len);
+#13 0.584       |                                                    ^
+#13 0.584 srcs/fix.c: In function 'send_logon':
+#13 0.584 srcs/fix.c:113:1: error: no return statement in function returning non-void [-Werror=return-type]
+#13 0.584   113 | }
+#13 0.584       | ^
+#13 0.584 srcs/fix.c:100:53: error: unused parameter 'client' [-Werror=unused-parameter]
+#13 0.584   100 | static bool send_logon(const fix_client_t *restrict client)
+#13 0.584       |                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~
+#13 0.584 srcs/fix.c: In function 'receive_logon':
+#13 0.584 srcs/fix.c:118:1: error: no return statement in function returning non-void [-Werror=return-type]
+#13 0.584   118 | }
+#13 0.584       | ^
+#13 0.584 srcs/fix.c:115:56: error: unused parameter 'client' [-Werror=unused-parameter]
+#13 0.584   115 | static bool receive_logon(const fix_client_t *restrict client)
+#13 0.584       |                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~
+#13 0.584 srcs/fix.c: In function 'send_limit_query':
+#13 0.584 srcs/fix.c:123:1: error: no return statement in function returning non-void [-Werror=return-type]
+#13 0.584   123 | }
+#13 0.584       | ^
+#13 0.584 srcs/fix.c:120:59: error: unused parameter 'client' [-Werror=unused-parameter]
+#13 0.584   120 | static bool send_limit_query(const fix_client_t *restrict client)
+#13 0.584       |                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~
+#13 0.584 srcs/fix.c: In function 'receive_limit_query':
+#13 0.584 srcs/fix.c:128:1: error: no return statement in function returning non-void [-Werror=return-type]
+#13 0.584   128 | }
+#13 0.584       | ^
+#13 0.584 srcs/fix.c:125:62: error: unused parameter 'client' [-Werror=unused-parameter]
+#13 0.584   125 | static bool receive_limit_query(const fix_client_t *restrict client)
+#13 0.584       |                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~
+#13 0.585 srcs/fix.c: At top level:
+#13 0.585 srcs/fix.c:19:17: error: 'format_price' declared 'static' but never defined [-Werror=unused-function]
+#13 0.585    19 | static void HOT format_price(const fixed_point_t price, char *buffer); //TODO 5. Zero-Cost String Formatting, Precomputed FIX template (e.g., "44=XXXX|")
+#13 0.585       |                 ^~~~~~~~~~~~
+#13 0.587 cc1: all warnings being treated as errors
+#13 0.589 make: *** [Makefile:63: srcs/fix.o] Error 1
 #13 ERROR: process "/bin/sh -c make" did not complete successfully: exit code: 2
 ------
  > [9/9] RUN make:
-0.251 In file included from srcs/headers/fastaf.h:17:
-0.251 srcs/headers/errors.h:23:38: error: inline function 'fast_assert' declared but never defined [-Werror]
-0.251    23 | extern inline void HOT ALWAYS_INLINE fast_assert(const bool condition, const char *restrict msg, const uint8_t len);
-0.251       |                                      ^~~~~~~~~~~
-0.251 In file included from srcs/headers/fastaf.h:16:
-0.251 srcs/headers/logger.h:38:24: error: inline function 'handle_logs' declared but never defined [-Werror]
-0.251    38 | extern inline void HOT handle_logs(const uint8_t events);
-0.251       |                        ^~~~~~~~~~~
-0.265 cc1: all warnings being treated as errors
-0.267 make: *** [Makefile:66: objs/fastaf.o] Error 1
+0.584       | ^
+0.584 srcs/fix.c:125:62: error: unused parameter 'client' [-Werror=unused-parameter]
+0.584   125 | static bool receive_limit_query(const fix_client_t *restrict client)
+0.584       |                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~
+0.585 srcs/fix.c: At top level:
+0.585 srcs/fix.c:19:17: error: 'format_price' declared 'static' but never defined [-Werror=unused-function]
+0.585    19 | static void HOT format_price(const fixed_point_t price, char *buffer); //TODO 5. Zero-Cost String Formatting, Precomputed FIX template (e.g., "44=XXXX|")
+0.585       |                 ^~~~~~~~~~~~
+0.587 cc1: all warnings being treated as errors
+0.589 make: *** [Makefile:63: srcs/fix.o] Error 1
 ------
 Dockerfile:25
 --------------------
