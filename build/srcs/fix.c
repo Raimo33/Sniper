@@ -6,16 +6,16 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 21:02:36 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/29 21:12:23 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/30 18:27:40 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "headers/fix.h"
 
-static void COLD send_logon(const fix_client_t *restrict client);
-static void COLD receive_logon(const fix_client_t *restrict client);
-static void COLD send_limit_query(const fix_client_t *restrict client);
-static void COLD receive_limit_query(const fix_client_t *restrict client);
+static bool COLD send_logon(const fix_client_t *restrict client);
+static bool COLD receive_logon(const fix_client_t *restrict client);
+static bool COLD send_limit_query(const fix_client_t *restrict client);
+static bool COLD receive_limit_query(const fix_client_t *restrict client);
 static void HOT format_price(const fixed_point_t price, char *buffer); //TODO 5. Zero-Cost String Formatting, Precomputed FIX template (e.g., "44=XXXX|")
 
 //TODO pool di connessioni
@@ -79,17 +79,17 @@ ssl_handshake:
 
 send_logon:
   log_msg(STR_LEN_PAIR("Sending logon message"));
-  sequence += send_logon(client)
+  sequence += send_logon(client);
   return false;
 
 receive_logon:
   log_msg(STR_LEN_PAIR("Receiving logon message"));
-  sequence += receive_logon(client)
+  sequence += receive_logon(client);
   return false;
 
 send_limit_query:
   log_msg(STR_LEN_PAIR("Sending limit query"));
-  sequence += send_limit_query(client)
+  sequence += send_limit_query(client);
   return false;
 
 receive_limit_query:
@@ -97,7 +97,7 @@ receive_limit_query:
   return receive_limit_query(client);
 }
 
-static void send_logon(const fix_client_t *restrict client)
+static bool send_logon(const fix_client_t *restrict client)
 {
   //TODO
   //Username (553) API_KEY
@@ -112,17 +112,17 @@ static void send_logon(const fix_client_t *restrict client)
   //ResponseMode (25036) ONLY_ACKS(2)
 }
 
-static void receive_logon(const fix_client_t *restrict client)
+static bool receive_logon(const fix_client_t *restrict client)
 {
   //TODO
 }
 
-static void send_limit_query(const fix_client_t *restrict client)
+static bool send_limit_query(const fix_client_t *restrict client)
 {
   //TODO
 }
 
-static void receive_limit_query(const fix_client_t *restrict client)
+static bool receive_limit_query(const fix_client_t *restrict client)
 {
   //TODO
 }

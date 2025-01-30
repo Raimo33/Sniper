@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 21:12:39 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/28 21:19:14 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/30 19:07:25 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 static inline uint64_t tolower8(uint64_t octets);
 
-static void strlower(char *str, uint16_t len)
+static void strtolower(char *str, uint16_t len)
 {
   uint64_t *chunk = (uint64_t *)str;
 

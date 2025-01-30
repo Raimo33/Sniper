@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 19:57:09 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/29 20:56:33 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/30 19:07:06 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ static uint16_t HOT parse_headers(char *restrict buffer, header_map_t *restrict 
 static uint16_t HOT parse_body(char *restrict buffer, char *restrict body, header_map_t *restrict headers, const uint16_t buffer_size);
 static uint16_t HOT parse_chunked_body(char *restrict buffer, char *restrict body, const uint16_t buffer_size);
 static uint16_t HOT parse_unified_body(char *restrict buffer, char *restrict body, const char *restrict content_length, const uint16_t buffer_size);
-static void HOT header_map_insert(header_map_t *restrict map, const char *restrict key, const uint16_t key_len, const char *restrict value, const uint16_t value_len);
+static void HOT header_map_insert(header_map_t *restrict map, const header_entry_t *restrict entry);
 
 bool is_full_http_response(const char *restrict buffer, const uint16_t buffer_size, const uint16_t response_len)
 {
@@ -86,7 +86,8 @@ static uint16_t parse_headers(char *restrict buffer, header_map_t *restrict head
     fast_assert(buffer, STR_LEN_PAIR("Malformed header: missing clrf"));
     const uint16_t value_len = buffer - value;
 
-    header_map_insert(headers, key, key_len, value, value_len);
+    strtolower(key, key_len);
+    header_map_insert(headers, &(const header_entry_t){key, key_len, value, value_len});
     buffer += STR_LEN("\r\n");
   }
   headers_end += STR_LEN("\r\n\r\n");
@@ -139,26 +140,17 @@ static uint16_t parse_unified_body(char *restrict buffer, char *restrict body, c
   return body_size;
 }
 
-static void header_map_insert(header_map_t *restrict map, const char *restrict key, const uint16_t key_len, const char *restrict value, const uint16_t value_len)
+static void header_map_insert(header_map_t *restrict map, const header_entry_t *restrict entry)
 {
   fast_assert(map->entries_count < MAX_HEADERS, STR_LEN_PAIR("Too many headers"));
 
-  const uint16_t original_index = (uint16_t)murmurhash3(key, key_len, 42) % HEADER_MAP_SIZE;
+  const uint16_t original_index = (uint16_t)murmurhash3(entry->key, entry->key_len, 42) % HEADER_MAP_SIZE;
   uint16_t index = original_index;
 
   for (uint8_t i = 1; map->entries[index].key; i++)
     index = (original_index + i * i) % HEADER_MAP_SIZE;
 
-  fast_assert(key_len < MAX_HEADER_KEY_SIZE, STR_LEN_PAIR("Header key too long"));
-  fast_assert(value_len < MAX_HEADER_VALUE_SIZE, STR_LEN_PAIR("Header value too long"));
-
-  memcpy(map->entries[index].key, key, key_len);
-  map->entries[index].key_len = key_len;
-  memcpy(map->entries[index].value, value, value_len);
-  map->entries[index].value_len = value_len;
-
-  strlower(map->entries[index].key, key_len);
-
+  memcpy(&map->entries[index], entry, sizeof(header_entry_t));
   map->entries_count++;
 }
 

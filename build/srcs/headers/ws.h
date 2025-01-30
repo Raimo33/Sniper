@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 16:53:00 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/29 21:01:00 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/30 15:01:03 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ typedef struct
 } ws_client_t;
 
 void COLD init_ws(ws_client_t *restrict client, const SSL_CTX *restrict ssl_ctx);
-inline bool HOT handle_ws_connection(const ws_client_t *restrict client, const uint8_t events, const dns_resolver_t *restrict resolver);
+extern inline bool HOT handle_ws_connection(const ws_client_t *restrict client, const uint8_t events, const dns_resolver_t *restrict resolver);
 void COLD free_ws(const ws_client_t *restrict client);
 
 #endif

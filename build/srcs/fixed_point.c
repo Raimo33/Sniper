@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/24 19:10:57 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/27 19:36:13 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/30 15:10:28 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,10 +41,10 @@ inline fixed_point_t fast_sub(const fixed_point_t a, const fixed_point_t b)
 
 inline fixed_point_t fast_mul(const fixed_point_t a, const fixed_point_t b)
 {
-  return (fixed_point_t){a.value * b.value, a.precision + b.precision};
+  return (fixed_point_t){.value = a.value * b.value, .precision = a.precision + b.precision};
 }
 
 inline fixed_point_t fast_div(const fixed_point_t a, const fixed_point_t b)
 {
-  return (fixed_point_t){a.value * powers_of_ten[a.precision] / b.value, a.precision};
+  return (fixed_point_t){.value = (a.value * powers_of_ten[a.precision]) / b.value, .precision = a.precision};
 }

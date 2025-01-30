@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 21:10:47 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/28 21:24:00 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/30 19:07:25 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,6 @@
 # define STR_LEN_PAIR(s) s, sizeof(s) - 1
 # define STR_LEN(s) sizeof(s) - 1
 
-void HOT strlower(char *str, const uint16_t len);
+void HOT strtolower(char *str, const uint16_t len);
 
 #endif

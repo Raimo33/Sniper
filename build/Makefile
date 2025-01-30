@@ -5,27 +5,27 @@
 #                                                     +:+ +:+         +:+      #
 #    By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2024/03/19 14:52:58 by egualand          #+#    #+#              #
-#    Updated: 2025/01/29 21:33:16 by craimond         ###   ########.fr        #
+#    Created: 2024/03/19 14:52:58 by craimond          #+#    #+#              #
+#    Updated: 2025/01/30 18:57:09 by craimond         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME := FastAF
 
-OBJS_DIR := objs
 SRCS_DIR := srcs
 HDRS_DIR := srcs/headers
 INCS_DIR := /usr/include
 
 SRCS := $(addprefix $(SRCS_DIR)/, fastaf.c ws.c fix.c rest.c dns_resolver.c event_loop.c http_parser.c logger.c signals.c errors.c keys.c ssl.c fixed_point.c message_broker.c str_utils.c)
-OBJS := $(SRCS:$(SRCS_DIR)/%.c=$(OBJS_DIR)/%.o)
 HDRS := $(addprefix $(HDRS_DIR)/, fastaf.h ws.h fix.h rest.h dns_resolver.h event_loop.h http_parser.h logger.h signals.h errors.h keys.h ssl.h fixed_point.h message_broker.h str_utils.h extensions.h)
-INCS := $(addprefix -I, $(INCS_DIR))
+INCS := -I$(HDRS_DIR) -I$(INCS_DIR)
+OBJS := $(SRCS:.c=.o)
+DEPS := $(OBJS:.o=.d)
 
 CC := gcc
-CVERSION := 23
-CFLAGS := -std=c$(CVERSION) -Wall -Wextra -Werror -fwrapv -static -Ofast -ffast-math -fopt-info-vec-all -march=native -static -fomit-frame-pointer -flto
-LDFLAGS := -static -lwolfssl -lwolfcrypt
+CSTANDARD := gnu23
+CFLAGS := -std=$(CSTANDARD) -Wall -Wextra -Werror -fwrapv -static -Ofast -ffast-math -fopt-info-vec-all -march=native -fomit-frame-pointer -flto -MMD
+LDFLAGS := -static -lssl -lcrypto 
 RM := rm -rf
 
 #TODO profiling con perf
@@ -43,10 +43,7 @@ MASSIF_FLAGS := --tool=massif --massif-out-file=$(MASSIF_LOG)
 
 $(NAME): all
 
-all: init build
-
-init:
-	mkdir -p objs
+all: build
 
 build: $(OBJS)
 	$(CC) $(CFLAGS) $(INCS) $(OBJS) -o $(NAME) $(LDFLAGS)
@@ -62,22 +59,24 @@ memory: all
 	valgrind $(MASSIF_FLAGS) ./$(NAME)
 	ms_print $(MASSIF_LOG)
 
-objs/%.o: srcs/%.c $(HDRS)
-	$(CC) $(CFLAGS) -c $< -o $@
+%.o: %.c
+	$(CC) $(CFLAGS) $(INCS) -c $< -o $@
 
 clean:
-	$(RM) $(OBJS) $(VALGRIND_LOG) $(CACHEGRIND_LOG) $(CALLGRIND_LOG) $(MASSIF_LOG)
+	$(RM) $(OBJS) $(DEPS) $(VALGRIND_LOG) $(CACHEGRIND_LOG) $(CALLGRIND_LOG) $(MASSIF_LOG)
 
 fclean: clean
 	$(RM) $(NAME)
 
 re: fclean all
 
+-include $(DEPS)
+
 .PHONY: clean fclean re
 .SILENT: all init build leaks memory clean fclean re
 .SUFFIXES: .c .o
 .IGNORE: clean fclean re leaks memory
-.PRECIOUS: %.o
+.PRECIOUS: $(OBJS)
 .NOTPARALLEL: leaks cache
 .ONESHELL: leaks memory
 .DEFAULT_GOAL: all

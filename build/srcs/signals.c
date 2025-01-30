@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 18:15:10 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/25 15:23:06 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/30 15:13:41 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,7 @@ inline void handle_signal(const uint8_t events)
     default:
       UNREACHABLE;
   }
+  UNREACHABLE;
 }
 
 void free_signals(void)
