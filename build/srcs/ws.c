@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 20:53:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/31 12:38:09 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/31 16:57:43 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,20 +84,28 @@ upgrade_response:
 
 static bool send_upgrade_request(ws_client_t *restrict client)
 {
-  static const char first_part[] = "GET ";
-  static const char second_part[] = 
-    " HTTP/1.1\r\n"
+  static const char first_part[] = 
+    "GET " WS_PATH " HTTP/1.1\r\n"
     "Host: " WS_HOST ":" WS_PORT_STR "\r\n"
     "Upgrade: websocket\r\n"
     "Connection: Upgrade\r\n"
     "Sec-WebSocket-Key: ";
-  static const char third_part[] = "\r\n\r\n";
-  static const uint16_t len = STR_LEN(first_part) + STR_LEN(second_part) + STR_LEN(third_part) + WS_KEY_SIZE;
+  static const char second_part[] = "\r\n\r\n";
+  static const uint16_t len = STR_LEN(first_part) + WS_KEY_SIZE + STR_LEN(second_part);
+  static bool first = true;
 
-  //TODO return false until path is available
-  generate_ws_key(client->conn_key); //TODO call only once
-  //TODO merge the parts in a single buffer
-
+  if (first)
+  {
+    uint16_t offset = 0;
+    generate_ws_key(client->conn_key);
+    memcpy(client->write_buffer, first_part, STR_LEN(first_part));
+    offset += STR_LEN(first_part);
+    memcpy(client->write_buffer + offset, client->conn_key, WS_KEY_SIZE);
+    offset += WS_KEY_SIZE;
+    memcpy(client->write_buffer + offset, second_part, STR_LEN(second_part));
+    first = false;
+  }
+  
   return try_ssl_send(client->ssl, client->write_buffer, len, &client->write_offset);
 }
 
@@ -105,8 +113,6 @@ static bool receive_upgrade_response(ws_client_t *restrict client)
 {
   if (UNLIKELY(try_ssl_recv_http(client->ssl, client->read_buffer, WS_READ_BUFFER_SIZE, &client->read_offset, &client->http_response) == false))
     return false;
-
-  //TODO check Connection: closed header
 
   const http_response_t *response = &client->http_response;
   fast_assert(response->status_code == 101, STR_LEN_PAIR("Websocket upgrade failed: invalid status code"));
@@ -119,7 +125,7 @@ static bool receive_upgrade_response(ws_client_t *restrict client)
     panic(STR_LEN_PAIR("Websocket upgrade failed: key mismatch"));
 
   memset(&client->http_response, 0, sizeof(http_response_t));
-  return false;
+  return true;
 }
 
 void free_ws(ws_client_t *restrict client)

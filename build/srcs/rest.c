@@ -6,11 +6,14 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 17:53:55 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/31 10:25:35 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/31 17:21:05 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "headers/rest.h"
+
+static bool COLD send_info_query(rest_client_t *restrict client);
+static bool COLD receive_info_response(rest_client_t *restrict client);
 
 void init_rest(rest_client_t *restrict client, const keys_t *restrict keys, SSL_CTX *restrict ssl_ctx)
 {
@@ -36,7 +39,7 @@ void init_rest(rest_client_t *restrict client, const keys_t *restrict keys, SSL_
   close(fd);
 }
 
-bool handle_rest_connection(rest_client_t *restrict rest, const uint8_t events, dns_resolver_t *restrict resolver)
+bool handle_rest_connection(rest_client_t *restrict client, const uint8_t events, dns_resolver_t *restrict resolver)
 {
   static void *restrict states[] = {&&dns_query, &&dns_response, &&connect, &&ssl_handshake};
   static uint8_t sequence = 0;
@@ -54,22 +57,65 @@ dns_query:
 
 dns_response:
   log_msg(STR_LEN_PAIR("Resolved REST endpoint: " REST_HOST));
-  read(REST_FILENO, &rest->addr.sin_addr.s_addr, sizeof(rest->addr.sin_addr.s_addr));
+  read(REST_FILENO, &client->addr.sin_addr.s_addr, sizeof(client->addr.sin_addr.s_addr));
   sequence++;
   return false;
 
 connect:
   log_msg(STR_LEN_PAIR("Connecting to REST endpoint: " REST_HOST));
-  connect(REST_FILENO, (struct sockaddr *)&rest->addr, sizeof(rest->addr));
+  connect(REST_FILENO, (struct sockaddr *)&client->addr, sizeof(client->addr));
   sequence++;
   return false;
 
 ssl_handshake:
   log_msg(STR_LEN_PAIR("Performing SSL handshake"));
-  return SSL_connect(rest->ssl) == true;
+  return SSL_connect(client->ssl) == true;
 
-//TODO keepalive nelle richieste successive come header
-//TODO fare le query di initializzazione qui?
+info_query:
+  log_msg(STR_LEN_PAIR("Querying Exchange info"));
+  sequence += send_info_query(client);
+  return false;
+
+info_response:
+  log_msg(STR_LEN_PAIR("Received Exchange info"));
+  sequence += receive_info_response(client);
+  return false;
+}
+
+static bool send_info_query(rest_client_t *restrict client)
+{
+  static const char query[] = 
+    "GET /api/v3/exchangeInfo?permissions=SPOT&showPermissionSets=false&symbolStatus=TRADING HTTP/1.1\r"
+    "Host: " REST_HOST "\r\n"
+    "Accept-Encoding: gzip\r\n"
+    "Connection: keep-alive\r\n"
+    "\r\n";
+  static bool first = true;
+
+  if (first)
+  {
+    memcpy(client->write_buffer, query, sizeof(query));
+    first = false;
+  }
+
+  return try_ssl_send(client->ssl, client->write_buffer, sizeof(query), &client->write_offset);
+}
+
+static bool receive_info_response(rest_client_t *restrict client)
+{
+  if (UNLIKELY(try_ssl_recv_http(client->ssl, client->read_buffer, REST_READ_BUFFER_SIZE, &client->read_offset, &client->http_response) == false))
+    return false;
+
+  const http_response_t *restrict response = &client->http_response;
+  fast_assert(response->status_code == 200, STR_LEN_PAIR("Exchange info query failed: invalid status code"));
+  
+  const header_entry_t *restrict content_encoding = header_map_get(&response->headers, STR_LEN_PAIR("content-encoding"));
+  fast_assert(content_encoding, STR_LEN_PAIR("Exchange info query failed: missing content encoding header"));
+  fast_assert(strncmp(content_encoding->value, STR_LEN_PAIR("gzip")) == 0, STR_LEN_PAIR("Exchange info query failed: invalid content encoding"));
+  
+  //TODO parsing del body e fill del grafo
+
+  return true;
 }
 
 void free_rest(rest_client_t *restrict rest)

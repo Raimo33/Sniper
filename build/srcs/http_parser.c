@@ -6,11 +6,13 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 19:57:09 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/31 10:21:45 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/31 17:12:15 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "headers/http_parser.h"
+
+//TODO implement gzip
 
 static uint16_t HOT parse_status_code(char *restrict buffer, uint16_t *status_code, const uint16_t buffer_size);
 static uint16_t HOT parse_headers(char *restrict buffer, header_map_t *restrict headers, const uint16_t buffer_size);
