@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 21:02:36 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/30 21:08:30 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/31 10:25:05 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ static bool COLD receive_limit_query(const fix_client_t *restrict client);
 static void HOT format_price(const fixed_point_t price, char *buffer); //TODO 5. Zero-Cost String Formatting, Precomputed FIX template (e.g., "44=XXXX|")
 
 //TODO pool di connessioni
-void init_fix(fix_client_t *restrict client, const keys_t *restrict keys, const SSL_CTX *restrict ssl_ctx)
+void init_fix(fix_client_t *restrict client, const keys_t *restrict keys, SSL_CTX *restrict ssl_ctx)
 {
   client->addr = (struct sockaddr_in){
     .sin_family = AF_INET,
@@ -142,7 +142,7 @@ UNUSED static void format_price(const fixed_point_t price, char *buffer)
   (void)buffer;
 }
 
-void free_fix(const fix_client_t *restrict client)
+void free_fix(fix_client_t *restrict client)
 {
   free_ssl_socket(client->ssl);
   close(FIX_FILENO);

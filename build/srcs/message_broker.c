@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/29 14:17:03 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/29 18:23:07 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/31 10:26:19 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,4 +41,5 @@ bool try_ssl_recv_http(SSL *restrict ssl, char *restrict buffer, const uint16_t 
   const uint16_t bytes_parsed = parse_http_response(buffer, http_response, buffer_size);
   memmove(buffer, buffer + bytes_parsed, *offset - bytes_parsed);
   *offset -= bytes_parsed;
+  return true;
 }

@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/17 17:05:27 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/30 20:26:27 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/31 10:34:18 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,6 @@
 # include "stdlib.h"
 
 extern inline void HOT ALWAYS_INLINE fast_assert(const bool condition, const char *restrict msg, const uint8_t len);
-void COLD panic(const char *restrict msg, const uint8_t len);
+extern inline void COLD panic(const char *restrict msg, const uint8_t len);
 
 #endif

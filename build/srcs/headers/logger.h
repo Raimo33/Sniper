@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 18:08:11 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/30 20:22:10 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/31 10:13:15 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 # define LOGGER_H
 
 # include <unistd.h>
+# include <string.h>
 # include <stdint.h>
 # include <stdbool.h>
 # include <fcntl.h>
@@ -21,6 +22,7 @@
 # include <sys/epoll.h>
 
 # include "extensions.h"
+# include "errors.h"
 # include "str_utils.h"
 
 # define LOG_RING_SIZE 4096

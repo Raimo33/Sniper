@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 17:42:49 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/30 21:06:12 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/31 09:31:58 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@
 
 typedef struct
 {
-  const uint16_t epoll_fd;
+  uint16_t epoll_fd;
     // Can add more event loop related state here
 } event_loop_ctx_t;
 

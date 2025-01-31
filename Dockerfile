@@ -6,14 +6,14 @@
 #    By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/12/29 17:07:44 by craimond          #+#    #+#              #
-#    Updated: 2025/01/27 10:14:03 by craimond         ###   ########.fr        #
+#    Updated: 2025/01/31 10:59:41 by craimond         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 FROM clearlinux:latest 
 
 RUN swupd update
-RUN swupd bundle-add make c-basic os-core-dev devpkg-openssl
+RUN swupd bundle-add make c-basic os-core-dev openssl
 
 COPY ./conf/sysctl.conf /etc/sysctl.conf
 COPY ./build /build

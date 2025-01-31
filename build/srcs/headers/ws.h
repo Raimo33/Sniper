@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 16:53:00 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/30 21:14:24 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/31 10:30:36 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@
 # include <netdb.h>
 
 # include "extensions.h"
-# include "ssl.h"
+# include "fast_ssl.h"
 # include "keys.h"
 # include "http_parser.h"
 # include "dns_resolver.h"
@@ -51,8 +51,8 @@ typedef struct
   uint16_t read_offset;
 } ws_client_t;
 
-void COLD init_ws(ws_client_t *restrict client, const SSL_CTX *restrict ssl_ctx);
+void COLD init_ws(ws_client_t *restrict client, SSL_CTX *restrict ssl_ctx);
 bool HOT handle_ws_connection(ws_client_t *restrict client, const uint8_t events, dns_resolver_t *restrict resolver);
-void COLD free_ws(const ws_client_t *restrict client);
+void COLD free_ws(ws_client_t *restrict client);
 
 #endif

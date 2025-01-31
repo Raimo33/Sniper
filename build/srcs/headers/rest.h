@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 16:52:43 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/30 21:14:40 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/31 10:30:36 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@
 # include <netdb.h>
 
 # include "extensions.h"
-# include "ssl.h"
+# include "fast_ssl.h"
 # include "keys.h"
 # include "dns_resolver.h"
 
@@ -40,8 +40,8 @@ typedef struct
   const keys_t *keys;
 } rest_client_t;
 
-void COLD init_rest(rest_client_t *restrict client, const keys_t *restrict keys, const SSL_CTX *restrict ssl_ctx);
+void COLD init_rest(rest_client_t *restrict client, const keys_t *restrict keys, SSL_CTX *restrict ssl_ctx);
 bool HOT handle_rest_connection(rest_client_t *restrict client, const uint8_t events, dns_resolver_t *restrict resolver);
-void COLD free_rest(const rest_client_t *restrict client);
+void COLD free_rest(rest_client_t *restrict client);
 
 #endif

@@ -6,7 +6,7 @@
 #    By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/03/19 14:52:58 by craimond          #+#    #+#              #
-#    Updated: 2025/01/30 20:27:50 by craimond         ###   ########.fr        #
+#    Updated: 2025/01/31 10:56:04 by craimond         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -15,17 +15,18 @@ NAME := FastAF
 SRCS_DIR := srcs
 HDRS_DIR := srcs/headers
 INCS_DIR := /usr/include
+LIBS_DIR := /usr/lib
 
-SRCS := $(addprefix $(SRCS_DIR)/, fastaf.c ws.c fix.c rest.c dns_resolver.c event_loop.c http_parser.c logger.c signals.c errors.c keys.c ssl.c fixed_point.c message_broker.c str_utils.c)
-HDRS := $(addprefix $(HDRS_DIR)/, fastaf.h ws.h fix.h rest.h dns_resolver.h event_loop.h http_parser.h logger.h signals.h errors.h keys.h ssl.h fixed_point.h message_broker.h str_utils.h extensions.h)
+SRCS := $(addprefix $(SRCS_DIR)/, fastaf.c ws.c fix.c rest.c dns_resolver.c event_loop.c http_parser.c logger.c signals.c errors.c keys.c fast_ssl.c fixed_point.c message_broker.c str_utils.c)
+HDRS := $(addprefix $(HDRS_DIR)/, fastaf.h ws.h fix.h rest.h dns_resolver.h event_loop.h http_parser.h logger.h signals.h errors.h keys.h fast_ssl.h fixed_point.h message_broker.h str_utils.h extensions.h)
 INCS := -I$(HDRS_DIR) -I$(INCS_DIR)
 OBJS := $(SRCS:.c=.o)
 DEPS := $(OBJS:.o=.d)
 
 CC := gcc
 CSTANDARD := gnu23
-CFLAGS := -std=$(CSTANDARD) -Wall -Wextra -Werror -fwrapv -fgnu89-inline -static -Ofast -ffast-math -fopt-info-vec-all -march=native -fomit-frame-pointer -flto -MMD
-LDFLAGS := -static -lssl -lcrypto 
+CFLAGS := -std=$(CSTANDARD) -Wall -Wextra -Werror -fwrapv -static -fgnu89-inline -D_GNU_SOURCE -Ofast -ffast-math -fopt-info-vec-all -march=native -fomit-frame-pointer -flto -MMD
+LDFLAGS := -static -L$(LIBS_DIR) -lssl -lcrypto 
 RM := rm -rf
 
 #TODO profiling con perf

@@ -6,13 +6,13 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 17:53:55 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/30 20:57:12 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/31 10:25:35 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "headers/rest.h"
 
-void init_rest(rest_client_t *restrict client, const keys_t *restrict keys, const SSL_CTX *restrict ssl_ctx)
+void init_rest(rest_client_t *restrict client, const keys_t *restrict keys, SSL_CTX *restrict ssl_ctx)
 {
   client->addr = (struct sockaddr_in){
     .sin_family = AF_INET,
@@ -72,7 +72,7 @@ ssl_handshake:
 //TODO fare le query di initializzazione qui?
 }
 
-void free_rest(const rest_client_t *restrict rest)
+void free_rest(rest_client_t *restrict rest)
 {
   free_ssl_socket(rest->ssl);
   close(REST_FILENO);

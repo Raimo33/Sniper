@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/27 14:15:47 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/27 15:12:04 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/31 10:30:36 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@
 # include "dns_resolver.h"
 # include "event_loop.h"
 # include "keys.h"
-# include "ssl.h"
+# include "fast_ssl.h"
 
 typedef struct
 {

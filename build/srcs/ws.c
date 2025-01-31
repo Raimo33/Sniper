@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 20:53:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/30 20:42:23 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/31 10:25:22 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@ static bool COLD send_upgrade_request(ws_client_t *restrict client);
 static bool COLD receive_upgrade_response(ws_client_t *restrict client);
 
 //TODO pool di connessioni
-void init_ws(ws_client_t *restrict client, const SSL_CTX *restrict ssl_ctx)
+void init_ws(ws_client_t *restrict client, SSL_CTX *restrict ssl_ctx)
 {
   client->addr = (struct sockaddr_in){
     .sin_family = AF_INET,
@@ -114,13 +114,14 @@ static bool receive_upgrade_response(ws_client_t *restrict client)
   const header_entry_t *accept_header = header_map_get(&response->headers, STR_LEN_PAIR("Sec-WebSocket-Accept"));
   fast_assert(accept_header, STR_LEN_PAIR("Websocket upgrade failed: missing Upgrade header"));
 
-  if (verify_ws_key(client->conn_key, accept_header->value, accept_header->value_len) == false)
+  if (verify_ws_key(client->conn_key, (uint8_t *)accept_header->value, accept_header->value_len) == false)
     panic(STR_LEN_PAIR("Websocket upgrade failed: key mismatch"));
 
+  memset(&client->http_response, 0, sizeof(http_response_t));
   return false;
 }
 
-void free_ws(const ws_client_t *restrict client)
+void free_ws(ws_client_t *restrict client)
 {
   free_ssl_socket(client->ssl);
   close(WS_FILENO);

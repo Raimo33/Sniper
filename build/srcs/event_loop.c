@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 17:40:24 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/30 20:35:03 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/31 09:34:15 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,11 +15,11 @@
 void init_event_loop(event_loop_ctx_t *restrict ctx)
 {
   ctx->epoll_fd = epoll_create1(0);
-  const uint8_t signal_events = EPOLLIN | EPOLLONESHOT | EPOLLET;
-  const uint8_t tcp_events = EPOLLIN | EPOLLOUT | EPOLLHUP | EPOLLRDHUP | EPOLLERR | EPOLLET;
-  const uint8_t udp_events = EPOLLIN | EPOLLHUP | EPOLLRDHUP | EPOLLERR | EPOLLET;
-  const uint8_t log_events = EPOLLOUT | EPOLLHUP | EPOLLERR | EPOLLET;
-  
+  const int32_t signal_events = EPOLLIN | EPOLLONESHOT | EPOLLET;
+  const int32_t tcp_events = EPOLLIN | EPOLLOUT | EPOLLHUP | EPOLLRDHUP | EPOLLERR | EPOLLET;
+  const int32_t udp_events = EPOLLIN | EPOLLHUP | EPOLLRDHUP | EPOLLERR | EPOLLET;
+  const int32_t log_events = EPOLLOUT | EPOLLHUP | EPOLLERR | EPOLLET;
+
   epoll_ctl(ctx->epoll_fd, EPOLL_CTL_ADD, SIG_FILENO, &(struct epoll_event) {
     .events = signal_events,
     .data = { .fd = SIG_FILENO }
@@ -91,6 +91,10 @@ void establish_connections(const event_loop_ctx_t *restrict ctx, fix_client_t *f
 void listen_events(const event_loop_ctx_t *restrict ctx, const fix_client_t *fix_client, const ws_client_t *ws_client, const rest_client_t *rest_client)
 {
   //TODO: Implement this (take inspiration from establish_connections)
+  (void)ctx;
+  (void)fix_client;
+  (void)ws_client;
+  (void)rest_client;
 }
 
 void free_event_loop(const event_loop_ctx_t *restrict ctx)

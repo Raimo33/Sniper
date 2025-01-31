@@ -6,15 +6,15 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/17 19:45:40 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/25 21:17:03 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/31 09:40:48 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef EXTENSIONS_H
 # define EXTENSIONS_H
 
-# define LIKELY(x)                  __builtin_expect((x), 1)
-# define UNLIKELY(x)                __builtin_expect((x), 0)
+# define LIKELY(x)                  __builtin_expect(!!(x), 1)
+# define UNLIKELY(x)                __builtin_expect(!!(x), 0)
 # define PREFETCH(x, rw, locality)  __builtin_prefetch(x, rw, locality)
 # define PREFETCHW(x, locality)     __builtin_prefetch(x, 1, locality)
 # define PREFETCHR(x, locality)     __builtin_prefetch(x, 0, locality)

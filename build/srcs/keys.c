@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 19:01:43 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/30 21:10:01 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/31 10:21:54 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,8 +19,8 @@ void init_keys(keys_t *restrict keys)
 {
   OpenSSL_add_all_algorithms();
 
-  const uint8_t *restrict priv_key = getenv("PRIV_KEY");
-  const uint8_t *restrict api_key  = getenv("API_KEY");
+  const char *restrict priv_key = getenv("PRIV_KEY");
+  const char *restrict api_key  = getenv("API_KEY");
 
   fast_assert(priv_key && api_key, STR_LEN_PAIR("Missing keys"));
 

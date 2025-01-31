@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 18:15:15 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/30 20:04:50 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/31 10:13:47 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,8 @@
 # include <sys/signalfd.h>
 
 # include "extensions.h"
+# include "logger.h"
+# include "errors.h"
 
 # define SIG_FILENO 3
 
