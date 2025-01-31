@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 20:53:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/31 10:25:22 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/31 12:38:09 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,18 +84,19 @@ upgrade_response:
 
 static bool send_upgrade_request(ws_client_t *restrict client)
 {
-  static const char first_part[] = 
-    "GET " WS_PATH " HTTP/1.1\r\n"
+  static const char first_part[] = "GET ";
+  static const char second_part[] = 
+    " HTTP/1.1\r\n"
     "Host: " WS_HOST ":" WS_PORT_STR "\r\n"
     "Upgrade: websocket\r\n"
     "Connection: Upgrade\r\n"
-    "Sec-WebSocket-Version: 13\r\n"
     "Sec-WebSocket-Key: ";
-  static const char second_part[] = "\r\n\r\n";
-  static const uint16_t len = sizeof(first_part) + WS_KEY_SIZE + sizeof(second_part) - 1;
+  static const char third_part[] = "\r\n\r\n";
+  static const uint16_t len = STR_LEN(first_part) + STR_LEN(second_part) + STR_LEN(third_part) + WS_KEY_SIZE;
 
+  //TODO return false until path is available
   generate_ws_key(client->conn_key); //TODO call only once
-  //TODO merge the two parts in a single buffer
+  //TODO merge the parts in a single buffer
 
   return try_ssl_send(client->ssl, client->write_buffer, len, &client->write_offset);
 }
