@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 17:42:49 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/31 09:31:58 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/31 18:28:33 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,11 @@
 # include "logger.h"
 
 # define MAX_EVENTS 128
+
+# define SIGNAL_EVENTS  EPOLLIN | EPOLLONESHOT | EPOLLET
+# define TCP_EVENTS     EPOLLIN | EPOLLOUT | EPOLLHUP | EPOLLRDHUP | EPOLLERR | EPOLLET
+# define UDP_EVENTS     EPOLLIN | EPOLLHUP | EPOLLRDHUP | EPOLLERR | EPOLLET
+# define LOG_EVENTS     EPOLLOUT | EPOLLHUP | EPOLLERR | EPOLLET
 
 typedef struct
 {

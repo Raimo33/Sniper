@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 17:53:55 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/31 17:21:05 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/31 18:43:26 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,8 +78,7 @@ info_query:
 
 info_response:
   log_msg(STR_LEN_PAIR("Received Exchange info"));
-  sequence += receive_info_response(client);
-  return false;
+  return receive_info_response(client);
 }
 
 static bool send_info_query(rest_client_t *restrict client)
@@ -112,9 +111,7 @@ static bool receive_info_response(rest_client_t *restrict client)
   const header_entry_t *restrict content_encoding = header_map_get(&response->headers, STR_LEN_PAIR("content-encoding"));
   fast_assert(content_encoding, STR_LEN_PAIR("Exchange info query failed: missing content encoding header"));
   fast_assert(strncmp(content_encoding->value, STR_LEN_PAIR("gzip")) == 0, STR_LEN_PAIR("Exchange info query failed: invalid content encoding"));
-  
-  //TODO parsing del body e fill del grafo
-
+  //TODO decompress STREAM (start using the data as it is decompressed, PIPES, 2 PROCESSES)
   return true;
 }
 

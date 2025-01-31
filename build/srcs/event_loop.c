@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 17:40:24 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/31 09:34:15 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/31 18:29:00 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,43 +15,39 @@
 void init_event_loop(event_loop_ctx_t *restrict ctx)
 {
   ctx->epoll_fd = epoll_create1(0);
-  const int32_t signal_events = EPOLLIN | EPOLLONESHOT | EPOLLET;
-  const int32_t tcp_events = EPOLLIN | EPOLLOUT | EPOLLHUP | EPOLLRDHUP | EPOLLERR | EPOLLET;
-  const int32_t udp_events = EPOLLIN | EPOLLHUP | EPOLLRDHUP | EPOLLERR | EPOLLET;
-  const int32_t log_events = EPOLLOUT | EPOLLHUP | EPOLLERR | EPOLLET;
 
   epoll_ctl(ctx->epoll_fd, EPOLL_CTL_ADD, SIG_FILENO, &(struct epoll_event) {
-    .events = signal_events,
+    .events = SIGNAL_EVENTS,
     .data = { .fd = SIG_FILENO }
   });
 
   epoll_ctl(ctx->epoll_fd, EPOLL_CTL_ADD, WS_FILENO, &(struct epoll_event) {
-    .events = tcp_events,
+    .events = TCP_EVENTS,
     .data = { .fd = WS_FILENO }
   });
   epoll_ctl(ctx->epoll_fd, EPOLL_CTL_ADD, FIX_FILENO, &(struct epoll_event) {
-    .events = tcp_events,
+    .events = TCP_EVENTS,
     .data = { .fd = FIX_FILENO }
   });
   epoll_ctl(ctx->epoll_fd, EPOLL_CTL_ADD, REST_FILENO, &(struct epoll_event) {
-    .events = tcp_events,
+    .events = TCP_EVENTS,
     .data = { .fd = REST_FILENO }
   });
 
   epoll_ctl(ctx->epoll_fd, EPOLL_CTL_ADD, DNS_FILENO, &(struct epoll_event) {
-    .events = udp_events,
+    .events = UDP_EVENTS,
     .data = { .fd = DNS_FILENO }
   });
 
   epoll_ctl(ctx->epoll_fd, EPOLL_CTL_ADD, LOG_FILENO, &(struct epoll_event) {
-    .events = log_events,
+    .events = LOG_EVENTS,
     .data = { .fd = LOG_FILENO }
   });
 }
 
 void establish_connections(const event_loop_ctx_t *restrict ctx, fix_client_t *fix_client, ws_client_t *ws_client, rest_client_t *rest_client, dns_resolver_t *dns_resolver)
 {
-  struct epoll_event events[MAX_EVENTS] ALIGNED(64) = {0};
+  struct epoll_event events[MAX_EVENTS] ALIGNED(16) = {0};
   struct epoll_event *event;
   uint8_t conn_count = 0;
   uint8_t n;

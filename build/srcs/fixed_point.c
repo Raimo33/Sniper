@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/24 19:10:57 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/30 20:26:03 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/31 17:56:16 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 //TODO division by zero?
 //TODO simd support
 
-static const int32_t powers_of_ten[] ALIGNED(64) = {
+static const int32_t powers_of_ten[] ALIGNED(16) = {
   1,
   10,
   100,
