@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 18:15:15 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/31 10:13:47 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/31 21:42:08 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,8 +23,8 @@
 
 # define SIG_FILENO 3
 
-void COLD init_signals(void);
-void COLD handle_signal(const uint8_t events);
-void COLD free_signals(void);
+COLD void init_signals(void);
+COLD void handle_signal(const uint8_t events);
+COLD void free_signals(void);
 
 #endif

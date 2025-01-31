@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 16:52:43 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/31 17:15:52 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/31 21:42:02 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,12 +26,12 @@
 # include "dns_resolver.h"
 # include "message_broker.h"
 # include "http_parser.h"
-# include "compression.h"
+# include "decompression.h"
 
 # define REST_HOST "api.binance.com"
 # define REST_PORT 8080
 # define REST_FILENO 6
-# define REST_READ_BUFFER_SIZE 262144
+# define REST_READ_BUFFER_SIZE 4096
 # define REST_WRITE_BUFFER_SIZE 4096
 
 # define REST_KEEPALIVE_IDLE  5
@@ -43,15 +43,15 @@ typedef struct
   struct sockaddr_in addr;
   SSL *ssl;
   const keys_t *keys;
-  char write_buffer[REST_WRITE_BUFFER_SIZE];
-  char read_buffer[REST_READ_BUFFER_SIZE];
-  uint16_t write_offset;
-  uint16_t read_offset;
+  char *write_buffer;
+  char *read_buffer;
   http_response_t http_response;
+  uint32_t write_offset;
+  uint32_t read_offset;
 } rest_client_t;
 
-void COLD init_rest(rest_client_t *restrict client, const keys_t *restrict keys, SSL_CTX *restrict ssl_ctx);
-bool HOT handle_rest_connection(rest_client_t *restrict client, const uint8_t events, dns_resolver_t *restrict resolver);
-void COLD free_rest(rest_client_t *restrict client);
+COLD void init_rest(rest_client_t *restrict client, const keys_t *restrict keys, SSL_CTX *restrict ssl_ctx);
+HOT bool handle_rest_connection(rest_client_t *restrict client, const uint8_t events, dns_resolver_t *restrict resolver);
+COLD void free_rest(rest_client_t *restrict client);
 
 #endif

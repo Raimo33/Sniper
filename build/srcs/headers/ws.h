@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 16:53:00 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/31 16:29:54 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/31 21:42:22 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,15 +44,15 @@ typedef struct
   struct sockaddr_in addr;
   SSL *ssl;
   uint8_t conn_key[WS_KEY_SIZE];
-  char write_buffer[WS_WRITE_BUFFER_SIZE] ALIGNED(16);
-  char read_buffer[WS_READ_BUFFER_SIZE] ALIGNED(16);
+  char *write_buffer;
+  char *read_buffer;
   http_response_t http_response;
-  uint16_t write_offset;
-  uint16_t read_offset;
+  uint32_t write_offset;
+  uint32_t read_offset;
 } ws_client_t;
 
-void COLD init_ws(ws_client_t *restrict client, SSL_CTX *restrict ssl_ctx);
-bool HOT handle_ws_connection(ws_client_t *restrict client, const uint8_t events, dns_resolver_t *restrict resolver);
-void COLD free_ws(ws_client_t *restrict client);
+COLD void init_ws(ws_client_t *restrict client, SSL_CTX *restrict ssl_ctx);
+HOT bool handle_ws_connection(ws_client_t *restrict client, const uint8_t events, dns_resolver_t *restrict resolver);
+COLD void free_ws(ws_client_t *restrict client);
 
 #endif

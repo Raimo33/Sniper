@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/25 10:38:46 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/30 21:37:33 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/31 21:39:16 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,13 +74,13 @@ typedef struct {
 
 typedef struct {
   struct sockaddr_in addr;
-  dns_entry_t entries[MAX_ADDRESSES];
+  dns_entry_t *entries;
   uint16_t count;
 } dns_resolver_t;
 
-void COLD init_dns_resolver(dns_resolver_t *restrict resolver);
-void COLD resolve_domain(dns_resolver_t *restrict resolver, const char *restrict domain, const uint16_t domain_len, const uint16_t callback_fd);
-void COLD handle_dns_responses(const dns_resolver_t *restrict resolver, const uint8_t events);
-void COLD free_dns_resolver(const dns_resolver_t *restrict resolver);
+COLD void init_dns_resolver(dns_resolver_t *restrict resolver);
+COLD void resolve_domain(dns_resolver_t *restrict resolver, const char *restrict domain, const uint16_t domain_len, const uint16_t callback_fd);
+COLD void handle_dns_responses(const dns_resolver_t *restrict resolver, const uint8_t events);
+COLD void free_dns_resolver(const dns_resolver_t *restrict resolver);
 
 #endif

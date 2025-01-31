@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 18:08:11 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/31 10:13:15 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/31 21:41:31 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,10 +35,10 @@ typedef struct
   uint16_t tail;
 } t_log_ring;
 
-void COLD init_logger(void);
-void HOT log_msg(const char *restrict msg, const uint8_t msg_len);
-void HOT handle_logs(const uint8_t events);
-void HOT flush_logs(void);
-void COLD free_logger(void);
+COLD void init_logger(void);
+HOT void log_msg(const char *restrict msg, const uint8_t msg_len);
+HOT void handle_logs(const uint8_t events);
+HOT void flush_logs(void);
+COLD void free_logger(void);
 
 #endif

@@ -24,10 +24,10 @@
 
 //https://docs.openssl.org/master/man3/
 
-void COLD init_ssl(SSL_CTX **restrict ctx);
-SSL *COLD init_ssl_socket(const uint16_t fd, SSL_CTX *restrict ctx);
-//TODO funzioni per generare firme
-void COLD free_ssl_socket(SSL *restrict ssl);
-void COLD free_ssl(SSL_CTX *restrict ctx);
+COLD void init_ssl(SSL_CTX **restrict ctx);
+COLD SSL *init_ssl_socket(const uint16_t fd, SSL_CTX *restrict ctx);
+ //TODO funzioni per generare firme
+COLD void free_ssl_socket(SSL *restrict ssl);
+COLD void free_ssl(SSL_CTX *restrict ctx);
 
 #endif

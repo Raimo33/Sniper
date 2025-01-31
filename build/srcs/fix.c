@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 21:02:36 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/31 10:25:05 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/31 20:54:34 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,8 @@ void init_fix(fix_client_t *restrict client, const keys_t *restrict keys, SSL_CT
     }
   };
   client->keys = keys;
+  client->write_buffer = calloc(FIX_WRITE_BUFFER_SIZE, sizeof(char));
+  client->read_buffer = calloc(FIX_READ_BUFFER_SIZE, sizeof(char));
 
   const uint16_t fd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
   setsockopt(fd, IPPROTO_TCP, TCP_FASTOPEN, &(bool){true}, sizeof(bool));
@@ -144,6 +146,8 @@ UNUSED static void format_price(const fixed_point_t price, char *buffer)
 
 void free_fix(fix_client_t *restrict client)
 {
+  free(client->write_buffer);
+  free(client->read_buffer);
   free_ssl_socket(client->ssl);
   close(FIX_FILENO);
 }

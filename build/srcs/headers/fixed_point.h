@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/24 19:01:52 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/30 20:25:54 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/31 21:40:50 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,9 +24,9 @@ typedef struct
   uint8_t precision; //number of decimal places
 } fixed_point_t;
 
-extern inline fixed_point_t HOT ALWAYS_INLINE fast_add(const fixed_point_t a, const fixed_point_t b);
-extern inline fixed_point_t HOT ALWAYS_INLINE fast_sub(const fixed_point_t a, const fixed_point_t b);
-extern inline fixed_point_t HOT ALWAYS_INLINE fast_mul(const fixed_point_t a, const fixed_point_t b);
-extern inline fixed_point_t HOT ALWAYS_INLINE fast_div(const fixed_point_t a, const fixed_point_t b);
+HOT extern inline fixed_point_t ALWAYS_INLINE fast_add(const fixed_point_t a, const fixed_point_t b);
+HOT extern inline fixed_point_t ALWAYS_INLINE fast_sub(const fixed_point_t a, const fixed_point_t b);
+HOT extern inline fixed_point_t ALWAYS_INLINE fast_mul(const fixed_point_t a, const fixed_point_t b);
+HOT extern inline fixed_point_t ALWAYS_INLINE fast_div(const fixed_point_t a, const fixed_point_t b);
 
 #endif

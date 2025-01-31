@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 16:52:51 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/31 10:30:36 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/31 21:40:36 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,8 @@
 # define FIX_KEEPALIVE_IDLE 300
 # define FIX_KEEPALIVE_INTVL 30
 # define FIX_KEEPALIVE_CNT 3
+# define FIX_READ_BUFFER_SIZE 4096
+# define FIX_WRITE_BUFFER_SIZE 4096
 
 //https://developers.binance.com/docs/binance-spot-api-docs/fix-api#message-components
 //https://github.com/binance/binance-spot-api-docs/blob/master/fix-api.md
@@ -131,10 +133,15 @@ typedef struct
   struct sockaddr_in addr;
   SSL *ssl;
   const keys_t *keys;
+  char *write_buffer;
+  char *read_buffer;
+  http_response_t http_response;
+  uint32_t write_offset;
+  uint32_t read_offset;
 } fix_client_t;
 
-void COLD init_fix(fix_client_t *restrict client, const keys_t *restrict keys, SSL_CTX *restrict ssl_ctx);
-bool HOT handle_fix_connection(fix_client_t *restrict client, const uint8_t events, dns_resolver_t *restrict resolver);
-void COLD free_fix(fix_client_t *restrict client);
+COLD void init_fix(fix_client_t *restrict client, const keys_t *restrict keys, SSL_CTX *restrict ssl_ctx);
+HOT  bool handle_fix_connection(fix_client_t *restrict client, const uint8_t events, dns_resolver_t *restrict resolver);
+COLD void free_fix(fix_client_t *restrict client);
 
 #endif

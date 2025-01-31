@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 18:59:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/31 10:22:32 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/31 21:41:08 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,10 +37,10 @@ typedef struct
   uint8_t api_key[API_KEY_SIZE] ALIGNED(16);
 } keys_t;
 
-void COLD init_keys(keys_t *restrict keys);
-void COLD generate_ws_key(uint8_t *restrict key);
-bool COLD verify_ws_key(const uint8_t *restrict key, const uint8_t *restrict accept, const uint16_t len);
-uint32_t HOT murmurhash3(const uint8_t *key, const uint16_t len, const uint32_t seed);
-void COLD free_keys(keys_t *restrict keys);
+COLD void init_keys(keys_t *restrict keys);
+COLD void generate_ws_key(uint8_t *restrict key);
+COLD bool verify_ws_key(const uint8_t *restrict key, const uint8_t *restrict accept, const uint16_t len);
+HOT uint32_t murmurhash3(const uint8_t *key, const uint16_t len, const uint32_t seed);
+COLD void free_keys(keys_t *restrict keys);
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 20:53:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/31 16:57:43 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/31 20:56:14 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,8 @@ void init_ws(ws_client_t *restrict client, SSL_CTX *restrict ssl_ctx)
       .s_addr = INADDR_NONE
     }
   };
+  client->write_buffer = calloc(WS_WRITE_BUFFER_SIZE, sizeof(char));
+  client->read_buffer = calloc(WS_READ_BUFFER_SIZE, sizeof(char));
   
   const uint16_t fd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
   setsockopt(fd, IPPROTO_TCP, TCP_FASTOPEN, &(bool){true}, sizeof(bool));
@@ -114,7 +116,7 @@ static bool receive_upgrade_response(ws_client_t *restrict client)
   if (UNLIKELY(try_ssl_recv_http(client->ssl, client->read_buffer, WS_READ_BUFFER_SIZE, &client->read_offset, &client->http_response) == false))
     return false;
 
-  const http_response_t *response = &client->http_response;
+  const http_response_t *restrict response = &client->http_response;
   fast_assert(response->status_code == 101, STR_LEN_PAIR("Websocket upgrade failed: invalid status code"));
   fast_assert(response->headers.entries_count == 3, STR_LEN_PAIR("Websocket upgrade failed: missing response headers"));
 
@@ -124,12 +126,14 @@ static bool receive_upgrade_response(ws_client_t *restrict client)
   if (verify_ws_key(client->conn_key, (uint8_t *)accept_header->value, accept_header->value_len) == false)
     panic(STR_LEN_PAIR("Websocket upgrade failed: key mismatch"));
 
-  memset(&client->http_response, 0, sizeof(http_response_t));
+  free_http_response(&client->http_response);
   return true;
 }
 
 void free_ws(ws_client_t *restrict client)
 {
+  free(client->write_buffer);
+  free(client->read_buffer);
   free_ssl_socket(client->ssl);
   close(WS_FILENO);
 }

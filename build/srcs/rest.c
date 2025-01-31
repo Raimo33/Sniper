@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 17:53:55 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/31 18:43:26 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/31 21:03:58 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,8 @@ void init_rest(rest_client_t *restrict client, const keys_t *restrict keys, SSL_
     }
   };
   client->keys = keys;
+  client->write_buffer = calloc(REST_WRITE_BUFFER_SIZE, sizeof(char));
+  client->read_buffer = calloc(REST_READ_BUFFER_SIZE, sizeof(char));
 
   const uint16_t fd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
   setsockopt(fd, IPPROTO_TCP, TCP_FASTOPEN, &(bool){true}, sizeof(bool));
@@ -41,7 +43,7 @@ void init_rest(rest_client_t *restrict client, const keys_t *restrict keys, SSL_
 
 bool handle_rest_connection(rest_client_t *restrict client, const uint8_t events, dns_resolver_t *restrict resolver)
 {
-  static void *restrict states[] = {&&dns_query, &&dns_response, &&connect, &&ssl_handshake};
+  static void *restrict states[] = {&&dns_query, &&dns_response, &&connect, &&ssl_handshake, &&info_query, &&info_response};
   static uint8_t sequence = 0;
 
   if (UNLIKELY(events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP)))
@@ -102,7 +104,9 @@ static bool send_info_query(rest_client_t *restrict client)
 
 static bool receive_info_response(rest_client_t *restrict client)
 {
-  if (UNLIKELY(try_ssl_recv_http(client->ssl, client->read_buffer, REST_READ_BUFFER_SIZE, &client->read_offset, &client->http_response) == false))
+  static const uint32_t info_response_size = 262144 * sizeof(char);
+  client->read_buffer = realloc(client->read_buffer, info_response_size);
+  if (UNLIKELY(try_ssl_recv_http(client->ssl, client->read_buffer, info_response_size, &client->read_offset, &client->http_response) == false))
     return false;
 
   const http_response_t *restrict response = &client->http_response;
@@ -112,11 +116,16 @@ static bool receive_info_response(rest_client_t *restrict client)
   fast_assert(content_encoding, STR_LEN_PAIR("Exchange info query failed: missing content encoding header"));
   fast_assert(strncmp(content_encoding->value, STR_LEN_PAIR("gzip")) == 0, STR_LEN_PAIR("Exchange info query failed: invalid content encoding"));
   //TODO decompress STREAM (start using the data as it is decompressed, PIPES, 2 PROCESSES)
+
+  free_http_response(&client->http_response);
+  client->read_buffer = realloc(client->read_buffer, REST_READ_BUFFER_SIZE);
   return true;
 }
 
 void free_rest(rest_client_t *restrict rest)
 {
+  free(rest->write_buffer);
+  free(rest->read_buffer);
   free_ssl_socket(rest->ssl);
   close(REST_FILENO);
 }

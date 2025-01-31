@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 17:15:24 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/31 18:04:20 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/31 21:39:07 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,6 @@ typedef struct
   size_t bytes_processed;
 } GzipDecompressor;
 
-void HOT decompress_gzip(const uint8_t *input, size_t input_len, const int32_t read_pipe);
+HOT void decompress_gzip(const uint8_t *input, size_t input_len, const int32_t read_pipe);
 
 #endif

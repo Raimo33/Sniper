@@ -6,20 +6,20 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 19:57:09 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/31 17:12:15 by craimond         ###   ########.fr       */
+/*   Updated: 2025/01/31 21:48:20 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "headers/http_parser.h"
 
-//TODO implement gzip
-
-static uint16_t HOT parse_status_code(char *restrict buffer, uint16_t *status_code, const uint16_t buffer_size);
-static uint16_t HOT parse_headers(char *restrict buffer, header_map_t *restrict headers, const uint16_t buffer_size);
-static uint16_t HOT parse_body(char *restrict buffer, char *restrict body, header_map_t *restrict headers, const uint16_t buffer_size);
-static uint16_t HOT parse_chunked_body(char *restrict buffer, char *restrict body, const uint16_t buffer_size);
-static uint16_t HOT parse_unified_body(char *restrict buffer, char *restrict body, const char *restrict content_length, const uint16_t buffer_size);
-static void HOT header_map_insert(header_map_t *restrict map, const char *restrict key, const uint16_t key_len, const char *restrict value, const uint16_t value_len);
+static HOT uint16_t parse_status_code(char *restrict buffer, uint16_t *status_code, const uint16_t buffer_size);
+static HOT uint16_t parse_headers(char *restrict buffer, header_map_t *headers, const uint16_t buffer_size);
+static HOT uint16_t parse_body(char *restrict buffer, char *restrict body, header_map_t *headers, const uint16_t buffer_size);
+static HOT uint16_t parse_chunked_body(char *restrict buffer, char *restrict *body, const uint16_t buffer_size);
+static HOT uint16_t parse_unified_body(char *restrict buffer, char *restrict *body, const char *restrict content_length, const uint16_t buffer_size);
+static HOT uint32_t count_chunked_body_size(const char *restrict buffer, const char *restrict body_end);
+static HOT uint8_t count_headers(const char *restrict buffer, const char *restrict headers_end);
+static HOT void header_map_insert(header_map_t *restrict map, const char *restrict key, const uint16_t key_len, const char *restrict value, const uint16_t value_len);
 
 bool is_full_http_response(const char *restrict buffer, const uint16_t buffer_size, const uint16_t response_len)
 {
@@ -30,7 +30,7 @@ bool is_full_http_response(const char *restrict buffer, const uint16_t buffer_si
    //TODO case insensitiveness
   const char *transfer_encoding = memmem(buffer, buffer_size, STR_LEN_PAIR("Transfer-Encoding:"));
   if (UNLIKELY(transfer_encoding))
-    return memmem(buffer, buffer_size, STR_LEN_PAIR("0\r\n\r\n"));
+    return !!memmem(buffer, buffer_size, STR_LEN_PAIR("0\r\n\r\n"));
 
   const char *content_length = memmem(buffer, buffer_size, STR_LEN_PAIR("Content-Length:"));
   if (LIKELY(content_length))
@@ -69,11 +69,14 @@ static uint16_t parse_status_code(char *restrict buffer, uint16_t *status_code, 
   return line_end - line_start;
 }
 
-static uint16_t parse_headers(char *restrict buffer, header_map_t *restrict headers, const uint16_t buffer_size)
+static uint16_t parse_headers(char *restrict buffer, header_map_t *headers, const uint16_t buffer_size)
 {
   const char *headers_start = buffer;
   char *headers_end = memmem(buffer, buffer_size, STR_LEN_PAIR("\r\n\r\n"));
   fast_assert(headers_end, STR_LEN_PAIR("Malformed response: missing clrf"));
+
+  headers->entries_count = count_headers(buffer, headers_end);
+  headers->entries = (header_entry_t *)calloc(headers->entries_count * HEADER_MAP_DILUTION_FACTOR, sizeof(header_entry_t));
 
   while (LIKELY(buffer < headers_end))
   {
@@ -85,10 +88,10 @@ static uint16_t parse_headers(char *restrict buffer, header_map_t *restrict head
     buffer += 1 + (buffer[1] == ' ');
     const char *value = buffer;
     buffer = memmem(buffer, headers_end - buffer, STR_LEN_PAIR("\r\n"));
-    fast_assert(buffer, STR_LEN_PAIR("Malformed header: missing clrf"));
     const uint16_t value_len = buffer - value;
 
     header_map_insert(headers, key, key_len, value, value_len);
+
     buffer += STR_LEN("\r\n");
   }
   headers_end += STR_LEN("\r\n\r\n");
@@ -100,21 +103,24 @@ static uint16_t parse_body(char *restrict buffer, char *restrict body, header_ma
 {
   const header_entry_t *transfer_encoding = header_map_get(headers, STR_LEN_PAIR("transfer-encoding"));
   if (transfer_encoding && memcmp(transfer_encoding->value, STR_LEN_PAIR("chunked")) == 0)
-    return parse_chunked_body(buffer, body, buffer_size);
+    return parse_chunked_body(buffer, &body, buffer_size);
 
   const header_entry_t *content_length = header_map_get(headers, STR_LEN_PAIR("content-length"));
   if (content_length)
-    return parse_unified_body(buffer, body, content_length->value, buffer_size);
+    return parse_unified_body(buffer, &body, content_length->value, buffer_size);
 
   panic(STR_LEN_PAIR("No content length or transfer encoding"));
   UNREACHABLE;
 }
 
-static uint16_t parse_chunked_body(char *restrict buffer, char *restrict body, const uint16_t buffer_size)
+static uint16_t parse_chunked_body(char *restrict buffer, char *restrict *body, const uint16_t buffer_size)
 {
   const char *body_start = buffer;
   const char *body_end = memmem(buffer, buffer_size, STR_LEN_PAIR("0\r\n\r\n"));
   uint16_t body_used = 0;
+
+  const uint32_t final_body_size = count_chunked_body_size(buffer, body_end);
+  *body = (char *)malloc(final_body_size);
 
   while (LIKELY(buffer < body_end))
   {
@@ -122,10 +128,8 @@ static uint16_t parse_chunked_body(char *restrict buffer, char *restrict body, c
     buffer = memmem(buffer, body_end - buffer, STR_LEN_PAIR("\r\n"));
     fast_assert(buffer, STR_LEN_PAIR("Malformed chunk: missing clrf"));
     buffer += STR_LEN("\r\n");
-    const uint16_t available_space = MAX_BODY_SIZE - body_used; 
-    fast_assert(chunk_size < available_space, STR_LEN_PAIR("Body size exceeds available space"));
-    memcpy(body, buffer, chunk_size);
-    body += chunk_size;
+    memcpy(*body + body_used, buffer, chunk_size);
+    *body += chunk_size;
     body_used += chunk_size;
   }
   body_end += STR_LEN("0\r\n\r\n");
@@ -133,52 +137,82 @@ static uint16_t parse_chunked_body(char *restrict buffer, char *restrict body, c
   return body_end - body_start;
 }
 
-static uint16_t parse_unified_body(char *restrict buffer, char *restrict body, const char *restrict content_length, UNUSED const uint16_t buffer_size)
+static uint16_t parse_unified_body(char *restrict buffer, char *restrict *body, const char *restrict content_length, UNUSED const uint16_t buffer_size)
 {
   const uint16_t body_size = atoi(content_length);
-  fast_assert(body_size < MAX_BODY_SIZE, STR_LEN_PAIR("Body size exceeds available space"));
-  memcpy(body, buffer, body_size);
+  *body = (char *)malloc(body_size);
+  memcpy(*body, buffer, body_size);
   return body_size;
+}
+
+//TODO simd easy
+static uint32_t count_chunked_body_size(const char *restrict buffer, const char *restrict body_end)
+{
+  uint32_t body_size = 0;
+  while (LIKELY(buffer < body_end))
+  {
+    body_size += atoi(buffer);
+    buffer = memmem(buffer, body_end - buffer, STR_LEN_PAIR("\r\n"));
+    buffer += STR_LEN("\r\n");
+  }
+  return body_size;
+}
+
+//TODO simd easy
+static uint8_t count_headers(const char *restrict buffer, const char *restrict headers_end)
+{
+  uint8_t headers_count = 0;
+  while (LIKELY(buffer < headers_end))
+  {
+    buffer = memmem(buffer, headers_end - buffer, STR_LEN_PAIR("\r\n"));
+    buffer += STR_LEN("\r\n");
+    headers_count++;
+  }
+  return headers_count;
 }
 
 static void header_map_insert(header_map_t *restrict map, const char *restrict key, const uint16_t key_len, const char *restrict value, const uint16_t value_len)
 {
-  fast_assert(key_len < MAX_HEADER_KEY_SIZE, STR_LEN_PAIR("Header key too long"));
-  fast_assert(value_len < MAX_HEADER_VALUE_SIZE, STR_LEN_PAIR("Header value too long"));
-  fast_assert(map->entries_count < MAX_HEADERS, STR_LEN_PAIR("Too many headers"));
+  char *lower_key = strndup(key, key_len);
+  char *copied_value = strndup(value, value_len);
+  strtolower(lower_key, key_len);
 
-  char lowercase_key[key_len];
-  memcpy(lowercase_key, key, key_len);
-  strtolower(lowercase_key, key_len);
-
-  const uint16_t original_index = (uint16_t)murmurhash3((uint8_t *)lowercase_key, key_len, 42) % HEADER_MAP_SIZE;
+  const uint16_t map_size = map->entries_count * HEADER_MAP_DILUTION_FACTOR;
+  const uint16_t original_index = (uint16_t)murmurhash3((uint8_t *)lower_key, key_len, 42) % map_size;
   uint16_t index = original_index;
 
-  for (uint8_t i = 1; map->entries[index].key[0] != '\0'; i++)
-    index = (original_index + i * i) % HEADER_MAP_SIZE;
+  for (uint8_t i = 1; map->entries[index].key != NULL; i++)
+    index = (original_index + i * i) % map_size;
 
-  header_entry_t *entry = &map->entries[index];
-  memcpy(entry->key, lowercase_key, key_len);
-  memcpy(entry->value, value, value_len);
-  entry->key_len = key_len;
-  entry->value_len = value_len;
-
+  map->entries[index] = (header_entry_t){lower_key, copied_value, key_len, value_len};
   map->entries_count++;
 }
 
 const header_entry_t *header_map_get(const header_map_t *restrict map, const char *restrict key, const uint16_t key_len)
 {
-  const uint16_t original_index = (uint16_t)murmurhash3((uint8_t *)key, key_len, 42) % HEADER_MAP_SIZE;
+  const uint16_t map_size = map->entries_count * HEADER_MAP_DILUTION_FACTOR;
+  const uint16_t original_index = (uint16_t)murmurhash3((uint8_t *)key, key_len, 42) % map_size;
   uint16_t index = original_index;
 
   uint8_t i = 1;
-  while (UNLIKELY(map->entries[index].key))
+  while (UNLIKELY(map->entries[index].key != NULL))
   {
     if (LIKELY(memcmp(map->entries[index].key, key, key_len) == 0))
       return &map->entries[index];
-    index = (original_index + i * i) % HEADER_MAP_SIZE;
+    index = (original_index + i * i) % map_size;
     i++;
   }
 
   return NULL;
+}
+
+void free_http_response(http_response_t *response)
+{
+  for (uint8_t i = 0; i < response->headers.entries_count; i++)
+  {
+    free(response->headers.entries[i].key);
+    free(response->headers.entries[i].value);
+  }
+  free(response->headers.entries);
+  free(response->body);
 }
