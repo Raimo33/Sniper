@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 17:53:55 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/01 10:35:56 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/01 22:27:35 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 
 COLD static bool send_info_query(rest_client_t *restrict client);
 COLD static bool receive_info_response(rest_client_t *restrict client);
+COLD static void parse_info_response(char *restrict input, const uint32_t input_len);
 COLD static void process_info_chunks(const uint16_t read_fd);
 
 void init_rest(rest_client_t *restrict client, const keys_t *restrict keys, SSL_CTX *restrict ssl_ctx)
@@ -122,8 +123,17 @@ static bool receive_info_response(rest_client_t *restrict client)
   
   const header_entry_t *restrict content_encoding = header_map_get(&response->headers, STR_LEN_PAIR("content-encoding"));
   fast_assert(content_encoding, STR_LEN_PAIR("Exchange info query failed: missing content encoding header"));
-  fast_assert(strncmp(content_encoding->value, STR_LEN_PAIR("gzip")) == 0, STR_LEN_PAIR("Exchange info query failed: invalid content encoding"));
+  fast_assert(memcmp(content_encoding->value, STR_LEN_PAIR("gzip")) == 0, STR_LEN_PAIR("Exchange info query failed: invalid content encoding"));
   
+  parse_info_response(client->read_buffer, client->read_offset);
+
+  free_http_response(&client->http_response);
+  client->read_buffer = realloc(client->read_buffer, REST_READ_BUFFER_SIZE);
+  return true;
+}
+
+static void parse_info_response(char *restrict input, const uint32_t input_len)
+{
   int32_t pipe_fds[2];
   pipe(pipe_fds);
   const int32_t pid = fork();
@@ -131,19 +141,24 @@ static bool receive_info_response(rest_client_t *restrict client)
   if (pid == 0)
   {
     close(pipe_fds[0]);
-    gzip_decompress_to_file((uint8_t *)client->read_buffer, client->read_offset, pipe_fds[1]);
+    gzip_decompress_to_file((uint8_t *)input, input_len, pipe_fds[1]);
     exit(EXIT_SUCCESS);
   }
   else
   {
+    int32_t status;
     close(pipe_fds[1]);
     process_info_chunks(pipe_fds[0]);
-    waitpid(pid, NULL, 0);
-  }
-
-  free_http_response(&client->http_response);
-  client->read_buffer = realloc(client->read_buffer, REST_READ_BUFFER_SIZE);
-  return true;
+    waitpid(pid, &status, 0);
+    if (WIFEXITED(status))
+    {
+      int8_t exit_code = WEXITSTATUS(status);
+      if (exit_code != EXIT_SUCCESS)
+        exit(exit_code);
+    }
+    else
+      panic(STR_LEN_PAIR("Failed to decompress exchange info response"));
+  } 
 }
 
 static void process_info_chunks(const uint16_t read_fd)

@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 19:43:46 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/31 21:47:04 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/01 22:01:53 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ typedef struct
 typedef struct
 {
   header_entry_t *entries;
-  uint8_t entries_count;
+  uint8_t n_entries;
 } header_map_t;
 
 typedef struct

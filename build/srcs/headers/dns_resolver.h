@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/25 10:38:46 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/31 21:39:16 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/01 21:58:55 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,7 +75,7 @@ typedef struct {
 typedef struct {
   struct sockaddr_in addr;
   dns_entry_t *entries;
-  uint16_t count;
+  uint16_t n_entries;
 } dns_resolver_t;
 
 COLD void init_dns_resolver(dns_resolver_t *restrict resolver);

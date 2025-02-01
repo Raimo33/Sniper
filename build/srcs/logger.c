@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 18:09:22 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/27 14:04:56 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/01 22:21:55 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,8 +50,6 @@ void flush_logs(void)
 
   if (UNLIKELY(g_log_ring.head == g_log_ring.tail))
     return;
-
-  PREFETCHR(&g_log_ring.data[g_log_ring.tail], L0);
 
   if (LIKELY(g_log_ring.head > g_log_ring.tail))
   {

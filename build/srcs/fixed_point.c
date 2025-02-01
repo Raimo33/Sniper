@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/24 19:10:57 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/31 17:56:16 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/01 21:40:06 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,10 @@
 
 //TODO overflow detection?
 //TODO division by zero?
-//TODO simd support
+//TODO considerare INT_MIN e INT_MAX come infiniti?
+//TODO precision normalization?max precision?
 
-static const int32_t powers_of_ten[] ALIGNED(16) = {
+static const int32_t powers_of_ten[] = {
   1,
   10,
   100,
@@ -47,4 +48,9 @@ inline fixed_point_t fast_mul(const fixed_point_t a, const fixed_point_t b)
 inline fixed_point_t fast_div(const fixed_point_t a, const fixed_point_t b)
 {
   return (fixed_point_t){.value = (a.value * powers_of_ten[a.precision]) / b.value, .precision = a.precision};
+}
+
+inline fixed_point_t fast_log2(const fixed_point_t a)
+{
+  return (fixed_point_t){.value = log2(a.value), .precision = a.precision};
 }

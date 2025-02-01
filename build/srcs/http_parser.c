@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 19:57:09 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/01 10:27:39 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/01 22:01:02 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,8 +75,8 @@ static uint16_t parse_headers(char *restrict buffer, header_map_t *headers, cons
   char *headers_end = memmem(buffer, buffer_size, STR_LEN_PAIR("\r\n\r\n"));
   fast_assert(headers_end, STR_LEN_PAIR("Malformed response: missing clrf"));
 
-  headers->entries_count = count_headers(buffer, headers_end);
-  headers->entries = (header_entry_t *)calloc(headers->entries_count * HEADER_MAP_DILUTION_FACTOR, sizeof(header_entry_t));
+  headers->n_entries = count_headers(buffer, headers_end);
+  headers->entries = (header_entry_t *)calloc(headers->n_entries * HEADER_MAP_DILUTION_FACTOR, sizeof(header_entry_t));
 
   while (LIKELY(buffer < headers_end))
   {
@@ -161,14 +161,14 @@ static uint32_t count_chunked_body_size(const char *restrict buffer, const char 
 //TODO simd easy
 static uint8_t count_headers(const char *restrict buffer, const char *restrict headers_end)
 {
-  uint8_t headers_count = 0;
+  uint8_t n_headers = 0;
   while (LIKELY(buffer < headers_end))
   {
     buffer = memmem(buffer, headers_end - buffer, STR_LEN_PAIR("\r\n"));
     buffer += STR_LEN("\r\n");
-    headers_count++;
+    n_headers++;
   }
-  return headers_count;
+  return n_headers;
 }
 
 static void header_map_insert(header_map_t *restrict map, const char *restrict key, const uint16_t key_len, const char *restrict value, const uint16_t value_len)
@@ -177,7 +177,7 @@ static void header_map_insert(header_map_t *restrict map, const char *restrict k
   char *copied_value = strndup(value, value_len);
   strtolower(lower_key, key_len);
 
-  const uint16_t map_size = map->entries_count * HEADER_MAP_DILUTION_FACTOR;
+  const uint16_t map_size = map->n_entries * HEADER_MAP_DILUTION_FACTOR;
   const uint16_t original_index = (uint16_t)murmurhash3((uint8_t *)lower_key, key_len, 42) % map_size;
   uint16_t index = original_index;
 
@@ -185,12 +185,12 @@ static void header_map_insert(header_map_t *restrict map, const char *restrict k
     index = (original_index + i * i) % map_size;
 
   map->entries[index] = (header_entry_t){lower_key, copied_value, key_len, value_len};
-  map->entries_count++;
+  map->n_entries++;
 }
 
 const header_entry_t *header_map_get(const header_map_t *restrict map, const char *restrict key, const uint16_t key_len)
 {
-  const uint16_t map_size = map->entries_count * HEADER_MAP_DILUTION_FACTOR;
+  const uint16_t map_size = map->n_entries * HEADER_MAP_DILUTION_FACTOR;
   const uint16_t original_index = (uint16_t)murmurhash3((uint8_t *)key, key_len, 42) % map_size;
   uint16_t index = original_index;
 
@@ -208,7 +208,7 @@ const header_entry_t *header_map_get(const header_map_t *restrict map, const cha
 
 void free_http_response(http_response_t *response)
 {
-  for (uint8_t i = 0; i < response->headers.entries_count; i++)
+  for (uint8_t i = 0; i < response->headers.n_entries; i++)
   {
     free(response->headers.entries[i].key);
     free(response->headers.entries[i].value);

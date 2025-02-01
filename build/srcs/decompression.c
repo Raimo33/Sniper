@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 17:48:01 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/01 10:34:44 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/01 17:48:48 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,8 +35,10 @@ void gzip_decompress_to_file(uint8_t *input, const size_t input_len, uint16_t wr
 
     ret = inflate(&strm, Z_NO_FLUSH);
 
+    PREFETCHR(strm.next_in, L0);
+
     write(write_fd, out, PIPE_BUF_SIZE - strm.avail_out);
-  } while (ret != Z_STREAM_END);
+  } while (LIKELY(ret != Z_STREAM_END));
 
   inflateEnd(&strm);
   close(write_fd);

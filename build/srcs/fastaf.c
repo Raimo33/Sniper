@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/29 17:07:42 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/01 10:26:57 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/01 22:15:01 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ COLD static inline void free_ws_wrapper(void)           { free_ws(&app->ws_clien
 COLD static inline void free_rest_wrapper(void)         { free_rest(&app->rest_client); }
 COLD static inline void free_dns_resolver_wrapper(void) { free_dns_resolver(&app->dns_resolver); }
 COLD static inline void free_event_loop_wrapper(void)   { free_event_loop(&app->loop); }
+COLD static inline void free_graph_wrapper(void)        { free_graph(&app->graph); }
 
 int32_t main(void)
 {
@@ -47,6 +48,8 @@ int32_t main(void)
   atexit(free_dns_resolver_wrapper);
   init_event_loop(&app->loop);
   atexit(free_event_loop_wrapper);
+  init_graph(&app->graph);
+  atexit(free_graph_wrapper);
 
   establish_connections(&app->loop, &app->fix_client, &app->ws_client, &app->rest_client, &app->dns_resolver);
   listen_events(&app->loop, &app->fix_client, &app->ws_client, &app->rest_client);

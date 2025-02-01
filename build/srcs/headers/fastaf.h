@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/27 14:15:47 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/01 11:19:27 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/01 22:21:43 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@
 # include "event_loop.h"
 # include "keys.h"
 # include "fast_ssl.h"
+# include "graph.h"
 
 typedef struct
 {
@@ -33,13 +34,12 @@ typedef struct
   ws_client_t ws_client;
   rest_client_t rest_client;
   dns_resolver_t dns_resolver;
+  graph_t graph;
 } app_resources_t;
 
-//TODO
-//fetch api to find all available pairs, with their fees and minimum order size and precision
+//TODO more defensive programming (assert everywhere)
 
 //https://developers.binance.com/docs/binance-spot-api-docs/faqs/spot_glossary
-
 
 //TODO SSL_shutdown() //attenzione al non-blocking
 

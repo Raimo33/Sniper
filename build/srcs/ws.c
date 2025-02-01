@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 20:53:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/01 10:28:15 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/01 22:01:13 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,7 +118,7 @@ static bool receive_upgrade_response(ws_client_t *restrict client)
 
   const http_response_t *restrict response = &client->http_response;
   fast_assert(response->status_code == 101, STR_LEN_PAIR("Websocket upgrade failed: invalid status code"));
-  fast_assert(response->headers.entries_count == 3, STR_LEN_PAIR("Websocket upgrade failed: missing response headers"));
+  fast_assert(response->headers.n_entries == 3, STR_LEN_PAIR("Websocket upgrade failed: missing response headers"));
 
   const header_entry_t *accept_header = header_map_get(&response->headers, STR_LEN_PAIR("Sec-WebSocket-Accept"));
   fast_assert(accept_header, STR_LEN_PAIR("Websocket upgrade failed: missing Upgrade header"));

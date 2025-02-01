@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 17:40:24 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/31 18:29:00 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/01 21:59:18 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,10 +49,10 @@ void establish_connections(const event_loop_ctx_t *restrict ctx, fix_client_t *f
 {
   struct epoll_event events[MAX_EVENTS] ALIGNED(16) = {0};
   struct epoll_event *event;
-  uint8_t conn_count = 0;
+  uint8_t n_connections = 0;
   uint8_t n;
 
-  while (LIKELY(conn_count < 3))
+  while (LIKELY(n_connections < 3))
   {
     n = epoll_wait(ctx->epoll_fd, events, MAX_EVENTS, -1);
     for (event = events; n > 0; n--, event++)
@@ -66,13 +66,13 @@ void establish_connections(const event_loop_ctx_t *restrict ctx, fix_client_t *f
           handle_dns_responses(dns_resolver, event->events);
           break;
         case WS_FILENO:
-          conn_count += handle_ws_connection(ws_client, event->events, dns_resolver);
+          n_connections += handle_ws_connection(ws_client, event->events, dns_resolver);
           break;
         case FIX_FILENO:
-          conn_count += handle_fix_connection(fix_client, event->events, dns_resolver);
+          n_connections += handle_fix_connection(fix_client, event->events, dns_resolver);
           break;
         case REST_FILENO:
-          conn_count += handle_rest_connection(rest_client, event->events, dns_resolver);
+          n_connections += handle_rest_connection(rest_client, event->events, dns_resolver);
           break;
         case LOG_FILENO:
           handle_logs(event->events);

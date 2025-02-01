@@ -6,7 +6,7 @@
 #    By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/03/19 14:52:58 by craimond          #+#    #+#              #
-#    Updated: 2025/02/01 10:44:18 by craimond         ###   ########.fr        #
+#    Updated: 2025/02/01 22:40:38 by craimond         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -17,8 +17,8 @@ HDRS_DIR := srcs/headers
 INCS_DIR := /usr/include
 LIBS_DIR := /usr/lib64
 
-SRCS := $(addprefix $(SRCS_DIR)/, fastaf.c ws.c fix.c rest.c dns_resolver.c event_loop.c http_parser.c decompression.c logger.c signals.c errors.c keys.c fast_ssl.c fixed_point.c message_broker.c str_utils.c)
-HDRS := $(addprefix $(HDRS_DIR)/, fastaf.h ws.h fix.h rest.h dns_resolver.h event_loop.h http_parser.h decompression.h logger.h signals.h errors.h keys.h fast_ssl.h fixed_point.h message_broker.h str_utils.h extensions.h)
+SRCS := $(addprefix $(SRCS_DIR)/, fastaf.c ws.c fix.c rest.c dns_resolver.c event_loop.c http_parser.c decompression.c graph.c logger.c signals.c errors.c keys.c fast_ssl.c fixed_point.c message_broker.c str_utils.c)
+HDRS := $(addprefix $(HDRS_DIR)/, fastaf.h ws.h fix.h rest.h dns_resolver.h event_loop.h http_parser.h decompression.h graph.h logger.h signals.h errors.h keys.h fast_ssl.h fixed_point.h message_broker.h str_utils.h extensions.h)
 INCS := -I$(HDRS_DIR) -I$(INCS_DIR)
 OBJS := $(SRCS:.c=.o)
 DEPS := $(OBJS:.o=.d)

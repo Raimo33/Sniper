@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/25 11:15:29 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/01 10:26:35 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/01 21:58:53 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,7 @@ void resolve_domain(dns_resolver_t *restrict resolver, const char *restrict doma
 {
   fast_assert(domain_len <= MAX_DOMAIN_LEN, STR_LEN_PAIR("Domain too long"));
 
-  const uint8_t id = resolver->count++;
+  const uint8_t id = resolver->n_entries++;
   resolver->entries[id] = (dns_entry_t) {
     .domain = domain,
     .domain_len = domain_len,
