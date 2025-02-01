@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/27 14:15:47 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/01 10:52:54 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/01 11:19:27 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,10 +36,7 @@ typedef struct
 } app_resources_t;
 
 //TODO
-//fetch api to find all available pairs, with their fees and minimum order size
-//Represent currencies as nodes and exchange rates as weighted edges.
-//Precompute All Triangular Cycles 
-//SIMD-Based Cycle Evaluation
+//fetch api to find all available pairs, with their fees and minimum order size and precision
 
 //https://developers.binance.com/docs/binance-spot-api-docs/faqs/spot_glossary
 
