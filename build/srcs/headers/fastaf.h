@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/27 14:15:47 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/31 10:30:36 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/01 10:52:54 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,11 +43,6 @@ typedef struct
 
 //https://developers.binance.com/docs/binance-spot-api-docs/faqs/spot_glossary
 
-//TODO
-//disable_interrupt_coalescing
-//disable_gro_lro
-//enable RSS
-//TODO OPENSSL invece di WOLFSSL
 
 //TODO SSL_shutdown() //attenzione al non-blocking
 

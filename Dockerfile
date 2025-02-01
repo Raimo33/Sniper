@@ -6,7 +6,7 @@
 #    By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/12/29 17:07:44 by craimond          #+#    #+#              #
-#    Updated: 2025/02/01 10:41:12 by craimond         ###   ########.fr        #
+#    Updated: 2025/02/01 10:53:36 by craimond         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -22,5 +22,11 @@ RUN chown -R fastaf:fastaf /build
 
 WORKDIR /build
 RUN make
+
+#TODO:
+#disable_interrupt_coalescing
+#disable_gro_lro
+#disable RSS
+#Set Low-Latency IRQ Affinity
 
 CMD ["./fastaf"]

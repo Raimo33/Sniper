@@ -6,7 +6,7 @@
 #    By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/01/11 18:23:06 by craimond          #+#    #+#              #
-#    Updated: 2025/02/01 10:42:07 by craimond         ###   ########.fr        #
+#    Updated: 2025/02/01 10:54:52 by craimond         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -15,7 +15,7 @@ CONTAINER_NAME := fast-af
 ENV_FILE := .env
 
 # TODO FIX
-CONTAINER_FLAGS := --net=host --ulimit rtprio=99 --cpuset-cpus=2,3 \
+CONTAINER_FLAGS := --net=host --cap-add=NET_ADMIN --ulimit rtprio=99 --cpuset-cpus=2,3 \
 	--sysctl net.core.rmem_max=16777216 \
 	--sysctl net.core.wmem_max=16777216 \
 	--sysctl net.ipv4.tcp_no_metrics_save=1 \
