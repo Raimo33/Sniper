@@ -6,37 +6,38 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 17:48:01 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/31 18:03:42 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/01 10:34:44 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "headers/decompression.h"
 
- //TODO capire
-void decompress_to_pipe(const uint8_t *input, size_t input_len, int *read_pipe)
+//https://www.zlib.net/manual.html#Stream
+
+void gzip_decompress_to_file(uint8_t *input, const size_t input_len, uint16_t write_fd)
 {
-  GzipDecompressor ctx = {0};
+  z_stream strm = {
+    .zalloc = Z_NULL,
+    .zfree = Z_NULL,
+    .opaque = Z_NULL,
+    .next_in = input,
+    .avail_in = input_len,
+  };
+  uint8_t out[PIPE_BUF_SIZE];
+  int16_t ret;
+  
+  inflateInit2(&strm, 16 + MAX_WBITS);
 
-  pipe(ctx.pipefd);
-  inflateInit2(&ctx.z, 16 + MAX_WBITS);
-
-  ctx.z.next_in = (Bytef *)input;
-  ctx.z.avail_in = input_len;
-  bool decompression_done = false;
-
-  size_t have;
-  while (!decompression_done)
+  do
   {
-    ctx.z.next_out = ctx.out_buf;
-    ctx.z.avail_out = PIPE_BUF_SIZE;
+    strm.next_out = out;
+    strm.avail_out = PIPE_BUF_SIZE;
 
-    decompression_done = (inflate(&ctx.z, Z_FINISH) == Z_STREAM_END);
+    ret = inflate(&strm, Z_NO_FLUSH);
 
-    have = PIPE_BUF_SIZE - ctx.z.avail_out;
-    write(ctx.pipefd[1], ctx.out_buf, have);
-  }
+    write(write_fd, out, PIPE_BUF_SIZE - strm.avail_out);
+  } while (ret != Z_STREAM_END);
 
-  inflateEnd(&ctx.z);
-  close(ctx.pipefd[1]);
-  *read_pipe = ctx.pipefd[0];
+  inflateEnd(&strm);
+  close(write_fd);
 }

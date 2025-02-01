@@ -6,14 +6,14 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 20:53:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/31 20:56:14 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/01 10:28:15 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "headers/ws.h"
 
-static bool COLD send_upgrade_request(ws_client_t *restrict client);
-static bool COLD receive_upgrade_response(ws_client_t *restrict client);
+COLD static bool send_upgrade_request(ws_client_t *restrict client);
+COLD static bool receive_upgrade_response(ws_client_t *restrict client);
 
 //TODO pool di connessioni
 void init_ws(ws_client_t *restrict client, SSL_CTX *restrict ssl_ctx)
@@ -94,9 +94,9 @@ static bool send_upgrade_request(ws_client_t *restrict client)
     "Sec-WebSocket-Key: ";
   static const char second_part[] = "\r\n\r\n";
   static const uint16_t len = STR_LEN(first_part) + WS_KEY_SIZE + STR_LEN(second_part);
-  static bool first = true;
+  static bool initialized;
 
-  if (first)
+  if (!initialized)
   {
     uint16_t offset = 0;
     generate_ws_key(client->conn_key);
@@ -105,7 +105,7 @@ static bool send_upgrade_request(ws_client_t *restrict client)
     memcpy(client->write_buffer + offset, client->conn_key, WS_KEY_SIZE);
     offset += WS_KEY_SIZE;
     memcpy(client->write_buffer + offset, second_part, STR_LEN(second_part));
-    first = false;
+    initialized = true;
   }
   
   return try_ssl_send(client->ssl, client->write_buffer, len, &client->write_offset);

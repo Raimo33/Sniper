@@ -6,20 +6,20 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 19:57:09 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/31 21:48:20 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/01 10:27:39 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "headers/http_parser.h"
 
-static HOT uint16_t parse_status_code(char *restrict buffer, uint16_t *status_code, const uint16_t buffer_size);
-static HOT uint16_t parse_headers(char *restrict buffer, header_map_t *headers, const uint16_t buffer_size);
-static HOT uint16_t parse_body(char *restrict buffer, char *restrict body, header_map_t *headers, const uint16_t buffer_size);
-static HOT uint16_t parse_chunked_body(char *restrict buffer, char *restrict *body, const uint16_t buffer_size);
-static HOT uint16_t parse_unified_body(char *restrict buffer, char *restrict *body, const char *restrict content_length, const uint16_t buffer_size);
-static HOT uint32_t count_chunked_body_size(const char *restrict buffer, const char *restrict body_end);
-static HOT uint8_t count_headers(const char *restrict buffer, const char *restrict headers_end);
-static HOT void header_map_insert(header_map_t *restrict map, const char *restrict key, const uint16_t key_len, const char *restrict value, const uint16_t value_len);
+HOT static uint16_t parse_status_code(char *restrict buffer, uint16_t *status_code, const uint16_t buffer_size);
+HOT static uint16_t parse_headers(char *restrict buffer, header_map_t *headers, const uint16_t buffer_size);
+HOT static uint16_t parse_body(char *restrict buffer, char *restrict body, header_map_t *headers, const uint16_t buffer_size);
+HOT static uint16_t parse_chunked_body(char *restrict buffer, char *restrict *body, const uint16_t buffer_size);
+HOT static uint16_t parse_unified_body(char *restrict buffer, char *restrict *body, const char *restrict content_length, const uint16_t buffer_size);
+HOT static uint32_t count_chunked_body_size(const char *restrict buffer, const char *restrict body_end);
+HOT static uint8_t count_headers(const char *restrict buffer, const char *restrict headers_end);
+HOT static void header_map_insert(header_map_t *restrict map, const char *restrict key, const uint16_t key_len, const char *restrict value, const uint16_t value_len);
 
 bool is_full_http_response(const char *restrict buffer, const uint16_t buffer_size, const uint16_t response_len)
 {

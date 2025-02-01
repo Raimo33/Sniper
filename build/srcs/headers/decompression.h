@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 17:15:24 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/31 21:39:07 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/01 10:35:27 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,19 +17,12 @@
 # include <stdint.h>
 # include <stdbool.h>
 # include <unistd.h>
+# include <fcntl.h>
 
 # include "extensions.h"
 
 # define PIPE_BUF_SIZE _PC_PIPE_BUF
 
-typedef struct
-{
-  int pipefd[2];
-  z_stream z;
-  uint8_t out_buf[PIPE_BUF_SIZE] ALIGNED(16);
-  size_t bytes_processed;
-} GzipDecompressor;
-
-HOT void decompress_gzip(const uint8_t *input, size_t input_len, const int32_t read_pipe);
+HOT void gzip_decompress_to_file(uint8_t *input, const size_t input_len, uint16_t write_fd);
 
 #endif

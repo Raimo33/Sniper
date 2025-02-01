@@ -6,7 +6,7 @@
 #    By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/03/19 14:52:58 by craimond          #+#    #+#              #
-#    Updated: 2025/01/31 20:54:47 by craimond         ###   ########.fr        #
+#    Updated: 2025/02/01 10:44:18 by craimond         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -26,7 +26,7 @@ DEPS := $(OBJS:.o=.d)
 CC := gcc
 CSTANDARD := gnu23
 CFLAGS := -std=$(CSTANDARD) -Wall -Wextra -Werror -fwrapv -fgnu89-inline -D_GNU_SOURCE -Ofast -ffast-math -fopt-info-vec-all -march=native -fomit-frame-pointer -flto -MMD
-LDFLAGS := -L$(LIBS_DIR) -lssl -lcrypto libz
+LDFLAGS := -L$(LIBS_DIR) -lssl -lcrypto -lz
 RM := rm -rf
 
 #TODO profiling con perf

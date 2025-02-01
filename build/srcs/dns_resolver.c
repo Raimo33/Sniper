@@ -6,14 +6,14 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/25 11:15:29 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/31 20:54:34 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/01 10:26:35 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "headers/dns_resolver.h"
 
-static void encode_domain(const char *restrict domain, const uint16_t domain_len, char *restrict qname);
-static void parse_dns_response(const uint8_t *restrict buffer, uint16_t *restrict id, uint32_t *restrict ip);
+COLD static void encode_domain(const char *restrict domain, const uint16_t domain_len, char *restrict qname);
+COLD static void parse_dns_response(const uint8_t *restrict buffer, uint16_t *restrict id, uint32_t *restrict ip);
 
 void init_dns_resolver(dns_resolver_t *restrict resolver)
 {
