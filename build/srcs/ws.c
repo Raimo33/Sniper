@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 20:53:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/02 12:27:52 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/02 19:14:38 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,16 +18,6 @@ COLD static bool receive_upgrade_response(ws_client_t *restrict client);
 //TODO pool di connessioni
 void init_ws(ws_client_t *restrict client, SSL_CTX *restrict ssl_ctx)
 {
-  client->addr = (struct sockaddr_in){
-    .sin_family = AF_INET,
-    .sin_port = htons(WS_PORT),
-    .sin_addr = {
-      .s_addr = INADDR_NONE
-    }
-  };
-  client->write_buffer = calloc(WS_WRITE_BUFFER_SIZE, sizeof(char));
-  client->read_buffer = calloc(WS_READ_BUFFER_SIZE, sizeof(char));
-  
   const uint16_t fd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
   setsockopt(fd, IPPROTO_TCP, TCP_FASTOPEN, &(bool){true}, sizeof(bool));
   setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &(bool){true}, sizeof(bool));
@@ -35,7 +25,23 @@ void init_ws(ws_client_t *restrict client, SSL_CTX *restrict ssl_ctx)
   setsockopt(fd, IPPROTO_TCP, TCP_KEEPIDLE, &(uint16_t){WS_KEEPALIVE_IDLE}, sizeof(uint16_t));
   setsockopt(fd, IPPROTO_TCP, TCP_KEEPINTVL, &(uint16_t){WS_KEEPALIVE_INTVL}, sizeof(uint16_t));
   setsockopt(fd, IPPROTO_TCP, TCP_KEEPCNT, &(uint16_t){WS_KEEPALIVE_CNT}, sizeof(uint16_t));
-  client->ssl = init_ssl_socket(fd, ssl_ctx);
+
+  *client = (ws_client_t){
+    .addr = (struct sockaddr_in){
+      .sin_family = AF_INET,
+      .sin_port = htons(WS_PORT),
+      .sin_addr = {
+        .s_addr = INADDR_NONE
+      }
+    },
+    .ssl = init_ssl_socket(fd, ssl_ctx),
+    .conn_key = {0},
+    .write_buffer = calloc(WS_WRITE_BUFFER_SIZE, sizeof(char)),
+    .read_buffer = calloc(WS_READ_BUFFER_SIZE, sizeof(char)),
+    .http_response = {0},
+    .write_offset = 0,
+    .read_offset = 0
+  };
 
   dup2(fd, WS_FILENO);
   close(fd);
@@ -110,25 +116,28 @@ bool handle_ws_trading(ws_client_t *restrict client, graph_t *restrict graph)
 
 static bool send_upgrade_request(ws_client_t *restrict client)
 {
-  static const char first_part[] = 
-    "GET " WS_PATH " HTTP/1.1\r\n"
-    "Host: " WS_HOST ":" WS_PORT_STR "\r\n"
-    "Upgrade: websocket\r\n"
-    "Connection: Upgrade\r\n"
-    "Sec-WebSocket-Key: ";
-  static const char second_part[] = "\r\n\r\n";
-  static const uint16_t len = STR_LEN(first_part) + WS_KEY_SIZE + STR_LEN(second_part);
   static bool initialized;
+  static uint16_t len;
 
   if (!initialized)
   {
-    uint16_t offset = 0;
     generate_ws_key(client->conn_key);
-    memcpy(client->write_buffer, first_part, STR_LEN(first_part));
-    offset += STR_LEN(first_part);
-    memcpy(client->write_buffer + offset, client->conn_key, WS_KEY_SIZE);
-    offset += WS_KEY_SIZE;
-    memcpy(client->write_buffer + offset, second_part, STR_LEN(second_part));
+    http_request_t request = {
+      .method = GET,
+      .path = WS_PATH,
+      .path_len = STR_LEN(WS_PATH),
+      .version = HTTP_1_1,
+      .headers = {
+        { STR_LEN_PAIR("Host"), STR_LEN_PAIR(WS_HOST ":" WS_PORT_STR) },
+        { STR_LEN_PAIR("Upgrade"), STR_LEN_PAIR("websocket") },
+        { STR_LEN_PAIR("Connection"), STR_LEN_PAIR("Upgrade") },
+        { STR_LEN_PAIR("Sec-WebSocket-Key"), { client->conn_key, WS_KEY_SIZE } }
+      },
+      .n_headers = 4,
+      .body = NULL,
+      .body_len = 0
+    };
+    len = build_http_request(client->write_buffer, WS_WRITE_BUFFER_SIZE, &request);
     initialized = true;
   }
   

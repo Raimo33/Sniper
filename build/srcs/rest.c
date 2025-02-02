@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 17:53:55 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/02 15:06:04 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/02 18:30:46 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,16 +18,6 @@ COLD static void process_info_response(char *body, const uint32_t body_len);
 
 void init_rest(rest_client_t *restrict client, const keys_t *restrict keys, SSL_CTX *restrict ssl_ctx)
 {
-  client->addr = (struct sockaddr_in){
-    .sin_family = AF_INET,
-    .sin_port = htons(REST_PORT),
-    .sin_addr = {
-      .s_addr = INADDR_NONE
-    }
-  };
-  client->keys = keys;
-  client->write_buffer = calloc(REST_WRITE_BUFFER_SIZE, sizeof(char));
-  client->read_buffer = calloc(REST_READ_BUFFER_SIZE, sizeof(char));
 
   const uint16_t fd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
   setsockopt(fd, IPPROTO_TCP, TCP_FASTOPEN, &(bool){true}, sizeof(bool));
@@ -36,7 +26,23 @@ void init_rest(rest_client_t *restrict client, const keys_t *restrict keys, SSL_
   setsockopt(fd, IPPROTO_TCP, TCP_KEEPIDLE, &(uint16_t){REST_KEEPALIVE_IDLE}, sizeof(uint16_t));
   setsockopt(fd, IPPROTO_TCP, TCP_KEEPINTVL, &(uint16_t){REST_KEEPALIVE_INTVL}, sizeof(uint16_t));
   setsockopt(fd, IPPROTO_TCP, TCP_KEEPCNT, &(uint16_t){REST_KEEPALIVE_CNT}, sizeof(uint16_t));
-  client->ssl = init_ssl_socket(fd, ssl_ctx);
+
+  *client = (rest_client_t){
+    .addr = (struct sockaddr_in){
+      .sin_family = AF_INET,
+      .sin_port = htons(REST_PORT),
+      .sin_addr = {
+        .s_addr = INADDR_NONE
+      }
+    },
+    .ssl = init_ssl_socket(fd, ssl_ctx),
+    .keys = keys,
+    .write_buffer = calloc(REST_WRITE_BUFFER_SIZE, sizeof(char)),
+    .read_buffer = calloc(REST_READ_BUFFER_SIZE, sizeof(char)),
+    .http_response = {0},
+    .write_offset = 0,
+    .read_offset = 0
+  };
 
   dup2(fd, REST_FILENO);
   close(fd);

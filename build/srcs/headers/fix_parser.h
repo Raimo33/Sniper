@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/02 15:34:10 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/02 15:36:19 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/02 18:58:25 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,6 +103,20 @@
 
 # define RESET_SEQ_NUM_YES "Y"
 # define RESET_SEQ_NUM_NO "N"
+
+# define SOH "\x01"
+
+# define FIX_BEGIN            "8="   "FIX.4.4" SOH
+# define FIX_MSGTYPE(tag)     "35="  tag       SOH
+# define FIX_SENDER(tag)      "49="  tag       SOH
+# define FIX_TARGET(tag)      "56="  tag       SOH
+# define FIX_MSGSEQ(tag)      "34="  tag       SOH
+# define FIX_SENDINGTIME(tag) "52="  tag       SOH
+# define FIX_HEARTBEAT(tag)   "108=" tag       SOH
+# define FIX_USERNAME(tag)    "553=" tag       SOH
+# define FIX_RAWDATA(tag)     "96="  tag       SOH
+# define FIX_RAWDATALEN(tag)  "95="  tag       SOH
+# define FIX_CHECKSUM(tag)    "10="  tag       SOH
 
 //TODO funzioni di parsing. entrata e uscita??
 //TODO aggiungere components e groups?

@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 21:02:36 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/02 15:09:38 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/02 18:57:32 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,20 +18,8 @@ COLD static bool send_limit_query(const fix_client_t *restrict client);
 COLD static bool receive_limit_query(const fix_client_t *restrict client);
 HOT static void format_price(const fixed_point_t price, char *buffer); //TODO 5. Zero-Cost String Formatting, Precomputed FIX template (e.g., "44=XXXX|")
 
-//TODO pool di connessioni
 void init_fix(fix_client_t *restrict client, const keys_t *restrict keys, SSL_CTX *restrict ssl_ctx)
 {
-  client->addr = (struct sockaddr_in){
-    .sin_family = AF_INET,
-    .sin_port = htons(FIX_PORT),
-    .sin_addr = {
-      .s_addr = INADDR_NONE
-    }
-  };
-  client->keys = keys;
-  client->write_buffer = calloc(FIX_WRITE_BUFFER_SIZE, sizeof(char));
-  client->read_buffer = calloc(FIX_READ_BUFFER_SIZE, sizeof(char));
-
   const uint16_t fd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
   setsockopt(fd, IPPROTO_TCP, TCP_FASTOPEN, &(bool){true}, sizeof(bool));
   setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &(bool){true}, sizeof(bool));
@@ -39,7 +27,23 @@ void init_fix(fix_client_t *restrict client, const keys_t *restrict keys, SSL_CT
   setsockopt(fd, IPPROTO_TCP, TCP_KEEPIDLE, &(uint16_t){FIX_KEEPALIVE_IDLE}, sizeof(uint16_t));
   setsockopt(fd, IPPROTO_TCP, TCP_KEEPINTVL, &(uint16_t){FIX_KEEPALIVE_INTVL}, sizeof(uint16_t));
   setsockopt(fd, IPPROTO_TCP, TCP_KEEPCNT, &(uint16_t){FIX_KEEPALIVE_CNT}, sizeof(uint16_t));
-  client->ssl = init_ssl_socket(fd, ssl_ctx);
+ 
+  *client = (fix_client_t){
+    .addr = (struct sockaddr_in){
+      .sin_family = AF_INET,
+      .sin_port = htons(FIX_PORT),
+      .sin_addr = {
+        .s_addr = INADDR_NONE
+      }
+    },
+    .ssl = init_ssl_socket(fd, ssl_ctx),
+    .keys = keys,
+    .write_buffer = calloc(FIX_WRITE_BUFFER_SIZE, sizeof(char)),
+    .read_buffer = calloc(FIX_READ_BUFFER_SIZE, sizeof(char)),
+    .write_offset = 0,
+    .read_offset = 0,
+    .msg_seq_num = 0
+  };
 
   dup2(fd, FIX_FILENO);
   close(fd);
@@ -119,19 +123,20 @@ bool handle_fix_trading(fix_client_t *restrict client, graph_t *restrict graph)
 
 static bool send_logon(const fix_client_t *restrict client)
 {
-  //TODO
-  //Username (553) API_KEY
-  //RawData (96) valid signature made with the API key (base64 encoding of the following:
-    //text string constructed by concatenating the values of the following fields in this exact order, separated by the SOH character:
-      // MsgType (35)
-      // SenderCompId (49)
-      // TargetCompId (56)
-      // MsgSeqNum (34)
-      // SendingTime (52)
-  //MessageHandling (25035) Unordered(1)
-  //ResponseMode (25036) ONLY_ACKS(2)
-  (void)client;
-  return false;
+  //TODO generare payload
+  static bool initialized;
+  static uint16_t len;
+
+  if (!initialized)
+  {
+    fix_message_t message = {
+      
+    }
+    len = build_fix_message(client->write_buffer, FIX_WRITE_BUFFER_SIZE)
+    initialized = true;
+  }
+
+  return try_ssl_send(client->ssl, client->write_buffer, len);
 }
 
 static bool receive_logon(const fix_client_t *restrict client)

@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 19:01:43 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/31 10:21:54 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/02 18:24:53 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@ void init_keys(keys_t *restrict keys)
 
   fast_assert(priv_key && api_key, STR_LEN_PAIR("Missing keys"));
 
+  memcpy(keys->sender_comp_id, STR_LEN_PAIR(CLIENT_COMP_ID));
   memcpy(keys->api_key, api_key, API_KEY_SIZE);
   BIO *bio = BIO_new_mem_buf(priv_key, -1);
   PEM_read_bio_PrivateKey(bio, &keys->priv_key, NULL, NULL);

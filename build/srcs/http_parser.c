@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 19:57:09 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/02 14:57:27 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/02 20:10:01 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,41 @@ HOT static uint16_t parse_unified_body(char *restrict buffer, char *restrict *bo
 HOT static uint32_t count_chunked_body_len(const char *restrict buffer, const char *restrict body_end);
 HOT static uint8_t count_headers(const char *restrict buffer, const char *restrict headers_end);
 HOT static void header_map_insert(header_map_t *restrict map, const char *restrict key, const uint16_t key_len, const char *restrict value, const uint16_t value_len);
+
+//TODO asserts, simd, likely, prefetch
+uint16_t build_http_request(char *restrict buffer, const uint16_t buffer_size, const http_request_t *restrict request)
+{
+  static const str_len_pair_t methods[] = {
+    [GET] = STR_LEN_PAIR("GET"),
+    [POST] = STR_LEN_PAIR("POST"),
+    [PUT] = STR_LEN_PAIR("PUT"),
+    [DELETE] = STR_LEN_PAIR("DELETE")
+  };
+  uint16_t bytes_written = 0;
+
+  memcpy(buffer, methods[request->method].str, methods[request->method].len);
+  buffer += methods[request->method].len;
+  *buffer++ = ' ';
+
+  memcpy(buffer, request->path, request->path_len);
+  buffer += request->path_len;
+  *buffer++ = ' ';
+
+  static const str_len_pair_t versions[] = {
+    [HTTP_1_0] = STR_LEN_PAIR("HTTP/1.0"),
+    [HTTP_1_1] = STR_LEN_PAIR("HTTP/1.1")
+  };
+
+  memcpy(buffer, versions[request->version].str, versions[request->version].len);
+  buffer += versions[request->version].len;
+  *buffer++ = '\r';
+  *buffer++ = '\n';
+
+  //TODO headers
+  //TODO body
+  
+  return bytes_written;
+}
 
 bool is_full_http_response(const char *restrict buffer, const uint16_t buffer_size, const uint16_t response_len)
 {

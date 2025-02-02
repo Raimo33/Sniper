@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 19:43:46 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/01 22:01:53 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/02 19:46:14 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,11 +25,14 @@
 
 # define HEADER_MAP_DILUTION_FACTOR 3
 
+typedef enum: uint8_t {GET, POST, PUT, DELETE} http_method_t;
+typedef enum: uint8_t {HTTP_1_0, HTTP_1_1} http_version_t;
+
 typedef struct
 {
   char *key;
-  char *value;
   uint8_t key_len;
+  char *value;
   uint8_t value_len;
 } header_entry_t;
 
@@ -41,12 +44,25 @@ typedef struct
 
 typedef struct
 {
+  http_method_t method;
+  char *path;
+  uint8_t path_len;
+  char *version;
+  header_entry_t *headers;
+  uint8_t n_headers;
+  char *body;
+  uint16_t body_len;
+} http_request_t;
+
+typedef struct
+{
   header_map_t headers;
   char *body;
   uint16_t body_len;
   uint16_t status_code;
 } http_response_t;
 
+HOT uint16_t build_http_request(char *restrict buffer, const uint16_t buffer_size, const http_request_t *restrict request);
 HOT bool is_full_http_response(const char *restrict buffer, const uint16_t buffer_size, const uint16_t response_len);
 HOT uint16_t parse_http_response(char *restrict buffer, http_response_t *restrict response, const uint16_t buffer_size);
 HOT const header_entry_t *header_map_get(const header_map_t *restrict map, const char *restrict key, const uint16_t key_len);

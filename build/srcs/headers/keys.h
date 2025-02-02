@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 18:59:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/31 21:41:08 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/02 18:25:25 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,11 +30,14 @@
 # define API_KEY_SIZE 64
 # define WS_KEY_SIZE 24
 # define WS_KEY_GUID "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
+# define MAX_COMP_ID_SIZE 8
+# define CLIENT_COMP_ID "FAF42"
 
 typedef struct
 {
   EVP_PKEY *priv_key;
   uint8_t api_key[API_KEY_SIZE] ALIGNED(16);
+  char sender_comp_id[COMP_ID_SIZE];
 } keys_t;
 
 COLD void init_keys(keys_t *restrict keys);
