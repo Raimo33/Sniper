@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 17:40:24 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/01 21:59:18 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/02 11:35:25 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ void init_event_loop(event_loop_ctx_t *restrict ctx)
   });
 }
 
-void establish_connections(const event_loop_ctx_t *restrict ctx, fix_client_t *fix_client, ws_client_t *ws_client, rest_client_t *rest_client, dns_resolver_t *dns_resolver)
+void establish_connections(const event_loop_ctx_t *restrict ctx, clients_t *restrict clients, dns_resolver_t *restrict dns_resolver)
 {
   struct epoll_event events[MAX_EVENTS] ALIGNED(16) = {0};
   struct epoll_event *event;
@@ -66,13 +66,13 @@ void establish_connections(const event_loop_ctx_t *restrict ctx, fix_client_t *f
           handle_dns_responses(dns_resolver, event->events);
           break;
         case WS_FILENO:
-          n_connections += handle_ws_connection(ws_client, event->events, dns_resolver);
+          n_connections += handle_ws_connection(&clients->ws, event->events, dns_resolver);
           break;
         case FIX_FILENO:
-          n_connections += handle_fix_connection(fix_client, event->events, dns_resolver);
+          n_connections += handle_fix_connection(&clients->fix, event->events, dns_resolver);
           break;
         case REST_FILENO:
-          n_connections += handle_rest_connection(rest_client, event->events, dns_resolver);
+          n_connections += handle_rest_connection(&clients->rest, event->events, dns_resolver);
           break;
         case LOG_FILENO:
           handle_logs(event->events);
@@ -84,13 +84,12 @@ void establish_connections(const event_loop_ctx_t *restrict ctx, fix_client_t *f
   }
 }
 
-void listen_events(const event_loop_ctx_t *restrict ctx, const fix_client_t *fix_client, const ws_client_t *ws_client, const rest_client_t *rest_client)
+void listen_events(const event_loop_ctx_t *restrict ctx, clients_t *restrict clients, graph_t *restrict graph)
 {
   //TODO: Implement this (take inspiration from establish_connections)
   (void)ctx;
-  (void)fix_client;
-  (void)ws_client;
-  (void)rest_client;
+  (void)clients;
+  (void)graph;
 }
 
 void free_event_loop(const event_loop_ctx_t *restrict ctx)

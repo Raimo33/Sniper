@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 16:52:43 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/01 10:33:06 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/02 10:56:56 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 # include <arpa/inet.h>
 # include <netdb.h>
 # include <sys/wait.h>
+# include <yyjson.h>
 
 # include "extensions.h"
 # include "fast_ssl.h"
@@ -28,6 +29,7 @@
 # include "message_broker.h"
 # include "http_parser.h"
 # include "decompression.h"
+# include "graph.h"
 
 # define REST_HOST "api.binance.com"
 # define REST_PORT 8080
@@ -53,6 +55,7 @@ typedef struct
 
 COLD void init_rest(rest_client_t *restrict client, const keys_t *restrict keys, SSL_CTX *restrict ssl_ctx);
 HOT bool handle_rest_connection(rest_client_t *restrict client, const uint8_t events, dns_resolver_t *restrict resolver);
+HOT bool handle_rest_events(rest_client_t *restrict client, graph_t *restrict graph);
 COLD void free_rest(rest_client_t *restrict client);
 
 #endif

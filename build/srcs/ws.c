@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 20:53:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/01 22:01:13 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/02 11:34:57 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,6 +82,19 @@ upgrade_request:
 upgrade_response:
   log_msg(STR_LEN_PAIR("Receiving Websocket upgrade response"));
   return receive_upgrade_response(client);
+}
+
+bool handle_ws_events(ws_client_t *restrict client, graph_t *restrict graph)
+{
+  static void *restrict states[] = {};
+  static uint8_t sequence = 0;
+
+  goto *states[sequence];
+
+  (void)graph;
+  (void)client;
+
+//TODO ping, pong, subscribe to the streams once the graph is formed
 }
 
 static bool send_upgrade_request(ws_client_t *restrict client)

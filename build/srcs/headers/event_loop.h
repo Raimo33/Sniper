@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 17:42:49 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/31 21:39:47 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/02 10:08:52 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@
 # include "rest.h"
 # include "dns_resolver.h"
 # include "logger.h"
+# include "graph.h"
 
 # define MAX_EVENTS 128
 
@@ -33,13 +34,20 @@
 
 typedef struct
 {
+  fix_client_t fix;
+  ws_client_t ws;
+  rest_client_t rest;
+} clients_t;
+
+typedef struct
+{
   uint16_t epoll_fd;
     // Can add more event loop related state here
 } event_loop_ctx_t;
 
 COLD void init_event_loop(event_loop_ctx_t *restrict ctx);
-COLD void establish_connections(const event_loop_ctx_t *restrict ctx, fix_client_t *fix_client, ws_client_t *ws_client, rest_client_t *rest_client, dns_resolver_t *dns_resolver);
-COLD void listen_events(const event_loop_ctx_t *restrict ctx, const fix_client_t *fix_client, const ws_client_t *ws_client, const rest_client_t *rest_client);
+COLD void establish_connections(const event_loop_ctx_t *restrict ctx, clients_t *restrict clients, dns_resolver_t *restrict dns_resolver);
+COLD void listen_events(const event_loop_ctx_t *restrict ctx, clients_t *restrict clients, graph_t *restrict graph);
 COLD void free_event_loop(const event_loop_ctx_t *restrict ctx);
 
 #endif

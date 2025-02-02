@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 17:53:55 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/01 22:27:35 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/02 11:35:07 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ void init_rest(rest_client_t *restrict client, const keys_t *restrict keys, SSL_
 
 bool handle_rest_connection(rest_client_t *restrict client, const uint8_t events, dns_resolver_t *restrict resolver)
 {
-  static void *restrict states[] = {&&dns_query, &&dns_response, &&connect, &&ssl_handshake, &&info_query, &&info_response};
+  static void *restrict states[] = {&&dns_query, &&dns_response, &&connect, &&ssl_handshake};
   static uint8_t sequence = 0;
 
   if (UNLIKELY(events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP)))
@@ -74,6 +74,14 @@ connect:
 ssl_handshake:
   log_msg(STR_LEN_PAIR("Performing SSL handshake"));
   return SSL_connect(client->ssl) == true;
+}
+
+bool handle_rest_events(rest_client_t *restrict client, graph_t *restrict graph)
+{
+  static void *restrict states[] = {&&info_query, &&info_response};
+  static uint8_t sequence = 0;
+
+  goto *states[sequence];
 
 info_query:
   log_msg(STR_LEN_PAIR("Querying Exchange info"));
@@ -83,6 +91,9 @@ info_query:
 info_response:
   log_msg(STR_LEN_PAIR("Received Exchange info"));
   return receive_info_response(client);
+
+  (void)graph;
+//TODO altre eventuali chiamate di rest
 }
 
 static bool send_info_query(rest_client_t *restrict client)
@@ -166,6 +177,8 @@ static void process_info_chunks(const uint16_t read_fd)
   UNUSED uint8_t chunk[PIPE_BUF_SIZE];
   UNUSED int32_t read_bytes;
 
+  //https://ibireme.github.io/yyjson/doc/doxygen/html/
+  //TODO json parser?
   //TODO process the info response by filling the trading pairs graph
 
   close(read_fd);
