@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/29 17:07:42 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/02 12:17:41 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/02 15:31:07 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ int32_t main(void)
   atexit(free_graph_wrapper);
 
   connect_clients(&app->loop, &app->clients, &app->dns_resolver);
-  setup_trading(&app->loop, &app->clients, &app->graph);
-  trade(&app->loop, &app->clients, &app->graph);
+  // setup_trading(&app->loop, &app->clients, &app->graph);
+  // trade(&app->loop, &app->clients, &app->graph);
   exit(EXIT_SUCCESS);
 }

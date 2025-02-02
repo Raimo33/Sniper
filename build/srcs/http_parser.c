@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 19:57:09 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/01 22:01:02 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/02 14:57:27 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ HOT static uint16_t parse_headers(char *restrict buffer, header_map_t *headers, 
 HOT static uint16_t parse_body(char *restrict buffer, char *restrict body, header_map_t *headers, const uint16_t buffer_size);
 HOT static uint16_t parse_chunked_body(char *restrict buffer, char *restrict *body, const uint16_t buffer_size);
 HOT static uint16_t parse_unified_body(char *restrict buffer, char *restrict *body, const char *restrict content_length, const uint16_t buffer_size);
-HOT static uint32_t count_chunked_body_size(const char *restrict buffer, const char *restrict body_end);
+HOT static uint32_t count_chunked_body_len(const char *restrict buffer, const char *restrict body_end);
 HOT static uint8_t count_headers(const char *restrict buffer, const char *restrict headers_end);
 HOT static void header_map_insert(header_map_t *restrict map, const char *restrict key, const uint16_t key_len, const char *restrict value, const uint16_t value_len);
 
@@ -36,10 +36,10 @@ bool is_full_http_response(const char *restrict buffer, const uint16_t buffer_si
   if (LIKELY(content_length))
   {
     const uint16_t headers_len = headers_end - buffer + STR_LEN("\r\n\r\n");
-    const uint16_t body_size = atoi(content_length + STR_LEN("Content-Length:"));
+    const uint16_t body_len = atoi(content_length + STR_LEN("Content-Length:"));
     const uint16_t available_space = buffer_size - headers_len;
-    fast_assert(body_size < available_space, STR_LEN_PAIR("Body size exceeds available space"));
-    return ((headers_len + body_size) == response_len);
+    fast_assert(body_len < available_space, STR_LEN_PAIR("Body size exceeds available space"));
+    return ((headers_len + body_len) == response_len);
   }
 
   panic(STR_LEN_PAIR("No content length or transfer encoding"));
@@ -119,18 +119,18 @@ static uint16_t parse_chunked_body(char *restrict buffer, char *restrict *body, 
   const char *body_end = memmem(buffer, buffer_size, STR_LEN_PAIR("0\r\n\r\n"));
   uint16_t body_used = 0;
 
-  const uint32_t final_body_size = count_chunked_body_size(buffer, body_end);
-  *body = (char *)malloc(final_body_size);
+  const uint32_t final_body_len = count_chunked_body_len(buffer, body_end);
+  *body = (char *)malloc(final_body_len);
 
   while (LIKELY(buffer < body_end))
   {
-    const uint16_t chunk_size = atoi(buffer);
+    const uint16_t chunk_len = atoi(buffer);
     buffer = memmem(buffer, body_end - buffer, STR_LEN_PAIR("\r\n"));
     fast_assert(buffer, STR_LEN_PAIR("Malformed chunk: missing clrf"));
     buffer += STR_LEN("\r\n");
-    memcpy(*body + body_used, buffer, chunk_size);
-    *body += chunk_size;
-    body_used += chunk_size;
+    memcpy(*body + body_used, buffer, chunk_len);
+    *body += chunk_len;
+    body_used += chunk_len;
   }
   body_end += STR_LEN("0\r\n\r\n");
 
@@ -139,23 +139,23 @@ static uint16_t parse_chunked_body(char *restrict buffer, char *restrict *body, 
 
 static uint16_t parse_unified_body(char *restrict buffer, char *restrict *body, const char *restrict content_length, UNUSED const uint16_t buffer_size)
 {
-  const uint16_t body_size = atoi(content_length);
-  *body = (char *)malloc(body_size);
-  memcpy(*body, buffer, body_size);
-  return body_size;
+  const uint16_t body_len = atoi(content_length);
+  *body = (char *)malloc(body_len);
+  memcpy(*body, buffer, body_len);
+  return body_len;
 }
 
 //TODO simd easy
-static uint32_t count_chunked_body_size(const char *restrict buffer, const char *restrict body_end)
+static uint32_t count_chunked_body_len(const char *restrict buffer, const char *restrict body_end)
 {
-  uint32_t body_size = 0;
+  uint32_t body_len = 0;
   while (LIKELY(buffer < body_end))
   {
-    body_size += atoi(buffer);
+    body_len += atoi(buffer);
     buffer = memmem(buffer, body_end - buffer, STR_LEN_PAIR("\r\n"));
     buffer += STR_LEN("\r\n");
   }
-  return body_size;
+  return body_len;
 }
 
 //TODO simd easy

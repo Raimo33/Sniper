@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 21:02:36 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/02 12:26:25 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/02 15:09:38 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,6 +88,14 @@ receive_logon:
   log_msg(STR_LEN_PAIR("Receiving logon message"));
   sequence += receive_logon(client);
   return false;
+}
+
+bool handle_fix_setup(fix_client_t *restrict client, graph_t *restrict graph)
+{
+  static void *restrict states[] = {&&send_limit_query, &&receive_limit_query};
+  static uint8_t sequence = 0;
+
+  goto *states[sequence];
 
 send_limit_query:
   log_msg(STR_LEN_PAIR("Sending limit query"));
@@ -97,14 +105,8 @@ send_limit_query:
 receive_limit_query:
   log_msg(STR_LEN_PAIR("Receiving limit query"));
   return receive_limit_query(client);
-}
 
-bool handle_fix_setup(fix_client_t *restrict client, graph_t *restrict graph)
-{
-  //TODO probably nothing
-  (void)client;
   (void)graph;
-  return false;
 }
 
 bool handle_fix_trading(fix_client_t *restrict client, graph_t *restrict graph)

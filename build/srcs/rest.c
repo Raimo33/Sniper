@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 17:53:55 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/02 12:28:42 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/02 15:06:04 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,7 @@
 
 COLD static bool send_info_query(rest_client_t *restrict client);
 COLD static bool receive_info_response(rest_client_t *restrict client);
-COLD static void parse_info_response(char *restrict input, const uint32_t input_len);
-COLD static void process_info_chunks(const uint16_t read_fd);
+COLD static void process_info_response(char *body, const uint32_t body_len);
 
 void init_rest(rest_client_t *restrict client, const keys_t *restrict keys, SSL_CTX *restrict ssl_ctx)
 {
@@ -144,52 +143,36 @@ static bool receive_info_response(rest_client_t *restrict client)
   fast_assert(content_encoding, STR_LEN_PAIR("Exchange info query failed: missing content encoding header"));
   fast_assert(memcmp(content_encoding->value, STR_LEN_PAIR("gzip")) == 0, STR_LEN_PAIR("Exchange info query failed: invalid content encoding"));
   
-  parse_info_response(client->read_buffer, client->read_offset);
+  process_info_response(response->body, response->body_len);
 
   free_http_response(&client->http_response);
   client->read_buffer = realloc(client->read_buffer, REST_READ_BUFFER_SIZE);
   return true;
 }
 
-static void parse_info_response(char *restrict input, const uint32_t input_len)
+static void process_info_response(char *body, const uint32_t body_len)
 {
   int32_t pipe_fds[2];
   pipe(pipe_fds);
-  const int32_t pid = fork();
 
+  const pid_t pid = fork();
   if (pid == 0)
   {
     close(pipe_fds[0]);
-    gzip_decompress_to_file((uint8_t *)input, input_len, pipe_fds[1]);
+    gzip_decompress_to_file((uint8_t *)body, body_len, (uint16_t)pipe_fds[1]);
+    close(pipe_fds[1]);
     exit(EXIT_SUCCESS);
   }
   else
   {
-    int32_t status;
     close(pipe_fds[1]);
-    process_info_chunks(pipe_fds[0]);
-    waitpid(pid, &status, 0);
-    if (WIFEXITED(status))
-    {
-      int8_t exit_code = WEXITSTATUS(status);
-      if (exit_code != EXIT_SUCCESS)
-        exit(exit_code);
-    }
-    else
-      panic(STR_LEN_PAIR("Failed to decompress exchange info response"));
-  } 
-}
-
-static void process_info_chunks(const uint16_t read_fd)
-{
-  UNUSED uint8_t chunk[PIPE_BUF_SIZE];
-  UNUSED int32_t read_bytes;
-
-  //https://ibireme.github.io/yyjson/doc/doxygen/html/
-  //TODO json parser?
-  //TODO process the info response by filling the trading pairs graph
-
-  close(read_fd);
+    FILE *restrict fp = fdopen(pipe_fds[0], "rb");
+    yyjson_doc *restrict doc = yyjson_read_fp(fp, 0, NULL, NULL);
+    fclose(fp);
+    //TODO processare il json
+    yyjson_doc_free(doc);
+    wait_child_process(pid);
+  }
 }
 
 void free_rest(rest_client_t *restrict rest)

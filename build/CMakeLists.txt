@@ -7,24 +7,26 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS ON)
 
 set(SRCS
-  srcs/fastaf.c
-  srcs/ws.c
-  srcs/fix.c
-  srcs/rest.c
-  srcs/dns_resolver.c
-  srcs/event_loop.c
-  srcs/http_parser.c
-  srcs/decompression.c
-  srcs/graph.c
-  srcs/logger.c
-  srcs/signals.c
-  srcs/errors.c
-  srcs/keys.c
-  srcs/fast_ssl.c
-  srcs/fixed_point.c
-  srcs/message_broker.c
-  srcs/str_utils.c
+  fastaf.c
+  ws.c
+  fix.c
+  rest.c
+  dns_resolver.c
+  event_loop.c
+  http_parser.c
+  fix_parser.c
+  decompression.c
+  graph.c
+  logger.c
+  signals.c
+  errors.c
+  keys.c
+  fast_ssl.c
+  fixed_point.c
+  message_broker.c
+  str_utils.c
 )
+list(TRANSFORM SRCS PREPEND "srcs/")
 
 add_executable(fastaf ${SRCS})
 
