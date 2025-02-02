@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 17:40:24 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/02 11:35:25 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/02 12:18:56 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ void init_event_loop(event_loop_ctx_t *restrict ctx)
   });
 }
 
-void establish_connections(const event_loop_ctx_t *restrict ctx, clients_t *restrict clients, dns_resolver_t *restrict dns_resolver)
+void connect_clients(const event_loop_ctx_t *restrict ctx, clients_t *restrict clients, dns_resolver_t *restrict dns_resolver)
 {
   struct epoll_event events[MAX_EVENTS] ALIGNED(16) = {0};
   struct epoll_event *event;
@@ -84,9 +84,17 @@ void establish_connections(const event_loop_ctx_t *restrict ctx, clients_t *rest
   }
 }
 
-void listen_events(const event_loop_ctx_t *restrict ctx, clients_t *restrict clients, graph_t *restrict graph)
+void setup_trading(const event_loop_ctx_t *restrict ctx, clients_t *restrict clients, graph_t *restrict graph)
 {
-  //TODO: Implement this (take inspiration from establish_connections)
+  //TODO fetches exchange info, fetches user info, fills graph and other
+  (void)ctx;
+  (void)clients;
+  (void)graph;
+}
+
+void trade(const event_loop_ctx_t *restrict ctx, clients_t *restrict clients, graph_t *restrict graph)
+{
+  //TODO: updates graph with live ws data, sends fix orders, heartbeats, periodical checks with rest
   (void)ctx;
   (void)clients;
   (void)graph;

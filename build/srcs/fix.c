@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 21:02:36 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/01 10:27:17 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/02 12:26:25 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,6 +97,22 @@ send_limit_query:
 receive_limit_query:
   log_msg(STR_LEN_PAIR("Receiving limit query"));
   return receive_limit_query(client);
+}
+
+bool handle_fix_setup(fix_client_t *restrict client, graph_t *restrict graph)
+{
+  //TODO probably nothing
+  (void)client;
+  (void)graph;
+  return false;
+}
+
+bool handle_fix_trading(fix_client_t *restrict client, graph_t *restrict graph)
+{
+  //TODO submit di ordini
+  (void)client;
+  (void)graph;
+  return false;
 }
 
 static bool send_logon(const fix_client_t *restrict client)

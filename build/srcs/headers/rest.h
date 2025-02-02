@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 16:52:43 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/02 10:56:56 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/02 12:22:53 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,8 @@ typedef struct
 
 COLD void init_rest(rest_client_t *restrict client, const keys_t *restrict keys, SSL_CTX *restrict ssl_ctx);
 HOT bool handle_rest_connection(rest_client_t *restrict client, const uint8_t events, dns_resolver_t *restrict resolver);
-HOT bool handle_rest_events(rest_client_t *restrict client, graph_t *restrict graph);
+HOT bool handle_rest_setup(rest_client_t *restrict client, graph_t *restrict graph);
+HOT bool handle_rest_trading(rest_client_t *restrict client, graph_t *restrict graph);
 COLD void free_rest(rest_client_t *restrict client);
 
 #endif

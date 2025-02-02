@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 16:53:00 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/02 10:09:51 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/02 12:28:06 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,8 @@ typedef struct
 
 COLD void init_ws(ws_client_t *restrict client, SSL_CTX *restrict ssl_ctx);
 HOT bool handle_ws_connection(ws_client_t *restrict client, const uint8_t events, dns_resolver_t *restrict resolver);
-HOT bool handle_ws_events(ws_client_t *restrict client, graph_t *restrict graph);
+HOT bool handle_ws_setup(ws_client_t *restrict client, graph_t *restrict graph);
+HOT bool handle_ws_trading(ws_client_t *restrict client, graph_t *restrict graph);
 COLD void free_ws(ws_client_t *restrict client);
 
 #endif

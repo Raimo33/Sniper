@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 16:52:51 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/31 21:40:36 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/02 12:28:24 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@
 # include "dns_resolver.h"
 # include "http_parser.h"
 # include "fixed_point.h"
+# include "graph.h"
 
 # define FIX_HOST "fix-oe.binance.com"
 # define FIX_PORT 9000
@@ -142,6 +143,8 @@ typedef struct
 
 COLD void init_fix(fix_client_t *restrict client, const keys_t *restrict keys, SSL_CTX *restrict ssl_ctx);
 HOT  bool handle_fix_connection(fix_client_t *restrict client, const uint8_t events, dns_resolver_t *restrict resolver);
+HOT  bool handle_fix_setup(fix_client_t *restrict client, graph_t *restrict graph);
+HOT  bool handle_fix_trading(fix_client_t *restrict client, graph_t *restrict graph);
 COLD void free_fix(fix_client_t *restrict client);
 
 #endif

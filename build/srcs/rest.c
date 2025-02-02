@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 17:53:55 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/02 11:35:07 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/02 12:28:42 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,7 +76,7 @@ ssl_handshake:
   return SSL_connect(client->ssl) == true;
 }
 
-bool handle_rest_events(rest_client_t *restrict client, graph_t *restrict graph)
+bool handle_rest_setup(rest_client_t *restrict client, graph_t *restrict graph)
 {
   static void *restrict states[] = {&&info_query, &&info_response};
   static uint8_t sequence = 0;
@@ -93,7 +93,15 @@ info_response:
   return receive_info_response(client);
 
   (void)graph;
-//TODO altre eventuali chiamate di rest
+  //TODO altre chiamate per user data, limiti account ecc
+}
+
+bool handle_rest_trading(rest_client_t *restrict client, graph_t *restrict graph)
+{
+  //TODO eventuali chiamate di rest durante il trading
+  (void)client;
+  (void)graph;
+  return false;
 }
 
 static bool send_info_query(rest_client_t *restrict client)

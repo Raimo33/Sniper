@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 20:53:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/02 11:34:57 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/02 12:27:52 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,7 +84,7 @@ upgrade_response:
   return receive_upgrade_response(client);
 }
 
-bool handle_ws_events(ws_client_t *restrict client, graph_t *restrict graph)
+bool handle_ws_setup(ws_client_t *restrict client, graph_t *restrict graph)
 {
   static void *restrict states[] = {};
   static uint8_t sequence = 0;
@@ -93,8 +93,19 @@ bool handle_ws_events(ws_client_t *restrict client, graph_t *restrict graph)
 
   (void)graph;
   (void)client;
+  //TODO subscribe to the streams once the graph is formed (derive path from graph)
+}
 
-//TODO ping, pong, subscribe to the streams once the graph is formed
+bool handle_ws_trading(ws_client_t *restrict client, graph_t *restrict graph)
+{
+  static void *restrict states[] = {};
+  static uint8_t sequence = 0;
+
+  goto *states[sequence];
+
+  (void)graph;
+  (void)client;
+  //TODO receive price data and update graph
 }
 
 static bool send_upgrade_request(ws_client_t *restrict client)

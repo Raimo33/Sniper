@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 17:42:49 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/02 10:08:52 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/02 12:19:15 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,8 +46,9 @@ typedef struct
 } event_loop_ctx_t;
 
 COLD void init_event_loop(event_loop_ctx_t *restrict ctx);
-COLD void establish_connections(const event_loop_ctx_t *restrict ctx, clients_t *restrict clients, dns_resolver_t *restrict dns_resolver);
-COLD void listen_events(const event_loop_ctx_t *restrict ctx, clients_t *restrict clients, graph_t *restrict graph);
+COLD void connect_clients(const event_loop_ctx_t *restrict ctx, clients_t *restrict clients, dns_resolver_t *restrict dns_resolver);
+COLD void setup_trading(const event_loop_ctx_t *restrict ctx, clients_t *restrict clients, graph_t *restrict graph);
+COLD void trade(const event_loop_ctx_t *restrict ctx, clients_t *restrict clients, graph_t *restrict graph);
 COLD void free_event_loop(const event_loop_ctx_t *restrict ctx);
 
 #endif
