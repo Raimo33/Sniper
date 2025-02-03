@@ -1,5 +1,9 @@
+.vscode/
+*.key
 *.log
+*.env
 build/Makefile
+build/fastaf
 build/CMakeFiles/
 build/CMakeCache.txt
 build/cmake_install.cmake
