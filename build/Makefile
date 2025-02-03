@@ -323,29 +323,29 @@ srcs/fix.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/fix.c.s
 .PHONY : srcs/fix.c.s
 
-srcs/fix_parser.o: srcs/fix_parser.c.o
-.PHONY : srcs/fix_parser.o
+srcs/fix_serializer.o: srcs/fix_serializer.c.o
+.PHONY : srcs/fix_serializer.o
 
 # target to build an object file
-srcs/fix_parser.c.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/fix_parser.c.o
-.PHONY : srcs/fix_parser.c.o
+srcs/fix_serializer.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/fix_serializer.c.o
+.PHONY : srcs/fix_serializer.c.o
 
-srcs/fix_parser.i: srcs/fix_parser.c.i
-.PHONY : srcs/fix_parser.i
+srcs/fix_serializer.i: srcs/fix_serializer.c.i
+.PHONY : srcs/fix_serializer.i
 
 # target to preprocess a source file
-srcs/fix_parser.c.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/fix_parser.c.i
-.PHONY : srcs/fix_parser.c.i
+srcs/fix_serializer.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/fix_serializer.c.i
+.PHONY : srcs/fix_serializer.c.i
 
-srcs/fix_parser.s: srcs/fix_parser.c.s
-.PHONY : srcs/fix_parser.s
+srcs/fix_serializer.s: srcs/fix_serializer.c.s
+.PHONY : srcs/fix_serializer.s
 
 # target to generate assembly for a file
-srcs/fix_parser.c.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/fix_parser.c.s
-.PHONY : srcs/fix_parser.c.s
+srcs/fix_serializer.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/fix_serializer.c.s
+.PHONY : srcs/fix_serializer.c.s
 
 srcs/fixed_point.o: srcs/fixed_point.c.o
 .PHONY : srcs/fixed_point.o
@@ -395,29 +395,29 @@ srcs/graph.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/graph.c.s
 .PHONY : srcs/graph.c.s
 
-srcs/http_parser.o: srcs/http_parser.c.o
-.PHONY : srcs/http_parser.o
+srcs/http_serializer.o: srcs/http_serializer.c.o
+.PHONY : srcs/http_serializer.o
 
 # target to build an object file
-srcs/http_parser.c.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/http_parser.c.o
-.PHONY : srcs/http_parser.c.o
+srcs/http_serializer.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/http_serializer.c.o
+.PHONY : srcs/http_serializer.c.o
 
-srcs/http_parser.i: srcs/http_parser.c.i
-.PHONY : srcs/http_parser.i
+srcs/http_serializer.i: srcs/http_serializer.c.i
+.PHONY : srcs/http_serializer.i
 
 # target to preprocess a source file
-srcs/http_parser.c.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/http_parser.c.i
-.PHONY : srcs/http_parser.c.i
+srcs/http_serializer.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/http_serializer.c.i
+.PHONY : srcs/http_serializer.c.i
 
-srcs/http_parser.s: srcs/http_parser.c.s
-.PHONY : srcs/http_parser.s
+srcs/http_serializer.s: srcs/http_serializer.c.s
+.PHONY : srcs/http_serializer.s
 
 # target to generate assembly for a file
-srcs/http_parser.c.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/http_parser.c.s
-.PHONY : srcs/http_parser.c.s
+srcs/http_serializer.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/http_serializer.c.s
+.PHONY : srcs/http_serializer.c.s
 
 srcs/keys.o: srcs/keys.c.o
 .PHONY : srcs/keys.o
@@ -619,18 +619,18 @@ help:
 	@echo "... srcs/fix.o"
 	@echo "... srcs/fix.i"
 	@echo "... srcs/fix.s"
-	@echo "... srcs/fix_parser.o"
-	@echo "... srcs/fix_parser.i"
-	@echo "... srcs/fix_parser.s"
+	@echo "... srcs/fix_serializer.o"
+	@echo "... srcs/fix_serializer.i"
+	@echo "... srcs/fix_serializer.s"
 	@echo "... srcs/fixed_point.o"
 	@echo "... srcs/fixed_point.i"
 	@echo "... srcs/fixed_point.s"
 	@echo "... srcs/graph.o"
 	@echo "... srcs/graph.i"
 	@echo "... srcs/graph.s"
-	@echo "... srcs/http_parser.o"
-	@echo "... srcs/http_parser.i"
-	@echo "... srcs/http_parser.s"
+	@echo "... srcs/http_serializer.o"
+	@echo "... srcs/http_serializer.i"
+	@echo "... srcs/http_serializer.s"
 	@echo "... srcs/keys.o"
 	@echo "... srcs/keys.i"
 	@echo "... srcs/keys.s"

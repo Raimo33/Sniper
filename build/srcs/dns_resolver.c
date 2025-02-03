@@ -6,14 +6,14 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/25 11:15:29 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/03 22:30:59 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/03 22:56:47 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "headers/dns_resolver.h"
 
 COLD static void encode_domain(const char *restrict domain, const uint16_t domain_len, char *restrict qname);
-COLD static void deserialize_dns_response(const uint8_t *restrict buffer, uint16_t *restrict id, uint32_t *restrict ip);
+COLD static void deserialize_dns_response(const char *restrict buffer, uint16_t *restrict id, uint32_t *restrict ip);
 
 void init_dns_resolver(dns_resolver_t *restrict resolver)
 {
@@ -37,7 +37,7 @@ void handle_dns_responses(const dns_resolver_t *restrict resolver, const uint8_t
   if (UNLIKELY(events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP)))
     panic(STR_AND_LEN("DNS resolver connection error"));
 
-  uint8_t buffer[DNS_MAX_PACKET_SIZE];
+  char buffer[DNS_MAX_PACKET_SIZE];
   uint16_t id;
   uint32_t network_ip;
 
@@ -123,7 +123,7 @@ static void encode_domain(const char *restrict domain, uint16_t domain_len, char
 }
 
 //TODO check header, check body etc, double check buffer overflows
-static void deserialize_dns_response(const uint8_t *buffer, uint16_t *restrict id, uint32_t *restrict ip)
+static void deserialize_dns_response(const char *buffer, uint16_t *restrict id, uint32_t *restrict ip)
 {
   const dns_header_t *header = (dns_header_t *)buffer;
   *id = ntohs(header->id);
@@ -139,9 +139,10 @@ static void deserialize_dns_response(const uint8_t *buffer, uint16_t *restrict i
   dns_answer_t *answer;
   uint16_t type, class, rdlength;
   uint8_t ancount = ntohs(header->ancount);
+  bool is_compressed;
   while (LIKELY(ancount--))
   {
-    bool is_compressed = (*buffer & 0xC0) == 0xC0;
+    is_compressed = (*buffer & 0xC0) == 0xC0;
     buffer += 2 * is_compressed;
     while (UNLIKELY(is_compressed == false && *buffer != '\0'))
       buffer += *buffer + 1;

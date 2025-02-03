@@ -16,6 +16,7 @@
 # include <stdint.h>
 # include <string.h>
 # include <stdlib.h>
+# include <xxhash.h>
 
 # include "extensions.h"
 # include "logger.h"

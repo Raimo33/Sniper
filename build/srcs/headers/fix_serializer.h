@@ -16,6 +16,8 @@
 # include <stdint.h>
 # include <stdbool.h>
 
+# include "extensions.h"
+
 # define FIX_MESSAGE_HANDLING_UNORDERED 1
 # define FIX_MESSAGE_HANDLING_SEQUENTIAL 2
 # define FIX_RESPONSE_MODE_EVERYTHING 1
@@ -55,7 +57,8 @@ typedef struct
   uint16_t raw_data_length;
   struct 
   {
-    uint8_t msg_type;
+    char *msg_type;
+    uint8_t msg_type_len;
     char *sender_comp_id;
     uint8_t sender_comp_id_len;
     char *target_comp_id;
@@ -64,7 +67,7 @@ typedef struct
     uint64_t sending_time;
   } raw_data;
   bool reset_seq_num_flag;
-  char *username;
+  const char *username;
   uint8_t username_len;
   uint8_t message_handling;
   uint8_t response_mode;
@@ -88,7 +91,7 @@ typedef struct
   fix_trailer_t trailer;
 } fix_message_t;
 
-HOT uint16_t serialize_fix_message(char *restrict buffer, const uint16_t buffer_size, const fix_message_t *restrict message);
+HOT uint16_t serialize_fix_message(const char *restrict buffer, const uint16_t buffer_size, const fix_message_t *restrict message);
 //TODO deserialize
 
 #endif

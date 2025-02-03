@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/25 10:38:46 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/03 13:09:56 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/03 22:55:39 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
 
 # include "extensions.h"
 # include "errors.h"
+# include "message_broker.h"
 
 # define DNS_SERVER "1.1.1.1"
 # define DNS_FILENO 8

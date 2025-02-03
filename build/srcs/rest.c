@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 17:53:55 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/03 22:50:23 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/03 22:54:28 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,13 +105,12 @@ info_response:
   //TODO altre chiamate per user data, limiti account ecc
 }
 
-bool handle_rest_trading(rest_client_t *restrict client, const uint8_t events, graph_t *restrict graph)
+void handle_rest_trading(rest_client_t *restrict client, const uint8_t events, graph_t *restrict graph)
 {
   //TODO eventuali chiamate di rest durante il trading
   (void)client;
   (void)graph;
   (void)events;
-  return false;
 }
 
 static bool send_info_query(rest_client_t *restrict client)

@@ -151,6 +151,10 @@ uint32_t deserialize_http_response(char *restrict buffer, http_response_t *respo
 static uint8_t deserialize_version(char *restrict buffer, http_version_t *version, const uint32_t buffer_size)
 {
   //TODO estrarre la versione di http dalla risposta
+  (void)buffer;
+  (void)version;
+  (void)buffer_size;
+  return 0;
 }
 
 static uint8_t deserialize_status_code(char *restrict buffer, uint16_t *status_code, const uint32_t buffer_size)
@@ -278,7 +282,7 @@ static void header_map_insert(header_map_t *restrict map, const char *restrict k
   strtolower(lower_key, key_len);
 
   const uint16_t map_size = map->n_entries * HEADER_MAP_DILUTION_FACTOR;
-  const uint16_t original_index = (uint16_t)murmurhash3((uint8_t *)lower_key, key_len, 42) % map_size;
+  const uint16_t original_index = (uint16_t)(XXH3_64bits(lower_key, key_len) % map_size);
   uint16_t index = original_index;
 
   for (uint8_t i = 1; UNLIKELY(map->entries[index].key != NULL); i++)
@@ -293,7 +297,7 @@ const header_entry_t *header_map_get(const header_map_t *restrict map, const cha
   fast_assert(map && key, "Unexpected NULL pointer");
 
   const uint16_t map_size = map->n_entries * HEADER_MAP_DILUTION_FACTOR;
-  const uint16_t original_index = (uint16_t)murmurhash3((uint8_t *)key, key_len, 42) % map_size;
+  const uint16_t original_index = (uint16_t)(XXH3_64bits(key, key_len) % map_size);
   uint16_t index = original_index;
 
   uint8_t i = 1;

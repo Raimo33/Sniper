@@ -35,6 +35,8 @@ target_include_directories(fastaf PRIVATE
   /usr/include
 )
 
+link_directories(/usr/lib)
+
 target_compile_options(fastaf PRIVATE
   -Wall -Wextra -Werror
   -fwrapv
@@ -46,8 +48,18 @@ target_compile_options(fastaf PRIVATE
   -fomit-frame-pointer
 )
 
-target_link_options(fastaf PRIVATE -flto -static)
-target_link_libraries(fastaf PRIVATE ssl crypto z yyjson)
+target_link_options(fastaf PRIVATE
+  -flto
+  -static
+)
+
+target_link_libraries(fastaf PRIVATE
+  ssl
+  crypto
+  z
+  yyjson
+  xxhash
+)
 
 set(VALGRIND_SUPP "${CMAKE_SOURCE_DIR}/valgrind.supp")
 set(VALGRIND_LOG "valgrind.log")
@@ -55,12 +67,8 @@ set(CACHEGRIND_LOG "cachegrind.log")
 set(CALLGRIND_LOG "callgrind.log")
 set(MASSIF_LOG "massif.log")
 
-set(VALGRIND_FLAGS 
-  "--leak-check=full --show-leak-kinds=all --track-origins=yes --track-fds=yes --suppressions=${VALGRIND_SUPP} --log-file=${VALGRIND_LOG}"
-)
-set(CACHEGRIND_FLAGS 
-  "--tool=cachegrind --cache-sim=yes --branch-sim=yes --dump-instr=yes --cachegrind-out-file=${CACHEGRIND_LOG}"
-)
+set(VALGRIND_FLAGS "--leak-check=full --show-leak-kinds=all --track-origins=yes --track-fds=yes --suppressions=${VALGRIND_SUPP} --log-file=${VALGRIND_LOG}")
+set(CACHEGRIND_FLAGS "--tool=cachegrind --cache-sim=yes --branch-sim=yes --dump-instr=yes --cachegrind-out-file=${CACHEGRIND_LOG}")
 set(CALLGRIND_FLAGS "--tool=callgrind --callgrind-out-file=${CALLGRIND_LOG}")
 set(MASSIF_FLAGS "--tool=massif --massif-out-file=${MASSIF_LOG}")
 

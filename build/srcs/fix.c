@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 21:02:36 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/03 22:50:03 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/03 22:54:07 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -153,6 +153,7 @@ static bool send_logon_query(fix_client_t *restrict client)
         .raw_data_length = 0,
         .raw_data = {
           .msg_type = FIX_MSG_TYPE_LOGON,
+          .msg_type_len = STR_LEN(FIX_MSG_TYPE_LOGON),
           .sender_comp_id = FIX_COMP_ID,
           .sender_comp_id_len = STR_LEN(FIX_COMP_ID),
           .target_comp_id = "SPOT",
@@ -161,7 +162,7 @@ static bool send_logon_query(fix_client_t *restrict client)
           .sending_time = timestamp
         },
         .reset_seq_num_flag = true,
-        .username = client->keys->api_key,
+        .username = (char *)client->keys->api_key,
         .username_len = API_KEY_SIZE,
         .message_handling = FIX_MESSAGE_HANDLING_SEQUENTIAL,
         .response_mode = 1
