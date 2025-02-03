@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 19:43:46 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/03 13:07:47 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/03 14:49:48 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@
 typedef enum: uint8_t {GET, POST, PUT, DELETE} http_method_t;
 typedef enum: uint8_t {HTTP_1_0, HTTP_1_1} http_version_t;
 
-typedef struct
+typedef struct ALIGNED(16)
 {
   char *key;
   uint8_t key_len;
@@ -42,7 +42,7 @@ typedef struct
   uint8_t n_entries;
 } header_map_t;
 
-typedef struct
+typedef struct ALIGNED(16)
 {
   const http_method_t method;
   const char *path;
@@ -54,7 +54,7 @@ typedef struct
   const uint16_t body_len;
 } http_request_t;
 
-typedef struct
+typedef struct ALIGNED(16)
 {
   header_map_t headers;
   char *body;

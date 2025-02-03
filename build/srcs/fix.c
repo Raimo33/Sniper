@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 21:02:36 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/03 12:54:23 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/03 13:36:15 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,40 +56,40 @@ bool handle_fix_connection(fix_client_t *restrict client, const uint8_t events, 
   static uint8_t sequence = 0;
 
   if (UNLIKELY(events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP)))
-    panic(STR_LEN_PAIR("FIX connection error"));
+    panic(STR_AND_LEN("FIX connection error"));
 
   goto *states[sequence];
 
 dns_query:
-  log_msg(STR_LEN_PAIR("Resolving FIX endpoint: " FIX_HOST));
-  resolve_domain(resolver, STR_LEN_PAIR(FIX_HOST), FIX_FILENO);
+  log_msg(STR_AND_LEN("Resolving FIX endpoint: " FIX_HOST));
+  resolve_domain(resolver, STR_AND_LEN(FIX_HOST), FIX_FILENO);
   sequence++;
   return false;
 
 dns_response:
-  log_msg(STR_LEN_PAIR("Resolved FIX endpoint: " FIX_HOST));
+  log_msg(STR_AND_LEN("Resolved FIX endpoint: " FIX_HOST));
   read(FIX_FILENO, &client->addr.sin_addr.s_addr, sizeof(client->addr.sin_addr.s_addr));
   sequence++;
   return false;
 
 connect:
-  log_msg(STR_LEN_PAIR("Connecting to FIX endpoint: " FIX_HOST));
+  log_msg(STR_AND_LEN("Connecting to FIX endpoint: " FIX_HOST));
   connect(FIX_FILENO, (struct sockaddr *)&client->addr, sizeof(client->addr));
   sequence++;
   return false;
 
 ssl_handshake:
-  log_msg(STR_LEN_PAIR("Performing SSL handshake"));
+  log_msg(STR_AND_LEN("Performing SSL handshake"));
   sequence += SSL_connect(client->ssl) == true;
   return false;
 
 logon_query:
-  log_msg(STR_LEN_PAIR("Sending logon query"));
+  log_msg(STR_AND_LEN("Sending logon query"));
   sequence += send_logon_query(client);
   return false;
 
 logon_response:
-  log_msg(STR_LEN_PAIR("Receiving logon response"));
+  log_msg(STR_AND_LEN("Receiving logon response"));
   sequence += receive_logon_response(client);
   return false;
 }
@@ -102,12 +102,12 @@ bool handle_fix_setup(fix_client_t *restrict client, graph_t *restrict graph)
   goto *states[sequence];
 
 limits_query:
-  log_msg(STR_LEN_PAIR("Sending limits query"));
+  log_msg(STR_AND_LEN("Sending limits query"));
   sequence += send_limits_query(client);
   return false;
 
 limits_response:
-  log_msg(STR_LEN_PAIR("Receiving limits response"));
+  log_msg(STR_AND_LEN("Receiving limits response"));
   return receive_limits_response(client);
 
   (void)graph;

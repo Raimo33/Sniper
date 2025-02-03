@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 18:15:10 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/02 11:38:26 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/03 13:36:15 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ void handle_signal(UNUSED const uint8_t events)
     case SIGINT:
       FALLTHROUGH;
     case SIGTERM:
-      panic(STR_LEN_PAIR("Received termination signal"));
+      panic(STR_AND_LEN("Received termination signal"));
       UNREACHABLE;
   }
   UNREACHABLE;

@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 20:53:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/03 12:52:05 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/03 13:36:15 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,40 +53,40 @@ bool handle_ws_connection(ws_client_t *restrict client, const uint8_t events, dn
   static uint8_t sequence = 0;
 
   if (UNLIKELY(events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP)))
-    panic(STR_LEN_PAIR("Websocket connection error"));
+    panic(STR_AND_LEN("Websocket connection error"));
 
   goto *states[sequence];
 
 dns_query:
-  log_msg(STR_LEN_PAIR("Resolving Websocket endpoint: " WS_HOST));
-  resolve_domain(resolver, STR_LEN_PAIR(WS_HOST), WS_FILENO);
+  log_msg(STR_AND_LEN("Resolving Websocket endpoint: " WS_HOST));
+  resolve_domain(resolver, STR_AND_LEN(WS_HOST), WS_FILENO);
   sequence++;
   return false;
 
 dns_response:
-  log_msg(STR_LEN_PAIR("Resolved Websocket endpoint: " WS_HOST));
+  log_msg(STR_AND_LEN("Resolved Websocket endpoint: " WS_HOST));
   read(WS_FILENO, &client->addr.sin_addr.s_addr, sizeof(client->addr.sin_addr.s_addr));
   sequence++;
   return false;
 
 connect:
-  log_msg(STR_LEN_PAIR("Connecting to Websocket endpoint: " WS_HOST));
+  log_msg(STR_AND_LEN("Connecting to Websocket endpoint: " WS_HOST));
   connect(WS_FILENO, (struct sockaddr *)&client->addr, sizeof(client->addr));
   sequence++;
   return false;
 
 ssl_handshake:
-  log_msg(STR_LEN_PAIR("Performing SSL handshake"));
+  log_msg(STR_AND_LEN("Performing SSL handshake"));
   sequence += SSL_connect(client->ssl) == true;
   return false;
 
 upgrade_query:
-  log_msg(STR_LEN_PAIR("Sending Websocket upgrade query"));
+  log_msg(STR_AND_LEN("Sending Websocket upgrade query"));
   sequence += send_upgrade_query(client);
   return false;
 
 upgrade_response:
-  log_msg(STR_LEN_PAIR("Receiving Websocket upgrade response"));
+  log_msg(STR_AND_LEN("Receiving Websocket upgrade response"));
   return receive_upgrade_response(client);
 }
 
@@ -128,10 +128,10 @@ static bool send_upgrade_query(ws_client_t *restrict client)
       .path_len = STR_LEN(WS_PATH),
       .version = HTTP_1_1,
       .headers = (header_entry_t[]){
-        { STR_LEN_PAIR("Host"), STR_LEN_PAIR(WS_HOST ":" WS_PORT_STR) },
-        { STR_LEN_PAIR("Upgrade"), STR_LEN_PAIR("websocket") },
-        { STR_LEN_PAIR("Connection"), STR_LEN_PAIR("Upgrade") },
-        { STR_LEN_PAIR("Sec-WebSocket-Key"), (char *)client->conn_key, WS_KEY_SIZE }
+        { STR_AND_LEN("Host"), STR_AND_LEN(WS_HOST ":" WS_PORT_STR) },
+        { STR_AND_LEN("Upgrade"), STR_AND_LEN("websocket") },
+        { STR_AND_LEN("Connection"), STR_AND_LEN("Upgrade") },
+        { STR_AND_LEN("Sec-WebSocket-Key"), (char *)client->conn_key, WS_KEY_SIZE }
       },
       .n_headers = 4,
       .body = NULL,
@@ -150,14 +150,14 @@ static bool receive_upgrade_response(ws_client_t *restrict client)
     return false;
 
   const http_response_t *restrict response = &client->http_response;
-  fast_assert(response->status_code == 101, STR_LEN_PAIR("Websocket upgrade failed: invalid status code"));
-  fast_assert(response->headers.n_entries == 3, STR_LEN_PAIR("Websocket upgrade failed: missing response headers"));
+  fast_assert(response->status_code == 101, STR_AND_LEN("Websocket upgrade failed: invalid status code"));
+  fast_assert(response->headers.n_entries == 3, STR_AND_LEN("Websocket upgrade failed: missing response headers"));
 
-  const header_entry_t *accept_header = header_map_get(&response->headers, STR_LEN_PAIR("Sec-WebSocket-Accept"));
-  fast_assert(accept_header, STR_LEN_PAIR("Websocket upgrade failed: missing Upgrade header"));
+  const header_entry_t *accept_header = header_map_get(&response->headers, STR_AND_LEN("Sec-WebSocket-Accept"));
+  fast_assert(accept_header, STR_AND_LEN("Websocket upgrade failed: missing Upgrade header"));
 
   if (verify_ws_key(client->conn_key, (uint8_t *)accept_header->value, accept_header->value_len) == false)
-    panic(STR_LEN_PAIR("Websocket upgrade failed: key mismatch"));
+    panic(STR_AND_LEN("Websocket upgrade failed: key mismatch"));
 
   free_http_response(&client->http_response);
   return true;

@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 18:09:22 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/01 22:21:55 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/03 13:36:15 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@ void handle_logs(const uint8_t events)
   if (LIKELY(events & EPOLLOUT))
     flush_logs();
   else
-    panic(STR_LEN_PAIR("Error on logger fd"));
+    panic(STR_AND_LEN("Error on logger fd"));
 }
 
 void flush_logs(void)

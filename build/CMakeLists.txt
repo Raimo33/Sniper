@@ -36,23 +36,17 @@ target_include_directories(fastaf PRIVATE
 )
 
 target_compile_options(fastaf PRIVATE
-  -Wall
-  -Wextra
-  -Werror
+  -Wall -Wextra -Werror
   -fwrapv
   -fgnu89-inline
   -D_GNU_SOURCE=1
-  -Ofast
-  -ffast-math
-  -fopt-info-vec-all
+  -O3
   -march=native
-  -fomit-frame-pointer
   -flto
+  -fomit-frame-pointer
 )
 
-#TODO static linking
-#TODO
-target_link_options(fastaf PRIVATE -flto)
+target_link_options(fastaf PRIVATE -flto -static)
 target_link_libraries(fastaf PRIVATE ssl crypto z yyjson)
 
 set(VALGRIND_SUPP "${CMAKE_SOURCE_DIR}/valgrind.supp")

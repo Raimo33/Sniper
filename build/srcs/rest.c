@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 17:53:55 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/03 12:55:02 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/03 13:36:15 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,30 +54,30 @@ bool handle_rest_connection(rest_client_t *restrict client, const uint8_t events
   static uint8_t sequence = 0;
 
   if (UNLIKELY(events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP)))
-    panic(STR_LEN_PAIR("REST connection error"));
+    panic(STR_AND_LEN("REST connection error"));
 
   goto *states[sequence];
 
 dns_query:
-  log_msg(STR_LEN_PAIR("Resolving REST endpoint: " REST_HOST));
-  resolve_domain(resolver, STR_LEN_PAIR(REST_HOST), REST_FILENO);
+  log_msg(STR_AND_LEN("Resolving REST endpoint: " REST_HOST));
+  resolve_domain(resolver, STR_AND_LEN(REST_HOST), REST_FILENO);
   sequence++;
   return false;
 
 dns_response:
-  log_msg(STR_LEN_PAIR("Resolved REST endpoint: " REST_HOST));
+  log_msg(STR_AND_LEN("Resolved REST endpoint: " REST_HOST));
   read(REST_FILENO, &client->addr.sin_addr.s_addr, sizeof(client->addr.sin_addr.s_addr));
   sequence++;
   return false;
 
 connect:
-  log_msg(STR_LEN_PAIR("Connecting to REST endpoint: " REST_HOST));
+  log_msg(STR_AND_LEN("Connecting to REST endpoint: " REST_HOST));
   connect(REST_FILENO, (struct sockaddr *)&client->addr, sizeof(client->addr));
   sequence++;
   return false;
 
 ssl_handshake:
-  log_msg(STR_LEN_PAIR("Performing SSL handshake"));
+  log_msg(STR_AND_LEN("Performing SSL handshake"));
   return SSL_connect(client->ssl) == true;
 }
 
@@ -89,12 +89,12 @@ bool handle_rest_setup(rest_client_t *restrict client, graph_t *restrict graph)
   goto *states[sequence];
 
 info_query:
-  log_msg(STR_LEN_PAIR("Querying Exchange info"));
+  log_msg(STR_AND_LEN("Querying Exchange info"));
   sequence += send_info_query(client);
   return false;
 
 info_response:
-  log_msg(STR_LEN_PAIR("Received Exchange info"));
+  log_msg(STR_AND_LEN("Received Exchange info"));
   return receive_info_response(client);
 
   (void)graph;
@@ -143,11 +143,11 @@ static bool receive_info_response(rest_client_t *restrict client)
     return false;
 
   const http_response_t *restrict response = &client->http_response;
-  fast_assert(response->status_code == 200, STR_LEN_PAIR("Exchange info query failed: invalid status code"));
+  fast_assert(response->status_code == 200, STR_AND_LEN("Exchange info query failed: invalid status code"));
   
-  const header_entry_t *restrict content_encoding = header_map_get(&response->headers, STR_LEN_PAIR("content-encoding"));
-  fast_assert(content_encoding, STR_LEN_PAIR("Exchange info query failed: missing content encoding header"));
-  fast_assert(memcmp(content_encoding->value, STR_LEN_PAIR("gzip")) == 0, STR_LEN_PAIR("Exchange info query failed: invalid content encoding"));
+  const header_entry_t *restrict content_encoding = header_map_get(&response->headers, STR_AND_LEN("content-encoding"));
+  fast_assert(content_encoding, STR_AND_LEN("Exchange info query failed: missing content encoding header"));
+  fast_assert(memcmp(content_encoding->value, STR_AND_LEN("gzip")) == 0, STR_AND_LEN("Exchange info query failed: invalid content encoding"));
   
   process_info_response(response->body, response->body_len);
 
