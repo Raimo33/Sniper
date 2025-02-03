@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 16:52:51 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/02 18:29:26 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/03 12:53:08 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@
 # include "fast_ssl.h"
 # include "keys.h"
 # include "dns_resolver.h"
+# include "message_broker.h"
 # include "http_parser.h"
 # include "fix_parser.h"
 # include "fixed_point.h"
@@ -47,7 +48,7 @@ typedef struct
 {
   struct sockaddr_in addr;
   SSL *ssl;
-  keys_t *keys;
+  const keys_t *keys;
   char *write_buffer;
   char *read_buffer;
   // http_response_t http_response;

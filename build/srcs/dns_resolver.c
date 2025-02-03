@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/25 11:15:29 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/01 21:58:53 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/03 13:10:21 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,13 +18,15 @@ COLD static void parse_dns_response(const uint8_t *restrict buffer, uint16_t *re
 void init_dns_resolver(dns_resolver_t *restrict resolver)
 {
   const uint16_t fd = socket(AF_INET, SOCK_DGRAM | SOCK_NONBLOCK, 0);
-  resolver->addr = (struct sockaddr_in){
-    .sin_family = AF_INET,
-    .sin_port = htons(53)
+
+  *resolver = (dns_resolver_t){
+    .addr = {
+      .sin_family = AF_INET,
+      .sin_port = htons(53)
+    },
+    .entries = calloc(MAX_ADDRESSES, sizeof(dns_entry_t)),
   };
   inet_pton(AF_INET, DNS_SERVER, &resolver->addr.sin_addr);
-
-  resolver->entries = calloc(MAX_ADDRESSES, sizeof(dns_entry_t));
   
   dup2(fd, DNS_FILENO);
   close(fd);

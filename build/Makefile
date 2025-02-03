@@ -323,6 +323,30 @@ srcs/fix.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/fix.c.s
 .PHONY : srcs/fix.c.s
 
+srcs/fix_parser.o: srcs/fix_parser.c.o
+.PHONY : srcs/fix_parser.o
+
+# target to build an object file
+srcs/fix_parser.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/fix_parser.c.o
+.PHONY : srcs/fix_parser.c.o
+
+srcs/fix_parser.i: srcs/fix_parser.c.i
+.PHONY : srcs/fix_parser.i
+
+# target to preprocess a source file
+srcs/fix_parser.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/fix_parser.c.i
+.PHONY : srcs/fix_parser.c.i
+
+srcs/fix_parser.s: srcs/fix_parser.c.s
+.PHONY : srcs/fix_parser.s
+
+# target to generate assembly for a file
+srcs/fix_parser.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/fix_parser.c.s
+.PHONY : srcs/fix_parser.c.s
+
 srcs/fixed_point.o: srcs/fixed_point.c.o
 .PHONY : srcs/fixed_point.o
 
@@ -595,6 +619,9 @@ help:
 	@echo "... srcs/fix.o"
 	@echo "... srcs/fix.i"
 	@echo "... srcs/fix.s"
+	@echo "... srcs/fix_parser.o"
+	@echo "... srcs/fix_parser.i"
+	@echo "... srcs/fix_parser.s"
 	@echo "... srcs/fixed_point.o"
 	@echo "... srcs/fixed_point.i"
 	@echo "... srcs/fixed_point.s"

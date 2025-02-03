@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 17:53:55 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/02 18:30:46 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/03 12:55:02 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ void init_rest(rest_client_t *restrict client, const keys_t *restrict keys, SSL_
   setsockopt(fd, IPPROTO_TCP, TCP_KEEPCNT, &(uint16_t){REST_KEEPALIVE_CNT}, sizeof(uint16_t));
 
   *client = (rest_client_t){
-    .addr = (struct sockaddr_in){
+    .addr = {
       .sin_family = AF_INET,
       .sin_port = htons(REST_PORT),
       .sin_addr = {
@@ -39,7 +39,7 @@ void init_rest(rest_client_t *restrict client, const keys_t *restrict keys, SSL_
     .keys = keys,
     .write_buffer = calloc(REST_WRITE_BUFFER_SIZE, sizeof(char)),
     .read_buffer = calloc(REST_READ_BUFFER_SIZE, sizeof(char)),
-    .http_response = {0},
+    .http_response = {},
     .write_offset = 0,
     .read_offset = 0
   };

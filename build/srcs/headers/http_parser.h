@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 19:43:46 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/02 19:46:14 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/03 13:07:47 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,14 +44,14 @@ typedef struct
 
 typedef struct
 {
-  http_method_t method;
-  char *path;
-  uint8_t path_len;
-  char *version;
-  header_entry_t *headers;
-  uint8_t n_headers;
-  char *body;
-  uint16_t body_len;
+  const http_method_t method;
+  const char *path;
+  const uint8_t path_len;
+  const http_version_t version;
+  const header_entry_t *headers;
+  const uint8_t n_headers;
+  const char *body;
+  const uint16_t body_len;
 } http_request_t;
 
 typedef struct

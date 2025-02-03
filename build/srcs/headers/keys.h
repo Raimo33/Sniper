@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 18:59:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/02 18:25:25 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/03 12:30:47 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ typedef struct
 {
   EVP_PKEY *priv_key;
   uint8_t api_key[API_KEY_SIZE] ALIGNED(16);
-  char sender_comp_id[COMP_ID_SIZE];
+  char sender_comp_id[MAX_COMP_ID_SIZE];
 } keys_t;
 
 COLD void init_keys(keys_t *restrict keys);

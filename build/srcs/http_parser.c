@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 19:57:09 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/02 20:10:01 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/03 12:56:46 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,12 +25,12 @@ HOT static void header_map_insert(header_map_t *restrict map, const char *restri
 uint16_t build_http_request(char *restrict buffer, const uint16_t buffer_size, const http_request_t *restrict request)
 {
   static const str_len_pair_t methods[] = {
-    [GET] = STR_LEN_PAIR("GET"),
-    [POST] = STR_LEN_PAIR("POST"),
-    [PUT] = STR_LEN_PAIR("PUT"),
-    [DELETE] = STR_LEN_PAIR("DELETE")
+    [GET] = {STR_LEN_PAIR("GET")},
+    [POST] = {STR_LEN_PAIR("POST")},
+    [PUT] = {STR_LEN_PAIR("PUT")},
+    [DELETE] = {STR_LEN_PAIR("DELETE")}
   };
-  uint16_t bytes_written = 0;
+  const char *buffer_start = buffer;
 
   memcpy(buffer, methods[request->method].str, methods[request->method].len);
   buffer += methods[request->method].len;
@@ -41,8 +41,8 @@ uint16_t build_http_request(char *restrict buffer, const uint16_t buffer_size, c
   *buffer++ = ' ';
 
   static const str_len_pair_t versions[] = {
-    [HTTP_1_0] = STR_LEN_PAIR("HTTP/1.0"),
-    [HTTP_1_1] = STR_LEN_PAIR("HTTP/1.1")
+    [HTTP_1_0] = {STR_LEN_PAIR("HTTP/1.0")},
+    [HTTP_1_1] = {STR_LEN_PAIR("HTTP/1.1")}
   };
 
   memcpy(buffer, versions[request->version].str, versions[request->version].len);
@@ -50,10 +50,12 @@ uint16_t build_http_request(char *restrict buffer, const uint16_t buffer_size, c
   *buffer++ = '\r';
   *buffer++ = '\n';
 
+  (void)buffer_size;
   //TODO headers
   //TODO body
+  //TODO cheks di sforamento buffer size
   
-  return bytes_written;
+  return buffer - buffer_start;
 }
 
 bool is_full_http_response(const char *restrict buffer, const uint16_t buffer_size, const uint16_t response_len)
@@ -219,7 +221,7 @@ static void header_map_insert(header_map_t *restrict map, const char *restrict k
   for (uint8_t i = 1; map->entries[index].key != NULL; i++)
     index = (original_index + i * i) % map_size;
 
-  map->entries[index] = (header_entry_t){lower_key, copied_value, key_len, value_len};
+  map->entries[index] = (header_entry_t){lower_key, key_len, copied_value, value_len};
   map->n_entries++;
 }
 

@@ -6,16 +6,16 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 21:02:36 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/02 18:57:32 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/03 12:54:23 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "headers/fix.h"
 
-COLD static bool send_logon(const fix_client_t *restrict client);
-COLD static bool receive_logon(const fix_client_t *restrict client);
-COLD static bool send_limit_query(const fix_client_t *restrict client);
-COLD static bool receive_limit_query(const fix_client_t *restrict client);
+COLD static bool send_logon_query(fix_client_t *restrict client);
+COLD static bool receive_logon_response(fix_client_t *restrict client);
+COLD static bool send_limits_query(fix_client_t *restrict client);
+COLD static bool receive_limits_response(fix_client_t *restrict client);
 HOT static void format_price(const fixed_point_t price, char *buffer); //TODO 5. Zero-Cost String Formatting, Precomputed FIX template (e.g., "44=XXXX|")
 
 void init_fix(fix_client_t *restrict client, const keys_t *restrict keys, SSL_CTX *restrict ssl_ctx)
@@ -29,7 +29,7 @@ void init_fix(fix_client_t *restrict client, const keys_t *restrict keys, SSL_CT
   setsockopt(fd, IPPROTO_TCP, TCP_KEEPCNT, &(uint16_t){FIX_KEEPALIVE_CNT}, sizeof(uint16_t));
  
   *client = (fix_client_t){
-    .addr = (struct sockaddr_in){
+    .addr = {
       .sin_family = AF_INET,
       .sin_port = htons(FIX_PORT),
       .sin_addr = {
@@ -51,7 +51,7 @@ void init_fix(fix_client_t *restrict client, const keys_t *restrict keys, SSL_CT
 
 bool handle_fix_connection(fix_client_t *restrict client, const uint8_t events, dns_resolver_t *restrict resolver)
 {
-  static void *restrict states[] = {&&dns_query, &&dns_response, &&connect, &&ssl_handshake, &&send_logon, &&receive_logon, &&send_limit_query, &&receive_limit_query};
+  static void *restrict states[] = {&&dns_query, &&dns_response, &&connect, &&ssl_handshake, &&logon_query, &&logon_response};
 
   static uint8_t sequence = 0;
 
@@ -83,32 +83,32 @@ ssl_handshake:
   sequence += SSL_connect(client->ssl) == true;
   return false;
 
-send_logon:
-  log_msg(STR_LEN_PAIR("Sending logon message"));
-  sequence += send_logon(client);
+logon_query:
+  log_msg(STR_LEN_PAIR("Sending logon query"));
+  sequence += send_logon_query(client);
   return false;
 
-receive_logon:
-  log_msg(STR_LEN_PAIR("Receiving logon message"));
-  sequence += receive_logon(client);
+logon_response:
+  log_msg(STR_LEN_PAIR("Receiving logon response"));
+  sequence += receive_logon_response(client);
   return false;
 }
 
 bool handle_fix_setup(fix_client_t *restrict client, graph_t *restrict graph)
 {
-  static void *restrict states[] = {&&send_limit_query, &&receive_limit_query};
+  static void *restrict states[] = {&&limits_query, &&limits_response};
   static uint8_t sequence = 0;
 
   goto *states[sequence];
 
-send_limit_query:
-  log_msg(STR_LEN_PAIR("Sending limit query"));
-  sequence += send_limit_query(client);
+limits_query:
+  log_msg(STR_LEN_PAIR("Sending limits query"));
+  sequence += send_limits_query(client);
   return false;
 
-receive_limit_query:
-  log_msg(STR_LEN_PAIR("Receiving limit query"));
-  return receive_limit_query(client);
+limits_response:
+  log_msg(STR_LEN_PAIR("Receiving limits response"));
+  return receive_limits_response(client);
 
   (void)graph;
 }
@@ -121,7 +121,7 @@ bool handle_fix_trading(fix_client_t *restrict client, graph_t *restrict graph)
   return false;
 }
 
-static bool send_logon(const fix_client_t *restrict client)
+static bool send_logon_query(fix_client_t *restrict client)
 {
   //TODO generare payload
   static bool initialized;
@@ -129,31 +129,31 @@ static bool send_logon(const fix_client_t *restrict client)
 
   if (!initialized)
   {
-    fix_message_t message = {
+  //   fix_message_t message = {
       
-    }
-    len = build_fix_message(client->write_buffer, FIX_WRITE_BUFFER_SIZE)
+  //   }
+  //   len = build_fix_message(client->write_buffer, FIX_WRITE_BUFFER_SIZE);
     initialized = true;
   }
 
-  return try_ssl_send(client->ssl, client->write_buffer, len);
+  return try_ssl_send(client->ssl, client->write_buffer, len, &client->write_offset);
 }
 
-static bool receive_logon(const fix_client_t *restrict client)
+static bool receive_logon_response(fix_client_t *restrict client)
 {
   //TODO
   (void)client;
   return false;
 }
 
-static bool send_limit_query(const fix_client_t *restrict client)
+static bool send_limits_query(fix_client_t *restrict client)
 {
   //TODO
   (void)client;
   return false;
 }
 
-static bool receive_limit_query(const fix_client_t *restrict client)
+static bool receive_limits_response(fix_client_t *restrict client)
 {
   //TODO
   (void)client;

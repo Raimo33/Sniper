@@ -6,13 +6,13 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 20:53:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/02 19:14:38 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/03 12:52:05 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "headers/ws.h"
 
-COLD static bool send_upgrade_request(ws_client_t *restrict client);
+COLD static bool send_upgrade_query(ws_client_t *restrict client);
 COLD static bool receive_upgrade_response(ws_client_t *restrict client);
 
 //TODO pool di connessioni
@@ -27,7 +27,7 @@ void init_ws(ws_client_t *restrict client, SSL_CTX *restrict ssl_ctx)
   setsockopt(fd, IPPROTO_TCP, TCP_KEEPCNT, &(uint16_t){WS_KEEPALIVE_CNT}, sizeof(uint16_t));
 
   *client = (ws_client_t){
-    .addr = (struct sockaddr_in){
+    .addr = {
       .sin_family = AF_INET,
       .sin_port = htons(WS_PORT),
       .sin_addr = {
@@ -35,10 +35,10 @@ void init_ws(ws_client_t *restrict client, SSL_CTX *restrict ssl_ctx)
       }
     },
     .ssl = init_ssl_socket(fd, ssl_ctx),
-    .conn_key = {0},
+    .conn_key = {},
     .write_buffer = calloc(WS_WRITE_BUFFER_SIZE, sizeof(char)),
     .read_buffer = calloc(WS_READ_BUFFER_SIZE, sizeof(char)),
-    .http_response = {0},
+    .http_response = {},
     .write_offset = 0,
     .read_offset = 0
   };
@@ -49,7 +49,7 @@ void init_ws(ws_client_t *restrict client, SSL_CTX *restrict ssl_ctx)
 
 bool handle_ws_connection(ws_client_t *restrict client, const uint8_t events, dns_resolver_t *restrict resolver)
 {
-  static void *restrict states[] = {&&dns_query, &&dns_response, &&connect, &&ssl_handshake, &&upgrade_request, &&upgrade_response};
+  static void *restrict states[] = {&&dns_query, &&dns_response, &&connect, &&ssl_handshake, &&upgrade_query, &&upgrade_response};
   static uint8_t sequence = 0;
 
   if (UNLIKELY(events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP)))
@@ -80,9 +80,9 @@ ssl_handshake:
   sequence += SSL_connect(client->ssl) == true;
   return false;
 
-upgrade_request:
-  log_msg(STR_LEN_PAIR("Sending Websocket upgrade request"));
-  sequence += send_upgrade_request(client);
+upgrade_query:
+  log_msg(STR_LEN_PAIR("Sending Websocket upgrade query"));
+  sequence += send_upgrade_query(client);
   return false;
 
 upgrade_response:
@@ -114,7 +114,7 @@ bool handle_ws_trading(ws_client_t *restrict client, graph_t *restrict graph)
   //TODO receive price data and update graph
 }
 
-static bool send_upgrade_request(ws_client_t *restrict client)
+static bool send_upgrade_query(ws_client_t *restrict client)
 {
   static bool initialized;
   static uint16_t len;
@@ -127,11 +127,11 @@ static bool send_upgrade_request(ws_client_t *restrict client)
       .path = WS_PATH,
       .path_len = STR_LEN(WS_PATH),
       .version = HTTP_1_1,
-      .headers = {
+      .headers = (header_entry_t[]){
         { STR_LEN_PAIR("Host"), STR_LEN_PAIR(WS_HOST ":" WS_PORT_STR) },
         { STR_LEN_PAIR("Upgrade"), STR_LEN_PAIR("websocket") },
         { STR_LEN_PAIR("Connection"), STR_LEN_PAIR("Upgrade") },
-        { STR_LEN_PAIR("Sec-WebSocket-Key"), { client->conn_key, WS_KEY_SIZE } }
+        { STR_LEN_PAIR("Sec-WebSocket-Key"), (char *)client->conn_key, WS_KEY_SIZE }
       },
       .n_headers = 4,
       .body = NULL,
