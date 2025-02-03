@@ -6,11 +6,13 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 17:40:24 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/02 12:18:56 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/03 22:24:39 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "headers/event_loop.h"
+
+HOT static inline uint8_t get_connected_clients(const clients_t *restrict clients);
 
 void init_event_loop(event_loop_ctx_t *restrict ctx)
 {
@@ -49,10 +51,9 @@ void connect_clients(const event_loop_ctx_t *restrict ctx, clients_t *restrict c
 {
   struct epoll_event events[MAX_EVENTS] ALIGNED(16) = {0};
   struct epoll_event *event;
-  uint8_t n_connections = 0;
   uint8_t n;
 
-  while (LIKELY(n_connections < 3))
+  while (LIKELY(get_connected_clients(clients) < 3))
   {
     n = epoll_wait(ctx->epoll_fd, events, MAX_EVENTS, -1);
     for (event = events; n > 0; n--, event++)
@@ -66,13 +67,13 @@ void connect_clients(const event_loop_ctx_t *restrict ctx, clients_t *restrict c
           handle_dns_responses(dns_resolver, event->events);
           break;
         case WS_FILENO:
-          n_connections += handle_ws_connection(&clients->ws, event->events, dns_resolver);
+          handle_ws_connection(&clients->ws, event->events, dns_resolver);
           break;
         case FIX_FILENO:
-          n_connections += handle_fix_connection(&clients->fix, event->events, dns_resolver);
+          handle_fix_connection(&clients->fix, event->events, dns_resolver);
           break;
         case REST_FILENO:
-          n_connections += handle_rest_connection(&clients->rest, event->events, dns_resolver);
+          handle_rest_connection(&clients->rest, event->events, dns_resolver);
           break;
         case LOG_FILENO:
           handle_logs(event->events);
@@ -100,8 +101,16 @@ void trade(const event_loop_ctx_t *restrict ctx, clients_t *restrict clients, gr
   (void)graph;
 }
 
+static uint8_t get_connected_clients(const clients_t *restrict clients)
+{
+  return clients->ws.connected + clients->fix.connected + clients->rest.connected;
+}
+
 void free_event_loop(const event_loop_ctx_t *restrict ctx)
 {
+  if (UNLIKELY(ctx == NULL))
+    return;
+
   epoll_ctl(ctx->epoll_fd, EPOLL_CTL_DEL, SIG_FILENO, NULL);
   epoll_ctl(ctx->epoll_fd, EPOLL_CTL_DEL, WS_FILENO, NULL);
   epoll_ctl(ctx->epoll_fd, EPOLL_CTL_DEL, FIX_FILENO, NULL);

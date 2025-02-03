@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 16:53:00 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/02 12:28:06 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/03 22:08:52 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@
 # include "extensions.h"
 # include "fast_ssl.h"
 # include "keys.h"
-# include "http_parser.h"
+# include "http_serializer.h"
 # include "dns_resolver.h"
 # include "message_broker.h"
 # include "graph.h"
@@ -50,12 +50,13 @@ typedef struct
   http_response_t http_response;
   uint32_t write_offset;
   uint32_t read_offset;
+  bool connected;
 } ws_client_t;
 
 COLD void init_ws(ws_client_t *restrict client, SSL_CTX *restrict ssl_ctx);
-HOT bool handle_ws_connection(ws_client_t *restrict client, const uint8_t events, dns_resolver_t *restrict resolver);
-HOT bool handle_ws_setup(ws_client_t *restrict client, graph_t *restrict graph);
-HOT bool handle_ws_trading(ws_client_t *restrict client, graph_t *restrict graph);
+HOT void handle_ws_connection(ws_client_t *restrict client, const uint8_t events, dns_resolver_t *restrict resolver);
+HOT void handle_ws_setup(ws_client_t *restrict client, const uint8_t events, graph_t *restrict graph);
+HOT void handle_ws_trading(ws_client_t *restrict client, const uint8_t events, graph_t *restrict graph);
 COLD void free_ws(ws_client_t *restrict client);
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 17:53:55 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/03 13:36:15 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/03 22:50:23 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@ void init_rest(rest_client_t *restrict client, const keys_t *restrict keys, SSL_
   close(fd);
 }
 
-bool handle_rest_connection(rest_client_t *restrict client, const uint8_t events, dns_resolver_t *restrict resolver)
+void handle_rest_connection(rest_client_t *restrict client, const uint8_t events, dns_resolver_t *restrict resolver)
 {
   static void *restrict states[] = {&&dns_query, &&dns_response, &&connect, &&ssl_handshake};
   static uint8_t sequence = 0;
@@ -62,76 +62,91 @@ dns_query:
   log_msg(STR_AND_LEN("Resolving REST endpoint: " REST_HOST));
   resolve_domain(resolver, STR_AND_LEN(REST_HOST), REST_FILENO);
   sequence++;
-  return false;
+  return;
 
 dns_response:
   log_msg(STR_AND_LEN("Resolved REST endpoint: " REST_HOST));
   read(REST_FILENO, &client->addr.sin_addr.s_addr, sizeof(client->addr.sin_addr.s_addr));
   sequence++;
-  return false;
+  return;
 
 connect:
   log_msg(STR_AND_LEN("Connecting to REST endpoint: " REST_HOST));
   connect(REST_FILENO, (struct sockaddr *)&client->addr, sizeof(client->addr));
   sequence++;
-  return false;
+  return;
 
 ssl_handshake:
   log_msg(STR_AND_LEN("Performing SSL handshake"));
-  return SSL_connect(client->ssl) == true;
+  client->connected = SSL_connect(client->ssl);
 }
 
-bool handle_rest_setup(rest_client_t *restrict client, graph_t *restrict graph)
+//TODO capire return
+void handle_rest_setup(rest_client_t *restrict client, const uint8_t events, graph_t *restrict graph)
 {
   static void *restrict states[] = {&&info_query, &&info_response};
   static uint8_t sequence = 0;
+
+  if (UNLIKELY(events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP)))
+    panic(STR_AND_LEN("REST connection error"));
 
   goto *states[sequence];
 
 info_query:
   log_msg(STR_AND_LEN("Querying Exchange info"));
   sequence += send_info_query(client);
-  return false;
+  return;
 
 info_response:
   log_msg(STR_AND_LEN("Received Exchange info"));
-  return receive_info_response(client);
+  receive_info_response(client);
 
   (void)graph;
   //TODO altre chiamate per user data, limiti account ecc
 }
 
-bool handle_rest_trading(rest_client_t *restrict client, graph_t *restrict graph)
+bool handle_rest_trading(rest_client_t *restrict client, const uint8_t events, graph_t *restrict graph)
 {
   //TODO eventuali chiamate di rest durante il trading
   (void)client;
   (void)graph;
+  (void)events;
   return false;
 }
 
 static bool send_info_query(rest_client_t *restrict client)
 {
-  static const char query[] = 
-    "GET /api/v3/exchangeInfo?permissions=SPOT&showPermissionSets=false&symbolStatus=TRADING HTTP/1.1\r"
-    "Host: " REST_HOST "\r\n"
-    "Accept-Encoding: gzip\r\n"
-    "Connection: keep-alive\r\n"
-    "\r\n";
-  static bool first = true;
+  static bool initialized;
+  static uint16_t len;
 
-  if (first)
+  if (!initialized)
   {
-    memcpy(client->write_buffer, query, sizeof(query));
-    first = false;
+    const http_request_t request = {
+      .method = GET,
+      .path = "/api/v3/exchangeInfo?permissions=SPOT&showPermissionSets=false&symbolStatus=TRADING",
+      .path_len = STR_LEN("/api/v3/exchangeInfo?permissions=SPOT&showPermissionSets=false&symbolStatus=TRADING"),
+      .version = HTTP_1_1,
+      .headers = (header_entry_t[]){
+        { STR_AND_LEN("Host"), STR_AND_LEN(REST_HOST) },
+        { STR_AND_LEN("Accept-Encoding"), STR_AND_LEN("gzip") },
+        { STR_AND_LEN("Connection"), STR_AND_LEN("keep-alive") }
+      },
+      .n_headers = 3,
+      .body = NULL,
+      .body_len = 0
+    };
+    
+    len = serialize_http_request(client->write_buffer, REST_WRITE_BUFFER_SIZE, &request);
+    initialized = true;
   }
 
-  return try_ssl_send(client->ssl, client->write_buffer, sizeof(query), &client->write_offset);
+  return try_ssl_send(client->ssl, client->write_buffer, len, &client->write_offset);
 }
 
 static bool receive_info_response(rest_client_t *restrict client)
 {
   static const uint32_t info_response_size = 262144 * sizeof(char);
-  static bool initialized = false;
+  static bool initialized;
 
   if (!initialized)
   {
@@ -143,11 +158,12 @@ static bool receive_info_response(rest_client_t *restrict client)
     return false;
 
   const http_response_t *restrict response = &client->http_response;
-  fast_assert(response->status_code == 200, STR_AND_LEN("Exchange info query failed: invalid status code"));
+  fast_assert(response->status_code == 200, "Exchange info query failed: invalid status code");
   
   const header_entry_t *restrict content_encoding = header_map_get(&response->headers, STR_AND_LEN("content-encoding"));
-  fast_assert(content_encoding, STR_AND_LEN("Exchange info query failed: missing content encoding header"));
-  fast_assert(memcmp(content_encoding->value, STR_AND_LEN("gzip")) == 0, STR_AND_LEN("Exchange info query failed: invalid content encoding"));
+  fast_assert(content_encoding, "Exchange info query failed: missing content encoding header");
+  fast_assert(memcmp(content_encoding->value, STR_AND_LEN("gzip")) == 0, "Exchange info query failed: invalid content encoding");
+  fast_assert(response->body, "Exchange info query failed: missing body");
   
   process_info_response(response->body, response->body_len);
 
@@ -183,8 +199,12 @@ static void process_info_response(char *body, const uint32_t body_len)
 
 void free_rest(rest_client_t *restrict rest)
 {
+  close(REST_FILENO);
+  
+  if (UNLIKELY(rest == NULL))
+    return;
+
   free(rest->write_buffer);
   free(rest->read_buffer);
   free_ssl_socket(rest->ssl);
-  close(REST_FILENO);
 }

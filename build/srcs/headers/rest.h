@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 16:52:43 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/03 12:54:51 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/03 22:06:52 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@
 # include "keys.h"
 # include "dns_resolver.h"
 # include "message_broker.h"
-# include "http_parser.h"
+# include "http_serializer.h"
 # include "decompression.h"
 # include "graph.h"
 
@@ -50,12 +50,15 @@ typedef struct
   http_response_t http_response;
   uint32_t write_offset;
   uint32_t read_offset;
+  bool connected;
 } rest_client_t;
 
+//TODO events come uint32?? velocita' di read da parte della cpu
+
 COLD void init_rest(rest_client_t *restrict client, const keys_t *restrict keys, SSL_CTX *restrict ssl_ctx);
-HOT bool handle_rest_connection(rest_client_t *restrict client, const uint8_t events, dns_resolver_t *restrict resolver);
-HOT bool handle_rest_setup(rest_client_t *restrict client, graph_t *restrict graph);
-HOT bool handle_rest_trading(rest_client_t *restrict client, graph_t *restrict graph);
+HOT void handle_rest_connection(rest_client_t *restrict client, const uint8_t events, dns_resolver_t *restrict resolver);
+HOT void handle_rest_setup(rest_client_t *restrict client, const uint8_t events, graph_t *restrict graph);
+HOT void handle_rest_trading(rest_client_t *restrict client, const uint8_t events, graph_t *restrict graph);
 COLD void free_rest(rest_client_t *restrict client);
 
 #endif

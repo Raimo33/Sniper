@@ -13,8 +13,8 @@ set(SRCS
   rest.c
   dns_resolver.c
   event_loop.c
-  http_parser.c
-  fix_parser.c
+  http_serializer.c
+  fix_serializer.c
   decompression.c
   graph.c
   logger.c

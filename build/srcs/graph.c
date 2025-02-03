@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/01 18:09:17 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/03 13:36:15 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/03 22:31:19 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,10 +27,12 @@ void init_graph(graph_t *restrict graph)
 
 void add_pair(graph_t *restrict graph, trading_pair_t *restrict pair)
 {
+  fast_assert(graph && pair, "Unexpected NULL pointer");
+
   const uint16_t base_idx = add_currency(graph, &pair->base_currency); //TODO adds currency if it doesn't exist, and allocs the adjency list of that currency
   const uint16_t quote_idx = add_currency(graph, &pair->quote_currency);
 
-  fast_assert(base_idx != quote_idx, STR_AND_LEN("Base and quote currencies must be different"));
+  fast_assert(base_idx != quote_idx, "Base and quote currencies must be different");
 
   if (graph->n_pairs == graph->n_allocated_pairs)
     graph->pairs = realloc(graph->pairs, (++graph->n_allocated_pairs) * sizeof(trading_pair_t));
@@ -51,6 +53,8 @@ void add_pair(graph_t *restrict graph, trading_pair_t *restrict pair)
 
 COLD static uint16_t add_currency(graph_t *restrict graph, const currency_t *restrict currency)
 {
+  fast_assert(currency, "Unexpected NULL pointer");
+
   for (uint16_t i = 0; i < graph->n_currencies; i++)
   {
     if (memcmp(&graph->currencies[i], currency, sizeof(currency_t)) == 0)
@@ -69,8 +73,9 @@ COLD static uint16_t add_currency(graph_t *restrict graph, const currency_t *res
   return graph->n_currencies++;
 }
 
+//TODO implement
 void free_graph(graph_t *restrict graph)
 {
-  //TODO
-  (void)graph;
+  if (UNLIKELY(graph == NULL))
+    return;
 }

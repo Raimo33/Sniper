@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ssl.c                                              :+:      :+:    :+:   */
+/*   fast_ssl.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 16:35:17 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/31 10:30:36 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/03 22:24:44 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,9 @@ SSL *init_ssl_socket(const uint16_t fd, SSL_CTX *restrict ctx)
 
 void free_ssl_socket(SSL *restrict ssl)
 {
+  if (UNLIKELY(ssl == NULL))
+    return;
+
   SSL_free(ssl);
 }
 
