@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 21:12:39 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/01 10:28:08 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/04 16:45:38 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,24 @@ void strtolower(char *str, uint16_t len)
   char *remaining = (char *)chunk;
   for (; len; len--, remaining++)
     *remaining += (*remaining >= 'A' && *remaining <= 'Z') * 32;
+}
+
+inline const char *get_timestamp_utc_str(void)
+{
+  static time_t last_time;
+  static char last_timestamp[UTC_TIMESTAMP_SIZE];
+
+  const time_t now = time(NULL);
+  
+  if (UNLIKELY(now == last_time))
+    return last_timestamp;
+
+  struct tm now_utc;
+  gmtime_r(&now, &now_utc);
+  strftime(last_timestamp, UTC_TIMESTAMP_SIZE, "%Y%m%d-%H:%M:%S", &now_utc);
+  last_time = now;
+
+  return last_timestamp;
 }
 
 static inline uint64_t tolower8(uint64_t octets)

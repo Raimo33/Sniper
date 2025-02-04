@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 21:02:36 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/03 22:54:07 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/04 17:25:50 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -131,49 +131,38 @@ static bool send_logon_query(fix_client_t *restrict client)
 
   if (!initialized)
   {
-    const uint64_t timestamp = (uint64_t)time(NULL);
-    fix_message_t message = {
-      .header = {
-        .begin_string = FIX_VERSION,
-        .begin_string_len = STR_LEN(FIX_VERSION),
-        .body_length = 0,
-        .msg_type = FIX_MSG_TYPE_LOGON,
-        .msg_type_len = STR_LEN(FIX_MSG_TYPE_LOGON),
-        .sender_comp_id = FIX_COMP_ID,
-        .sender_comp_id_len = STR_LEN(FIX_COMP_ID),
-        .target_comp_id = "SPOT",
-        .target_comp_id_len = STR_LEN("SPOT"),
-        .msg_seq_num = client->msg_seq_num,
-        .sending_time = timestamp,
-        .recv_window = 0
-      },
-      .logon = {
-        .encrypt_method = 0,
-        .heart_bt_int = FIX_HEARTBEAT_INTERVAL,
-        .raw_data_length = 0,
-        .raw_data = {
-          .msg_type = FIX_MSG_TYPE_LOGON,
-          .msg_type_len = STR_LEN(FIX_MSG_TYPE_LOGON),
-          .sender_comp_id = FIX_COMP_ID,
-          .sender_comp_id_len = STR_LEN(FIX_COMP_ID),
-          .target_comp_id = "SPOT",
-          .target_comp_id_len = STR_LEN("SPOT"),
-          .msg_seq_num = client->msg_seq_num,
-          .sending_time = timestamp
-        },
-        .reset_seq_num_flag = true,
-        .username = (char *)client->keys->api_key,
-        .username_len = API_KEY_SIZE,
-        .message_handling = FIX_MESSAGE_HANDLING_SEQUENTIAL,
-        .response_mode = 1
-      },
-      .trailer = {
-        .checksum = {}
-      }
+    const char *timestamp_str = get_timestamp_utc_str();
+
+    const fix_field_t raw_data[] = {
+      {STR_AND_LEN(FIX_MSGTYPE),      STR_AND_LEN(FIX_MSG_TYPE_LOGON)},
+      {STR_AND_LEN(FIX_SENDERCOMPID), STR_AND_LEN(FIX_COMP_ID)},
+      {STR_AND_LEN(FIX_TARGETCOMPID), STR_AND_LEN("SPOT")},
+      {STR_AND_LEN(FIX_MSGSEQNUM),    client->msg_seq_num, xx}, //TODO mettere a stringa
+      {STR_AND_LEN(FIX_SENDINGTIME),  timestamp_str, UTC_TIMESTAMP_SIZE},
+    };
+    char raw_data_str[1024];
+    const uint16_t raw_data_len = serialize_fix_fields(raw_data_str, sizeof(raw_data_str), raw_data, ARR_LEN(raw_data));
+    const fix_field_t fields[] = {
+      {STR_AND_LEN(FIX_BEGINSTRING),     STR_AND_LEN(FIX_VERSION)},
+      {STR_AND_LEN(FIX_BODYLENGTH),      NULL, 0}, //TODO se il serializer lo trova, lo riempie
+      {STR_AND_LEN(FIX_MSGTYPE),         STR_AND_LEN(FIX_MSG_TYPE_LOGON)},
+      {STR_AND_LEN(FIX_SENDERCOMPID),    STR_AND_LEN(FIX_COMP_ID)},
+      {STR_AND_LEN(FIX_TARGETCOMPID),    STR_AND_LEN("SPOT")},
+      {STR_AND_LEN(FIX_MSGSEQNUM),       client->msg_seq_num, xx},
+      {STR_AND_LEN(FIX_SENDINGTIME),     timestamp_str, xx},
+      {STR_AND_LEN(FIX_ENCRYPTMETHOD),   STR_AND_LEN("0")},
+      {STR_AND_LEN(FIX_HEARTBTINT),      STR_AND_LEN(FIX_HEARTBEAT_INTERVAL)},
+      {STR_AND_LEN(FIX_RAWDATALENGTH),   0, xx},
+      {STR_AND_LEN(FIX_RAWDATA),         raw_data_str, raw_data_len},
+      {STR_AND_LEN(FIX_RESETSEQNUMFLAG), STR_AND_LEN("Y")},
+      {STR_AND_LEN(FIX_USERNAME),        (char *)client->keys->api_key, API_KEY_SIZE},
+      {STR_AND_LEN(FIX_MESSAGEHANDLING), STR_AND_LEN("1")},
+      {STR_AND_LEN(FIX_RESPONSEMODE),    STR_AND_LEN("1")},
+      {STR_AND_LEN(FIX_CHECKSUM),        NULL, 0} //TODO se il serializer lo trova, lo riempie
     };
   
     client->msg_seq_num++;
-    len = serialize_fix_message(client->write_buffer, FIX_WRITE_BUFFER_SIZE, &message);
+    len = serialize_fix_fields(client->write_buffer, FIX_WRITE_BUFFER_SIZE, fields, ARR_LEN(fields));
   }
 
   return try_ssl_send(client->ssl, client->write_buffer, len, &client->write_offset);

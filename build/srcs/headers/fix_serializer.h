@@ -18,80 +18,46 @@
 
 # include "extensions.h"
 
-# define FIX_MESSAGE_HANDLING_UNORDERED 1
-# define FIX_MESSAGE_HANDLING_SEQUENTIAL 2
-# define FIX_RESPONSE_MODE_EVERYTHING 1
-# define FIX_RESPONSE_MODE_ONLY_ACKS 2
-# define FIX_MSG_TYPE_LOGON "A"
-
-# define MAX_COMP_ID_SIZE 8
-# define MAX_BEGIN_STRING_SIZE 7
-# define MAX_MSG_TYPE_SIZE 3
-# define MAX_COMP_ID_SIZE 8
-# define CHECKSUM_SIZE 3
-
 //TODO riordinare variabili nelle stuct in base a dimensione? farlo ovunque?
 //TODO const dove possibile
 //TODO ALIGNED??
 
-typedef struct
-{
-  char *begin_string;
-  uint8_t begin_string_len;
-  uint32_t body_length;
-  char *msg_type;
-  uint8_t msg_type_len;
-  char *sender_comp_id;
-  uint8_t sender_comp_id_len;
-  char *target_comp_id;
-  uint8_t target_comp_id_len;
-  uint64_t msg_seq_num;
-  uint64_t sending_time;
-  uint16_t recv_window;
-} fix_header_t;
+# define FIX_BEGINSTRING "8"
+# define FIX_BODYLENGTH "9"
+# define FIX_MSGTYPE "35"
+# define FIX_SENDERCOMPID "49"
+# define FIX_TARGETCOMPID "56"
+# define FIX_MSGSEQNUM "34"
+# define FIX_SENDINGTIME "52"
+# define FIX_RECVWINDOW "25000"
+# define FIX_RAWDATA "96"
+# define FIX_CHECKSUM "10"
+# define FIX_TESTREQID "112"
+# define FIX_REFSEQNUM "45"
+# define FIX_USERNAME "553"
+# define FIX_REFTAGID "371"
+# define FIX_REFMSGTYPE "372"
+# define FIX_SESSIONREJECTREASON "373"
+# define FIX_ERRORCODE "25016"
+# define FIX_TEXT "58"
+# define FIX_MESSAGEHANDLING "25035"
+# define FIX_RESPONSEMODE "25036"
+# define FIX_DROPCOPYFLAG "9406"
+# define FIX_UUID "25037"
+# define FIX_ENCRYPTMETHOD "98"
+# define FIX_HEARTBTINT "108"
+# define FIX_RAWDATALENGTH "95"
+# define FIX_RESETSEQNUMFLAG "141"
 
 typedef struct
 {
-  uint8_t encrypt_method;
-  uint8_t heart_bt_int;
-  uint16_t raw_data_length;
-  struct 
-  {
-    char *msg_type;
-    uint8_t msg_type_len;
-    char *sender_comp_id;
-    uint8_t sender_comp_id_len;
-    char *target_comp_id;
-    uint8_t target_comp_id_len;
-    uint32_t msg_seq_num;
-    uint64_t sending_time;
-  } raw_data;
-  bool reset_seq_num_flag;
-  const char *username;
-  uint8_t username_len;
-  uint8_t message_handling;
-  uint8_t response_mode;
-} fix_logon_t;
+  const char *tag;
+  uint16_t tag_len;
+  const char *value;
+  uint16_t value_len;
+} fix_field_t;
 
-typedef struct
-{
-  char checksum[CHECKSUM_SIZE];
-} fix_trailer_t;
-
-typedef struct
-{
-  fix_header_t header;
-  union
-  {
-    fix_logon_t logon;
-    // fix_logout_t logout;
-    // fix_heartbeat_t heartbeat;
-    //TODO altri messaggi
-  };
-  fix_trailer_t trailer;
-} fix_message_t;
-
-HOT uint16_t serialize_fix_message(const char *restrict buffer, const uint16_t buffer_size, const fix_message_t *restrict message);
+HOT uint16_t serialize_fix_fields(const char *restrict buffer, const uint16_t buffer_size, const fix_field_t *restrict fields, const uint16_t n_fields);
 //TODO deserialize
 
 #endif

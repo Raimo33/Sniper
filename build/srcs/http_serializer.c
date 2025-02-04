@@ -193,7 +193,7 @@ uint32_t deserialize_http_response(const char *restrict buffer, http_response_t 
 
 static uint8_t deserialize_version(const char *restrict buffer, http_version_t *version, const uint32_t buffer_size)
 {
-  static const uint8_t n_versions = sizeof(versions_str) / sizeof(http_version_t);
+  static const uint8_t n_versions = ARR_LEN(versions_str);
   const char *version_end = memmem(buffer, buffer_size, STR_AND_LEN(" "));
   
   fast_assert(version_end, "No HTTP version found");

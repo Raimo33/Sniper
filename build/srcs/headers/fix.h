@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 16:52:51 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/03 22:09:06 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/04 16:02:05 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,9 +38,9 @@
 # define FIX_KEEPALIVE_CNT 3
 # define FIX_READ_BUFFER_SIZE 4096
 # define FIX_WRITE_BUFFER_SIZE 4096
-# define FIX_HEARTBEAT_INTERVAL 45
 # define FIX_VERSION "FIX.4.4"
 # define FIX_COMP_ID "FAF42"
+# define FIX_HEARTBEAT_INTERVAL "60"
 
 //https://developers.binance.com/docs/binance-spot-api-docs/fix-api#message-components
 //https://github.com/binance/binance-spot-api-docs/blob/master/fix-api.md
