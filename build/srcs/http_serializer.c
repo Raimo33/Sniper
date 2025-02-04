@@ -12,13 +12,18 @@
 
 #include "headers/http_serializer.h"
 
+HOT static uint8_t serialize_method(char *restrict buffer, const http_method_t method);
+HOT static uint16_t serialize_path(char *restrict buffer, const char *restrict path, const uint8_t path_len);
+HOT static uint8_t serialize_version(char *restrict buffer, const http_version_t version);
+HOT static uint32_t serialize_headers(char *restrict buffer, const header_entry_t *restrict headers, const uint8_t n_headers);
+HOT static uint32_t serialize_body(char *restrict buffer, const char *restrict body, const uint16_t body_len);
 HOT static bool request_fits_in_buffer(const http_request_t *restrict request, const uint32_t buffer_size);
-HOT static uint8_t deserialize_version(char *restrict buffer, http_version_t *version, const uint32_t buffer_size);
-HOT static uint8_t deserialize_status_code(char *restrict buffer, uint16_t *status_code, const uint32_t buffer_size);
-HOT static uint32_t deserialize_headers(char *restrict buffer, header_map_t *headers, const uint32_t buffer_size);
-HOT static uint32_t deserialize_body(char *restrict buffer, char *restrict body, header_map_t *headers, const uint32_t buffer_size);
-HOT static uint32_t deserialize_chunked_body(char *restrict buffer, char *restrict *body, const uint32_t buffer_size);
-HOT static uint32_t deserialize_unified_body(char *restrict buffer, char *restrict *body, const char *restrict content_length, const uint32_t buffer_size);
+HOT static uint8_t deserialize_version(const char *restrict buffer, http_version_t *version, const uint32_t buffer_size);
+HOT static uint8_t deserialize_status_code(const char *restrict buffer, uint16_t *status_code, const uint32_t buffer_size);
+HOT static uint32_t deserialize_headers(const char *restrict buffer, header_map_t *headers, const uint32_t buffer_size);
+HOT static uint32_t deserialize_body(const char *restrict buffer, char *restrict body, header_map_t *headers, const uint32_t buffer_size);
+HOT static uint32_t deserialize_chunked_body(const char *restrict buffer, char *restrict *body, const uint32_t buffer_size);
+HOT static uint32_t deserialize_unified_body(const char *restrict buffer, char *restrict *body, const char *restrict content_length, const uint32_t buffer_size);
 HOT static uint32_t count_chunked_body_len(const char *restrict buffer, const char *restrict body_end);
 HOT static uint8_t count_headers(const char *restrict buffer, const char *restrict headers_end);
 HOT static void header_map_insert(header_map_t *restrict map, const char *restrict key, const uint16_t key_len, const char *restrict value, const uint16_t value_len);
@@ -36,7 +41,7 @@ static const uint8_t methods_len[] = {
   [DELETE] = STR_LEN("DELETE")
 };
 
-static const char versions[][sizeof(uint64_t)] = {
+static const char versions_str[][sizeof(uint64_t)] = {
   [HTTP_1_0] = "HTTP/1.0",
   [HTTP_1_1] = "HTTP/1.1"
 };
@@ -48,8 +53,6 @@ static const uint8_t versions_len[] = {
 static const char clrf[sizeof(uint16_t)] = "\r\n";
 static const char colon_space[sizeof(uint16_t)] = ": ";
 
-
-//TODO step by step, serialize path, headers, body...
 uint32_t serialize_http_request(char *restrict buffer, const uint32_t buffer_size, const http_request_t *restrict request)
 {
   const char *buffer_start = buffer;
@@ -58,37 +61,77 @@ uint32_t serialize_http_request(char *restrict buffer, const uint32_t buffer_siz
   if (!request_fits_in_buffer(request, buffer_size))
     panic(STR_AND_LEN("Request does not fit in buffer"));
 
- *(uint64_t *)buffer = *(const uint64_t *)methods[request->method];
-  buffer += methods_len[request->method];
-  *buffer++ = ' ';
+  buffer += serialize_method(buffer, request->method);
+  buffer += serialize_path(buffer, request->path, request->path_len);
+  buffer += serialize_version(buffer, request->version);
+  buffer += serialize_headers(buffer, request->headers, request->n_headers);
+  buffer += serialize_body(buffer, request->body, request->body_len);
 
-  memcpy(buffer, request->path, request->path_len);
-  buffer += request->path_len;
-  *buffer++ = ' ';
+  return buffer - buffer_start;
+}
 
-  *(uint64_t *)buffer = *(const uint64_t *)versions[request->version];
-  buffer += versions_len[request->version];
+static uint8_t serialize_method(char *restrict buffer, const http_method_t method)
+{
+  const char *buffer_start = buffer;
+
+  *(uint64_t *)buffer = *(const uint64_t *)methods[method];
+  buffer += methods_len[method];
+  *buffer++ = ' ';
+  
+  return buffer - buffer_start;
+}
+
+static uint16_t serialize_path(char *restrict buffer, const char *restrict path, const uint8_t path_len)
+{
+  const char *buffer_start = buffer;
+
+  memcpy(buffer, path, path_len);
+  buffer += path_len;
+  *buffer++ = ' ';
+  
+  return buffer - buffer_start;
+}
+
+static uint8_t serialize_version(char *restrict buffer, const http_version_t version)
+{
+  const char *buffer_start = buffer;
+
+  *(uint64_t *)buffer = *(const uint64_t *)versions_str[version];
+  buffer += versions_len[version];
   *(uint16_t *)buffer = *(const uint16_t *)clrf;
   buffer += 2;
+  
+  return buffer - buffer_start;
+}
 
-  const header_entry_t *header;
-  for (uint8_t i = 0; LIKELY(i < request->n_headers); i++)
+static uint32_t serialize_headers(char *restrict buffer, const header_entry_t *restrict headers, const uint8_t n_headers)
+{
+  const char *buffer_start = buffer;
+
+  for (uint8_t i = 0; LIKELY(i < n_headers); i++)
   {
-    PREFETCHR(&request->headers[i + 1], L0);
-
-    header = &request->headers[i];
-    memcpy(buffer, header->key, header->key_len);
-    buffer += header->key_len;
+    memcpy(buffer, headers[i].key, headers[i].key_len);
+    buffer += headers[i].key_len;
     *(uint16_t *)buffer = *(const uint16_t *)colon_space;
     buffer += 2;
-    memcpy(buffer, header->value, header->value_len);
-    buffer += header->value_len;
+    memcpy(buffer, headers[i].value, headers[i].value_len);
+    buffer += headers[i].value_len;
     *(uint16_t *)buffer = *(const uint16_t *)clrf;
     buffer += 2;
   }
 
   *(uint16_t *)buffer = *(const uint16_t *)clrf;
-  memcpy(buffer, request->body, request->body_len);
+  buffer += 2;
+
+  return buffer - buffer_start;
+}
+
+static uint32_t serialize_body(char *restrict buffer, const char *restrict body, const uint16_t body_len)
+{
+  const char *buffer_start = buffer;
+
+  memcpy(buffer, body, body_len);
+  buffer += body_len;
   
   return buffer - buffer_start;
 }
@@ -111,8 +154,6 @@ static bool request_fits_in_buffer(const http_request_t *restrict request, const
 
 bool is_full_http_response(const char *restrict buffer, const uint32_t buffer_size, const uint32_t response_len)
 {
-  fast_assert(buffer, "Unexpected NULL pointer");
-
   const char *headers_end = memmem(buffer, buffer_size, STR_AND_LEN("\r\n\r\n"));
   if (LIKELY(headers_end == NULL))
     return false;
@@ -136,72 +177,88 @@ bool is_full_http_response(const char *restrict buffer, const uint32_t buffer_si
   UNREACHABLE;
 }
 
-uint32_t deserialize_http_response(char *restrict buffer, http_response_t *response, const uint32_t buffer_size)
+uint32_t deserialize_http_response(const char *restrict buffer, http_response_t *response, const uint32_t buffer_size)
 {
   fast_assert(buffer && response, "Unexpected NULL pointer");
 
-  uint32_t bytes_deserialized = 0;
-  bytes_deserialized += deserialize_version(buffer, &response->version, buffer_size);
-  bytes_deserialized += deserialize_status_code(buffer, &response->status_code, buffer_size);
-  bytes_deserialized += deserialize_headers(buffer, &response->headers, buffer_size);
-  bytes_deserialized += deserialize_body(buffer, response->body, &response->headers, buffer_size); 
-  return bytes_deserialized;
+  const char *buffer_start = buffer;
+  
+  buffer += deserialize_version(buffer, &response->version, buffer_size);
+  buffer += deserialize_status_code(buffer, &response->status_code, buffer_size);
+  buffer += deserialize_headers(buffer, &response->headers, buffer_size);
+  buffer += deserialize_body(buffer, response->body, &response->headers, buffer_size); 
+  
+  return buffer - buffer_start;
 }
 
-static uint8_t deserialize_version(char *restrict buffer, http_version_t *version, const uint32_t buffer_size)
+static uint8_t deserialize_version(const char *restrict buffer, http_version_t *version, const uint32_t buffer_size)
 {
-  //TODO estrarre la versione di http dalla risposta
-  (void)buffer;
-  (void)version;
-  (void)buffer_size;
-  return 0;
+  static const uint8_t n_versions = sizeof(versions_str) / sizeof(http_version_t);
+  const char *version_end = memmem(buffer, buffer_size, STR_AND_LEN(" "));
+  
+  fast_assert(version_end, "No HTTP version found");
+  while (*version < n_versions)
+  {
+    if (memcmp(buffer, versions_str[*version], versions_len[*version]) == 0)
+      break;
+    version++;
+  }
+
+  return version_end - buffer; 
 }
 
-static uint8_t deserialize_status_code(char *restrict buffer, uint16_t *status_code, const uint32_t buffer_size)
+static uint8_t deserialize_status_code(const char *restrict buffer, uint16_t *status_code, const uint32_t buffer_size)
 {
   const char *line_start = buffer;
+
   char *line_end = memmem(buffer, buffer_size, STR_AND_LEN("\r\n"));
   fast_assert(line_end, "Malformed response: missing clrf");
   line_end += STR_LEN("\r\n");
 
-  buffer = strchr(buffer, ' ');
+  buffer = memmem(buffer, line_end - buffer, STR_AND_LEN(" "));
   fast_assert(buffer, "No status code found");
   *status_code = atoi(buffer);
 
   return line_end - line_start;
 }
 
-static uint32_t deserialize_headers(char *restrict buffer, header_map_t *headers, const uint32_t buffer_size)
+static uint32_t deserialize_headers(const char *restrict buffer, header_map_t *headers, const uint32_t buffer_size)
 {
   const char *headers_start = buffer;
+
   char *headers_end = memmem(buffer, buffer_size, STR_AND_LEN("\r\n\r\n"));
   fast_assert(headers_end, "Malformed response: missing clrf");
 
   headers->n_entries = count_headers(buffer, headers_end);
   headers->entries = (header_entry_t *)calloc(headers->n_entries * HEADER_MAP_DILUTION_FACTOR, sizeof(header_entry_t));
 
+  const char *line_end;
+  const char *key;
+  const char *value;
+  uint16_t key_len;
+  uint16_t value_len;
   while (LIKELY(buffer < headers_end))
   {
-    const char *key = buffer;
-    buffer = strchr(buffer, ':');
+    line_end = memmem(buffer, headers_end - buffer, STR_AND_LEN("\r\n"));
+    key = buffer;
+    buffer = memmem(key, line_end - buffer, STR_AND_LEN(":"));
     fast_assert(buffer, "Malformed header: missing colon");
-    const uint16_t key_len = buffer - key;
+    key_len = buffer - key;
 
     buffer += 1 + (buffer[1] == ' ');
-    const char *value = buffer;
-    buffer = memmem(buffer, headers_end - buffer, STR_AND_LEN("\r\n"));
-    const uint16_t value_len = buffer - value;
+    value = buffer;
+    value_len = line_end - value;
 
     header_map_insert(headers, key, key_len, value, value_len);
 
-    buffer += STR_LEN("\r\n");
+    buffer = line_end + STR_LEN("\r\n");
   }
   headers_end += STR_LEN("\r\n\r\n");
 
   return headers_end - headers_start;
 }
 
-static uint32_t deserialize_body(char *restrict buffer, char *restrict body, header_map_t *restrict headers, const uint32_t buffer_size)
+static uint32_t deserialize_body(const char *restrict buffer, char *restrict body, header_map_t *restrict headers, const uint32_t buffer_size)
 {
   const header_entry_t *transfer_encoding = header_map_get(headers, STR_AND_LEN("transfer-encoding"));
   if (transfer_encoding && memcmp(transfer_encoding->value, STR_AND_LEN("chunked")) == 0)
@@ -215,23 +272,28 @@ static uint32_t deserialize_body(char *restrict buffer, char *restrict body, hea
   UNREACHABLE;
 }
 
-static uint32_t deserialize_chunked_body(char *restrict buffer, char *restrict *body, const uint32_t buffer_size)
+static uint32_t deserialize_chunked_body(const char *restrict buffer, char *restrict *body, const uint32_t buffer_size)
 {
   const char *body_start = buffer;
+
   const char *body_end = memmem(buffer, buffer_size, STR_AND_LEN("0\r\n\r\n"));
+  fast_assert(body_end, "Malformed request: missing chunked body end");
   uint32_t body_used = 0;
 
   const uint32_t final_body_len = count_chunked_body_len(buffer, body_end);
   *body = (char *)malloc(final_body_len);
 
+  const char *chunk_start;
+  uint16_t chunk_len;
   while (LIKELY(buffer < body_end))
   {
-    const uint16_t chunk_len = atoi(buffer);
-    buffer = memmem(buffer, body_end - buffer, STR_AND_LEN("\r\n"));
+    chunk_len = atoi(buffer);
+    chunk_start = memmem(buffer, body_end - buffer, STR_AND_LEN("\r\n"));
     fast_assert(buffer, "Malformed chunk: missing clrf");
-    buffer += STR_LEN("\r\n");
-    memcpy(*body + body_used, buffer, chunk_len);
-    *body += chunk_len;
+    chunk_start += STR_LEN("\r\n");
+
+    buffer = chunk_start;
+    memcpy(body[body_used], buffer, chunk_len);
     body_used += chunk_len;
   }
   body_end += STR_LEN("0\r\n\r\n");
@@ -239,11 +301,13 @@ static uint32_t deserialize_chunked_body(char *restrict buffer, char *restrict *
   return body_end - body_start;
 }
 
-static uint32_t deserialize_unified_body(char *restrict buffer, char *restrict *body, const char *restrict content_length, UNUSED const uint32_t buffer_size)
+static uint32_t deserialize_unified_body(const char *restrict buffer, char *restrict *body, const char *restrict content_length, UNUSED const uint32_t buffer_size)
 {
   const uint16_t body_len = atoi(content_length);
+
   *body = (char *)malloc(body_len);
   memcpy(*body, buffer, body_len);
+
   return body_len;
 }
 

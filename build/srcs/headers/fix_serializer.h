@@ -10,8 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef FIX_PARSER_H
-# define FIX_PARSER_H
+#ifndef FIX_SERIALIZER_H
+# define FIX_SERIALIZER_H
 
 # include <stdint.h>
 # include <stdbool.h>

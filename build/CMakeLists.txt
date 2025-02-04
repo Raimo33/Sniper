@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.3)
 set(CMAKE_C_COMPILER gcc)
 project(fastaf LANGUAGES C)
 
@@ -42,10 +42,15 @@ target_compile_options(fastaf PRIVATE
   -fwrapv
   -fgnu89-inline
   -D_GNU_SOURCE=1
-  -O3
+  -Ofast
   -march=native
   -flto
+  -fno-plt
+  -fno-semantic-interposition
+  -fno-asynchronous-unwind-tables
   -fomit-frame-pointer
+  -funroll-loops
+  # -floop-nest-optimize
 )
 
 target_link_options(fastaf PRIVATE
