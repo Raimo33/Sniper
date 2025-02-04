@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 21:10:47 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/04 17:13:15 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/04 20:53:01 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,8 @@
 # define STR_UTILS_H
 
 # include <stdint.h>
+# include <stdbool.h>
+# include <time.h>
 
 # include "extensions.h"
 
@@ -23,6 +25,7 @@
 # define UTC_TIMESTAMP_SIZE STR_LEN("19700101-00:00:00")
 
 HOT void strtolower(char *str, const uint16_t len);
-HOT extern inline const char *get_timestamp_utc_str(void);
+HOT const char *get_timestamp_utc_str(void);
+HOT extern inline uint8_t ultoa(uint64_t num, char *buffer);
 
 #endif

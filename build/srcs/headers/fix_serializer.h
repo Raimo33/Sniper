@@ -49,6 +49,10 @@
 # define FIX_RAWDATALENGTH "95"
 # define FIX_RESETSEQNUMFLAG "141"
 
+# define FIX_MSG_TYPE_LOGON "A"
+
+# define SOH '\x01'
+
 typedef struct
 {
   const char *tag;
@@ -57,7 +61,7 @@ typedef struct
   uint16_t value_len;
 } fix_field_t;
 
-HOT uint16_t serialize_fix_fields(const char *restrict buffer, const uint16_t buffer_size, const fix_field_t *restrict fields, const uint16_t n_fields);
+HOT uint16_t serialize_fix_fields(char *restrict buffer, const uint16_t buffer_size, const fix_field_t *restrict fields, const uint16_t n_fields);
 //TODO deserialize
 
 #endif

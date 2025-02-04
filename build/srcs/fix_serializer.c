@@ -12,19 +12,22 @@
 
 #include "headers/fix_serializer.h"
 
-uint16_t serialize_fix_message(const char *buffer, const uint16_t buffer_size, const fix_message_t *header)
+//TODO simd
+uint16_t serialize_fix_fields(char *buffer, const uint16_t buffer_size, const fix_field_t *fields, const uint16_t n_fields)
 {
   const char *buffer_start = buffer;
 
-  //TODO check della dimensione del buffer (come http serializer), quanto rallenta??
+  //TODO check della dimensione del buffer (come http serializer), quanto rallenta??  
 
-  // serialize_header(header, buffer);
-  (void)header;
-  (void)buffer;
-  (void)buffer_size;
-
-  //in base al MSG_TYPE eseguira' funzioni diverse. logon ad esempio fara' il signing del payload
-  //calcola la checksum, la lunghezza del body e serializza
+  //TODO copy all tags of the body and their values
 
   return buffer - buffer_start;
+}
+
+uint16_t finalize_fix_message(char *buffer, const uint16_t buffer_size)
+{
+  //TODO beginstring
+  //TODO bodylength
+  //TODO checksum
+  return //TODO length of the total message including added tags;
 }

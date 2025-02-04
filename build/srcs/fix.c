@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 21:02:36 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/04 17:25:50 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/04 22:50:48 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ void init_fix(fix_client_t *restrict client, const keys_t *restrict keys, SSL_CT
     .read_buffer = calloc(FIX_READ_BUFFER_SIZE, sizeof(char)),
     .write_offset = 0,
     .read_offset = 0,
-    .msg_seq_num = 0
+    .msg_seq_num = 1,
   };
 
   dup2(fd, FIX_FILENO);
@@ -132,37 +132,42 @@ static bool send_logon_query(fix_client_t *restrict client)
   if (!initialized)
   {
     const char *timestamp_str = get_timestamp_utc_str();
+    char seq_num_str[16];
+    const uint8_t seq_num_str_len = ltoa(client->msg_seq_num, seq_num_str);
 
     const fix_field_t raw_data[] = {
       {STR_AND_LEN(FIX_MSGTYPE),      STR_AND_LEN(FIX_MSG_TYPE_LOGON)},
       {STR_AND_LEN(FIX_SENDERCOMPID), STR_AND_LEN(FIX_COMP_ID)},
       {STR_AND_LEN(FIX_TARGETCOMPID), STR_AND_LEN("SPOT")},
-      {STR_AND_LEN(FIX_MSGSEQNUM),    client->msg_seq_num, xx}, //TODO mettere a stringa
+      {STR_AND_LEN(FIX_MSGSEQNUM),    seq_num_str, seq_num_str_len},
       {STR_AND_LEN(FIX_SENDINGTIME),  timestamp_str, UTC_TIMESTAMP_SIZE},
     };
+
     char raw_data_str[1024];
     const uint16_t raw_data_len = serialize_fix_fields(raw_data_str, sizeof(raw_data_str), raw_data, ARR_LEN(raw_data));
+    //TODO base64 encode raw_data_str
+    char raw_data_len_str[16];
+    const uint8_t raw_data_len_str_len = ltoa(raw_data_len, raw_data_len_str);
+
     const fix_field_t fields[] = {
-      {STR_AND_LEN(FIX_BEGINSTRING),     STR_AND_LEN(FIX_VERSION)},
-      {STR_AND_LEN(FIX_BODYLENGTH),      NULL, 0}, //TODO se il serializer lo trova, lo riempie
       {STR_AND_LEN(FIX_MSGTYPE),         STR_AND_LEN(FIX_MSG_TYPE_LOGON)},
       {STR_AND_LEN(FIX_SENDERCOMPID),    STR_AND_LEN(FIX_COMP_ID)},
       {STR_AND_LEN(FIX_TARGETCOMPID),    STR_AND_LEN("SPOT")},
-      {STR_AND_LEN(FIX_MSGSEQNUM),       client->msg_seq_num, xx},
-      {STR_AND_LEN(FIX_SENDINGTIME),     timestamp_str, xx},
+      {STR_AND_LEN(FIX_MSGSEQNUM),       seq_num_str, seq_num_str_len},
+      {STR_AND_LEN(FIX_SENDINGTIME),     timestamp_str, UTC_TIMESTAMP_SIZE},
       {STR_AND_LEN(FIX_ENCRYPTMETHOD),   STR_AND_LEN("0")},
       {STR_AND_LEN(FIX_HEARTBTINT),      STR_AND_LEN(FIX_HEARTBEAT_INTERVAL)},
-      {STR_AND_LEN(FIX_RAWDATALENGTH),   0, xx},
+      {STR_AND_LEN(FIX_RAWDATALENGTH),   raw_data_len_str, raw_data_len_str_len},
       {STR_AND_LEN(FIX_RAWDATA),         raw_data_str, raw_data_len},
       {STR_AND_LEN(FIX_RESETSEQNUMFLAG), STR_AND_LEN("Y")},
       {STR_AND_LEN(FIX_USERNAME),        (char *)client->keys->api_key, API_KEY_SIZE},
       {STR_AND_LEN(FIX_MESSAGEHANDLING), STR_AND_LEN("1")},
       {STR_AND_LEN(FIX_RESPONSEMODE),    STR_AND_LEN("1")},
-      {STR_AND_LEN(FIX_CHECKSUM),        NULL, 0} //TODO se il serializer lo trova, lo riempie
     };
   
     client->msg_seq_num++;
-    len = serialize_fix_fields(client->write_buffer, FIX_WRITE_BUFFER_SIZE, fields, ARR_LEN(fields));
+    serialize_fix_fields(client->write_buffer, FIX_WRITE_BUFFER_SIZE, fields, ARR_LEN(fields));
+    len = finalize_fix_message(client->write_buffer, FIX_WRITE_BUFFER_SIZE);
   }
 
   return try_ssl_send(client->ssl, client->write_buffer, len, &client->write_offset);
