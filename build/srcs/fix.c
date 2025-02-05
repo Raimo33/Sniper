@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 21:02:36 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/05 16:37:05 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/05 18:19:37 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ COLD static bool receive_limits_response(fix_client_t *restrict client);
 
 void init_fix(fix_client_t *restrict client, keys_t *restrict keys, SSL_CTX *restrict ssl_ctx)
 {
-  const uint16_t fd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
+  const uint8_t fd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
   setsockopt(fd, IPPROTO_TCP, TCP_FASTOPEN, &(bool){true}, sizeof(bool));
   setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &(bool){true}, sizeof(bool));
   setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE, &(bool){true}, sizeof(bool));
@@ -29,13 +29,7 @@ void init_fix(fix_client_t *restrict client, keys_t *restrict keys, SSL_CTX *res
  
   *client = (fix_client_t){
     .sock_fd = fd,
-    .addr = {
-      .sin_family = AF_INET,
-      .sin_port = htons(FIX_PORT),
-      .sin_addr = {
-        .s_addr = INADDR_NONE
-      }
-    },
+    .addr = {},
     .ssl = init_ssl_socket(fd, ssl_ctx),
     .keys = keys,
     .write_buffer = calloc(FIX_WRITE_BUFFER_SIZE, sizeof(char)),
@@ -46,7 +40,7 @@ void init_fix(fix_client_t *restrict client, keys_t *restrict keys, SSL_CTX *res
   };
 }
 
-void handle_fix_connection(const uint16_t fd, const uint32_t events, void *data)
+void handle_fix_connection(const uint8_t fd, const uint32_t events, void *data)
 {
   static void *restrict states[] = {&&connect, &&ssl_handshake, &&logon_query, &&logon_response};
   static uint8_t sequence = 0;
@@ -79,7 +73,7 @@ logon_response:
   client->status = receive_logon_response(client) ? CONNECTED : DISCONNECTED;
 }
 
-void handle_fix_setup(const uint16_t fd, const uint32_t events, void *data)
+void handle_fix_setup(const uint8_t fd, const uint32_t events, void *data)
 {
   static void *restrict states[] = {&&limits_query, &&limits_response};
   static uint8_t sequence = 0;
@@ -105,7 +99,7 @@ limits_response:
   // client->status = TRADING;
 }
 
-void handle_fix_trading(const uint16_t fd, const uint32_t events, void *data)
+void handle_fix_trading(const uint8_t fd, const uint32_t events, void *data)
 {
   //TODO submit di ordini
   (void)fd;

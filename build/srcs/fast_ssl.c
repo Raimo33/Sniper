@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 16:35:17 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/05 13:00:33 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/05 18:19:37 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ void init_ssl(SSL_CTX **restrict ctx)
   SSL_CTX_set_max_proto_version(*ctx, TLS1_3_VERSION);
 }
 
-SSL *init_ssl_socket(const uint16_t fd, SSL_CTX *restrict ctx)
+SSL *init_ssl_socket(const uint8_t fd, SSL_CTX *restrict ctx)
 {
   SSL *ssl = SSL_new(ctx);
   SSL_set_fd(ssl, fd);

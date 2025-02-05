@@ -25,7 +25,7 @@
 //https://docs.openssl.org/master/man3/
 
 COLD void init_ssl(SSL_CTX **restrict ctx);
-COLD SSL *init_ssl_socket(const uint16_t fd, SSL_CTX *restrict ctx);
+COLD SSL *init_ssl_socket(const uint8_t fd, SSL_CTX *restrict ctx);
 COLD void free_ssl_socket(SSL *restrict ssl);
 COLD void free_ssl(SSL_CTX *restrict ctx);
 

@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 17:53:55 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/05 16:38:05 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/05 18:19:37 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ COLD static void process_info_response(char *body, const uint32_t body_len);
 void init_rest(rest_client_t *restrict client, keys_t *restrict keys, SSL_CTX *restrict ssl_ctx)
 {
 
-  const uint16_t fd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
+  const uint8_t fd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
   setsockopt(fd, IPPROTO_TCP, TCP_FASTOPEN, &(bool){true}, sizeof(bool));
   setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &(bool){true}, sizeof(bool));
   setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE, &(bool){true}, sizeof(bool));
@@ -29,13 +29,7 @@ void init_rest(rest_client_t *restrict client, keys_t *restrict keys, SSL_CTX *r
 
   *client = (rest_client_t){
     .sock_fd = fd,
-    .addr = {
-      .sin_family = AF_INET,
-      .sin_port = htons(REST_PORT),
-      .sin_addr = {
-        .s_addr = INADDR_NONE
-      }
-    },
+    .addr = {},
     .ssl = init_ssl_socket(fd, ssl_ctx),
     .keys = keys,
     .write_buffer = calloc(REST_WRITE_BUFFER_SIZE, sizeof(char)),
@@ -46,7 +40,7 @@ void init_rest(rest_client_t *restrict client, keys_t *restrict keys, SSL_CTX *r
   };
 }
 
-void handle_rest_connection(const uint16_t fd, const uint32_t events, void *data)
+void handle_rest_connection(const uint8_t fd, const uint32_t events, void *data)
 {
   static void *restrict states[] = {&&connect, &&ssl_handshake};
   static uint8_t sequence = 0;
@@ -69,7 +63,7 @@ ssl_handshake:
   client->status = (SSL_connect(client->ssl) == true) ? CONNECTED : DISCONNECTED;
 }
 
-void handle_rest_setup(const uint16_t fd, const uint32_t events, void *data)
+void handle_rest_setup(const uint8_t fd, const uint32_t events, void *data)
 {
   static void *restrict states[] = {&&info_query, &&info_response};
   static uint8_t sequence = 0;
@@ -96,7 +90,7 @@ info_response:
   // client->status = TRADING;
 }
 
-void handle_rest_trading(const uint16_t fd, const uint32_t events, void *data)
+void handle_rest_trading(const uint8_t fd, const uint32_t events, void *data)
 {
   //TODO eventuali chiamate di rest durante il trading
   (void)fd;

@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 20:53:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/05 16:34:49 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/05 18:19:37 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ COLD static bool receive_upgrade_response(ws_client_t *restrict client);
 
 void init_ws(ws_client_t *restrict client, SSL_CTX *restrict ssl_ctx)
 {
-  const uint16_t fd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
+  const uint8_t fd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
   setsockopt(fd, IPPROTO_TCP, TCP_FASTOPEN, &(bool){true}, sizeof(bool));
   setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &(bool){true}, sizeof(bool));
   setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE, &(bool){true}, sizeof(bool));
@@ -27,13 +27,7 @@ void init_ws(ws_client_t *restrict client, SSL_CTX *restrict ssl_ctx)
 
   *client = (ws_client_t){
     .sock_fd = fd,
-    .addr = {
-      .sin_family = AF_INET,
-      .sin_port = htons(WS_PORT),
-      .sin_addr = {
-        .s_addr = INADDR_NONE
-      }
-    },
+    .addr = {},
     .ssl = init_ssl_socket(fd, ssl_ctx),
     .conn_key = {},
     .write_buffer = calloc(WS_WRITE_BUFFER_SIZE, sizeof(char)),
@@ -46,7 +40,7 @@ void init_ws(ws_client_t *restrict client, SSL_CTX *restrict ssl_ctx)
 
 //TODO dont enforce a FD number
 
-void handle_ws_connection(const uint16_t fd, const uint32_t events, void *data)
+void handle_ws_connection(const uint8_t fd, const uint32_t events, void *data)
 {
   static void *restrict states[] = {&&connect, &&ssl_handshake, &&upgrade_query, &&upgrade_response};
   static uint8_t sequence = 0;
@@ -79,7 +73,7 @@ upgrade_response:
   client->status = receive_upgrade_response(client) ? CONNECTED : DISCONNECTED;
 }
 
-void handle_ws_setup(const uint16_t fd, const uint32_t events, void *data)
+void handle_ws_setup(const uint8_t fd, const uint32_t events, void *data)
 {
   static void *restrict states[] = {};
   static uint8_t sequence = 0;
@@ -96,7 +90,7 @@ void handle_ws_setup(const uint16_t fd, const uint32_t events, void *data)
   // client->status = TRADING;
 }
 
-void handle_ws_trading(const uint16_t fd, const uint32_t events, void *data)
+void handle_ws_trading(const uint8_t fd, const uint32_t events, void *data)
 {
   static void *restrict states[] = {};
   static uint8_t sequence = 0;
@@ -126,7 +120,7 @@ static bool send_upgrade_query(ws_client_t *restrict client)
       .path_len = STR_LEN(WS_PATH),
       .version = HTTP_1_1,
       .headers = (header_entry_t[]){
-        { STR_AND_LEN("Host"), STR_AND_LEN(WS_HOST ":" WS_PORT_STR) },
+        { STR_AND_LEN("Host"), STR_AND_LEN(WS_HOST ":" WS_PORT) },
         { STR_AND_LEN("Upgrade"), STR_AND_LEN("websocket") },
         { STR_AND_LEN("Connection"), STR_AND_LEN("Upgrade") },
         { STR_AND_LEN("Sec-WebSocket-Key"), (char *)client->conn_key, WS_KEY_SIZE }

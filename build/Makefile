@@ -179,30 +179,6 @@ srcs/decompression.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/decompression.c.s
 .PHONY : srcs/decompression.c.s
 
-srcs/dns_resolver.o: srcs/dns_resolver.c.o
-.PHONY : srcs/dns_resolver.o
-
-# target to build an object file
-srcs/dns_resolver.c.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/dns_resolver.c.o
-.PHONY : srcs/dns_resolver.c.o
-
-srcs/dns_resolver.i: srcs/dns_resolver.c.i
-.PHONY : srcs/dns_resolver.i
-
-# target to preprocess a source file
-srcs/dns_resolver.c.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/dns_resolver.c.i
-.PHONY : srcs/dns_resolver.c.i
-
-srcs/dns_resolver.s: srcs/dns_resolver.c.s
-.PHONY : srcs/dns_resolver.s
-
-# target to generate assembly for a file
-srcs/dns_resolver.c.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/dns_resolver.c.s
-.PHONY : srcs/dns_resolver.c.s
-
 srcs/errors.o: srcs/errors.c.o
 .PHONY : srcs/errors.o
 
@@ -625,9 +601,6 @@ help:
 	@echo "... srcs/decompression.o"
 	@echo "... srcs/decompression.i"
 	@echo "... srcs/decompression.s"
-	@echo "... srcs/dns_resolver.o"
-	@echo "... srcs/dns_resolver.i"
-	@echo "... srcs/dns_resolver.s"
 	@echo "... srcs/errors.o"
 	@echo "... srcs/errors.i"
 	@echo "... srcs/errors.s"

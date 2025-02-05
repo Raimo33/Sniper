@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 16:53:00 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/05 16:32:41 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/05 18:19:37 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,9 +20,8 @@
 # include "keys.h"
 # include "graph.h"
 
-# define WS_HOST "data-stream.binance.com"
-# define WS_PORT 9443
-# define WS_PORT_STR "9443"
+# define WS_HOST "stream.binance.com"
+# define WS_PORT "9443"
 # define WS_PATH "/stream?timeUnit=microsecond"
 # define WS_READ_BUFFER_SIZE 4096
 # define WS_WRITE_BUFFER_SIZE 4096
@@ -45,9 +44,9 @@ typedef struct
 } ws_client_t;
 
 COLD void init_ws(ws_client_t *restrict client, SSL_CTX *restrict ssl_ctx);
-HOT void handle_ws_connection(const uint16_t fd, const uint32_t events, void *data);
-HOT void handle_ws_setup(const uint16_t fd, const uint32_t events, void *data);
-HOT void handle_ws_trading(const uint16_t fd, const uint32_t events, void *data);
+HOT void handle_ws_connection(const uint8_t fd, const uint32_t events, void *data);
+HOT void handle_ws_setup(const uint8_t fd, const uint32_t events, void *data);
+HOT void handle_ws_trading(const uint8_t fd, const uint32_t events, void *data);
 COLD void free_ws(ws_client_t *restrict client);
 
 #endif

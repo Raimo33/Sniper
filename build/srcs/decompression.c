@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 17:48:01 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/03 21:04:02 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/05 18:19:37 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 //https://www.zlib.net/manual.html#Stream
 
-void gzip_decompress_to_file(uint8_t *input, const uint32_t input_len, uint16_t fd)
+void gzip_decompress_to_file(uint8_t *input, const uint32_t input_len, uint8_t fd)
 {
   z_stream strm = {
     .zalloc = Z_NULL,

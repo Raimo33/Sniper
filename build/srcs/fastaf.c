@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/29 17:07:42 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/05 16:20:03 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/05 18:10:39 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,7 @@ int32_t main(void)
   init_graph(&app->graph);
   atexit(free_graph_wrapper);
 
+  resolve_domains(&app->clients);
   connect_clients(app->epoll_fd, &app->clients, app->log_fd, app->sig_fd);
   // setup_trading(app->epoll_fd, &app->clients, app->log_fd, app->sig_fd);
   // trade(app->epoll_fd, &app->clients, app->log_fd, app->sig_fd);

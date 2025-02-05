@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/05 14:12:17 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/05 14:13:28 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/05 18:09:44 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,12 +22,8 @@
 
 # include "fast_ssl.h"
 # include "http_serializer.h"
-# include "dns_resolver.h"
 # include "message_broker.h"
 
 typedef enum: uint8_t {DISCONNECTED, CONNECTED, TRADING} client_status_t;
-
-
-
 
 #endif

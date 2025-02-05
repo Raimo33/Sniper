@@ -6,19 +6,19 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 18:09:22 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/05 16:40:52 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/05 18:22:39 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "headers/logger.h"
 
-HOT static void flush_logs(const uint16_t fd);
+HOT static void flush_logs(const uint8_t fd);
 
 static t_log_ring g_log_ring;
 
 uint16_t init_logger(void)
 {
-  const uint16_t fd = dup(STDOUT_FILENO);
+  const uint8_t fd = dup(STDOUT_FILENO);
   const uint8_t flags = fcntl(fd, F_GETFL, 0);
   fcntl(fd, F_SETFL, flags | O_NONBLOCK);
 
@@ -39,7 +39,7 @@ void log_msg(const char *restrict msg, const uint8_t msg_len)
   g_log_ring.head = next_head;
 }
 
-void handle_logs(const uint16_t fd, const uint32_t events, UNUSED void *data)
+void handle_logs(const uint8_t fd, const uint32_t events, UNUSED void *data)
 {
   if (LIKELY(events & EPOLLOUT))
     flush_logs(fd);
@@ -48,7 +48,7 @@ void handle_logs(const uint16_t fd, const uint32_t events, UNUSED void *data)
 }
 
 //TODO tutti glifd int8, tanto sono limitati
-static void flush_logs(const uint16_t fd)
+static void flush_logs(const uint8_t fd)
 {
   struct iovec iov[2];
   uint8_t iovcnt = 1;
@@ -79,7 +79,7 @@ static void flush_logs(const uint16_t fd)
   // TODO: Handle EAGAIN/EWOULDBLOCK
 }
 
-void free_logger(uint16_t fd)
+void free_logger(uint8_t fd)
 {
   flush_logs(fd);
   close(fd);

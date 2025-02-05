@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/27 14:15:47 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/05 15:27:03 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/05 18:20:12 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,6 @@
 # include "fix.h"
 # include "ws.h"
 # include "rest.h"
-# include "dns_resolver.h"
 # include "event_loop.h"
 # include "keys.h"
 # include "fast_ssl.h"
@@ -29,10 +28,10 @@ typedef struct
 {
   keys_t keys;
   SSL_CTX *ssl_ctx;
-  uint16_t epoll_fd;
+  uint8_t epoll_fd;
   clients_t clients;
-  uint16_t log_fd;
-  uint16_t sig_fd;
+  uint8_t log_fd;
+  uint8_t sig_fd;
   graph_t graph;
 } app_resources_t;
 

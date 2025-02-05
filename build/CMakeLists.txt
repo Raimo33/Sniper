@@ -11,7 +11,6 @@ set(SRCS
   ws.c
   fix.c
   rest.c
-  dns_resolver.c
   event_loop.c
   http_serializer.c
   fix_serializer.c

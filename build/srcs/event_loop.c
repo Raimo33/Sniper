@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 17:40:24 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/05 16:40:21 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/05 18:21:04 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,9 +16,9 @@ HandlerEntry handlers[MAX_FDS] = {0};
 
 HOT static inline uint8_t get_connected_clients(const clients_t *restrict clients);
 
-uint16_t init_event_loop(clients_t *restrict clients, const uint16_t log_fd, const uint16_t signal_fd)
+uint16_t init_event_loop(clients_t *restrict clients, const uint8_t log_fd, const uint8_t signal_fd)
 {
-  const uint16_t epoll_fd = epoll_create1(0);
+  const uint8_t epoll_fd = epoll_create1(0);
 
   epoll_ctl(epoll_fd, EPOLL_CTL_ADD, signal_fd, &(struct epoll_event) {
     .events = SIGNAL_EVENTS,
@@ -46,7 +46,46 @@ uint16_t init_event_loop(clients_t *restrict clients, const uint16_t log_fd, con
   return epoll_fd;
 }
 
-void connect_clients(const uint16_t epoll_fd, clients_t *restrict clients, const uint16_t log_fd, const uint16_t signal_fd)
+void resolve_domains(clients_t *restrict clients)
+{
+  static const struct addrinfo hints = {
+    .ai_family = AF_UNSPEC,
+    .ai_socktype = SOCK_STREAM,
+    .ai_protocol = IPPROTO_TCP
+  };
+
+  struct gaicb ws_request = {
+    .ar_name = WS_HOST,
+    .ar_service = WS_PORT,
+    .ar_request = &hints
+  };
+
+  struct gaicb fix_request = {
+    .ar_name = FIX_HOST,
+    .ar_service = FIX_PORT,
+    .ar_request = &hints
+  };
+
+  struct gaicb rest_request = {
+    .ar_name = REST_HOST,
+    .ar_service = REST_PORT,
+    .ar_request = &hints
+  };
+
+  struct gaicb *requests[] = { &ws_request, &fix_request, &rest_request };
+
+  getaddrinfo_a(GAI_WAIT, requests, ARR_LEN(requests), NULL);
+
+  clients->ws.addr = *(struct sockaddr_in *)ws_request.ar_result->ai_addr;
+  clients->fix.addr = *(struct sockaddr_in *)fix_request.ar_result->ai_addr;
+  clients->rest.addr = *(struct sockaddr_in *)rest_request.ar_result->ai_addr;
+
+  freeaddrinfo(ws_request.ar_result);
+  freeaddrinfo(fix_request.ar_result);
+  freeaddrinfo(rest_request.ar_result);
+}
+
+void connect_clients(const uint8_t epoll_fd, clients_t *restrict clients, const uint8_t log_fd, const uint8_t signal_fd)
 {
   struct epoll_event events[MAX_EVENTS] ALIGNED(16) = {0};
   struct epoll_event *event;
@@ -66,7 +105,7 @@ void connect_clients(const uint16_t epoll_fd, clients_t *restrict clients, const
   }
 }
 
-void setup_trading(const uint16_t epoll_fd, clients_t *restrict clients, const uint16_t log_fd, const uint16_t signal_fd)
+void setup_trading(const uint8_t epoll_fd, clients_t *restrict clients, const uint8_t log_fd, const uint8_t signal_fd)
 {
   (void)epoll_fd;
   (void)clients;
@@ -75,7 +114,7 @@ void setup_trading(const uint16_t epoll_fd, clients_t *restrict clients, const u
   //TODO fetches exchange info, fetches user info, fills graph and other
 }
 
-void trade(const uint16_t epoll_fd, clients_t *restrict clients, const uint16_t log_fd, const uint16_t signal_fd)
+void trade(const uint8_t epoll_fd, clients_t *restrict clients, const uint8_t log_fd, const uint8_t signal_fd)
 {
   (void)epoll_fd;
   (void)clients;
@@ -89,7 +128,7 @@ static uint8_t get_connected_clients(const clients_t *restrict clients)
   return (clients->ws.status >= CONNECTED) + (clients->fix.status >= CONNECTED) + (clients->rest.status >= CONNECTED);
 }
 
-void free_event_loop(const uint16_t epoll_fd)
+void free_event_loop(const uint8_t epoll_fd)
 {
   close(epoll_fd);
 }

@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 16:52:51 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/05 16:35:13 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/05 18:19:37 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@
 # include "graph.h"
 
 # define FIX_HOST "fix-oe.binance.com"
-# define FIX_PORT 9000
+# define FIX_PORT "9000"
 # define FIX_KEEPALIVE_IDLE 300
 # define FIX_KEEPALIVE_INTVL 30
 # define FIX_KEEPALIVE_CNT 3
@@ -53,9 +53,9 @@ typedef struct
 } fix_client_t;
 
 COLD void init_fix(fix_client_t *restrict client, keys_t *restrict keys, SSL_CTX *restrict ssl_ctx);
-HOT void handle_fix_connection(const uint16_t fd, const uint32_t events, void *data);
-HOT void handle_fix_setup(const uint16_t fd, const uint32_t events, void *data);
-HOT void handle_fix_trading(const uint16_t fd, const uint32_t events, void *data);
+HOT void handle_fix_connection(const uint8_t fd, const uint32_t events, void *data);
+HOT void handle_fix_setup(const uint8_t fd, const uint32_t events, void *data);
+HOT void handle_fix_trading(const uint8_t fd, const uint32_t events, void *data);
 COLD void free_fix(fix_client_t *restrict client);
 
 #endif
