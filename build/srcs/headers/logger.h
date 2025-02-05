@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 18:08:11 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/05 18:19:37 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/05 21:56:30 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
 # include <sys/uio.h>
 # include <sys/epoll.h>
 
+# include "wrappers.h"
 # include "extensions.h"
 # include "errors.h"
 # include "string_utils.h"

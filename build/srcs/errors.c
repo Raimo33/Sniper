@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/17 17:07:01 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/05 10:45:46 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/05 22:23:30 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,10 @@ inline void fast_assert(const bool condition, const char *restrict msg)
 inline void panic(const char *restrict msg)
 {
   log_msg(msg, strlen(msg));
+  {
+    //TODO remove this block, only for debugging
+    printf("PANIC: errno: %d, %s\n", errno, strerror(errno));
+  }
   exit(EXIT_FAILURE);
 }
 

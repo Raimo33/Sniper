@@ -563,6 +563,30 @@ srcs/system_tweaks.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/system_tweaks.c.s
 .PHONY : srcs/system_tweaks.c.s
 
+srcs/wrappers.o: srcs/wrappers.c.o
+.PHONY : srcs/wrappers.o
+
+# target to build an object file
+srcs/wrappers.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/wrappers.c.o
+.PHONY : srcs/wrappers.c.o
+
+srcs/wrappers.i: srcs/wrappers.c.i
+.PHONY : srcs/wrappers.i
+
+# target to preprocess a source file
+srcs/wrappers.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/wrappers.c.i
+.PHONY : srcs/wrappers.c.i
+
+srcs/wrappers.s: srcs/wrappers.c.s
+.PHONY : srcs/wrappers.s
+
+# target to generate assembly for a file
+srcs/wrappers.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/wrappers.c.s
+.PHONY : srcs/wrappers.c.s
+
 srcs/ws.o: srcs/ws.c.o
 .PHONY : srcs/ws.o
 
@@ -649,6 +673,9 @@ help:
 	@echo "... srcs/system_tweaks.o"
 	@echo "... srcs/system_tweaks.i"
 	@echo "... srcs/system_tweaks.s"
+	@echo "... srcs/wrappers.o"
+	@echo "... srcs/wrappers.i"
+	@echo "... srcs/wrappers.s"
 	@echo "... srcs/ws.o"
 	@echo "... srcs/ws.i"
 	@echo "... srcs/ws.s"

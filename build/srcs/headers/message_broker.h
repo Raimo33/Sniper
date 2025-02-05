@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/29 14:16:23 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/03 23:17:52 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/05 21:56:34 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 # include <stdbool.h>
 # include <arpa/inet.h>
 
+# include "wrappers.h"
 # include "fast_ssl.h"
 # include "http_serializer.h"
 # include "extensions.h"

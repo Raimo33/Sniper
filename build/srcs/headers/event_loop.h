@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 17:42:49 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/05 18:21:04 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/05 21:55:32 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 # include <sys/epoll.h>
 # include <stdbool.h>
 
+# include "wrappers.h"
 # include "system_tweaks.h"
 # include "extensions.h"
 # include "signals.h"

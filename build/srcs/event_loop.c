@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 17:40:24 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/05 18:21:04 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/05 21:47:44 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,27 +18,27 @@ HOT static inline uint8_t get_connected_clients(const clients_t *restrict client
 
 uint16_t init_event_loop(clients_t *restrict clients, const uint8_t log_fd, const uint8_t signal_fd)
 {
-  const uint8_t epoll_fd = epoll_create1(0);
+  const uint8_t epoll_fd = epoll_create1_p(0);
 
-  epoll_ctl(epoll_fd, EPOLL_CTL_ADD, signal_fd, &(struct epoll_event) {
+  epoll_ctl_p(epoll_fd, EPOLL_CTL_ADD, signal_fd, &(struct epoll_event) {
     .events = SIGNAL_EVENTS,
     .data = { .fd = signal_fd }
   });
 
-  epoll_ctl(epoll_fd, EPOLL_CTL_ADD, clients->ws.sock_fd, &(struct epoll_event) {
+  epoll_ctl_p(epoll_fd, EPOLL_CTL_ADD, clients->ws.sock_fd, &(struct epoll_event) {
     .events = TCP_EVENTS,
     .data = { .fd = clients->ws.sock_fd }
   });
-  epoll_ctl(epoll_fd, EPOLL_CTL_ADD, clients->fix.sock_fd, &(struct epoll_event) {
+  epoll_ctl_p(epoll_fd, EPOLL_CTL_ADD, clients->fix.sock_fd, &(struct epoll_event) {
     .events = TCP_EVENTS,
     .data = { .fd = clients->fix.sock_fd }
   });
-  epoll_ctl(epoll_fd, EPOLL_CTL_ADD, clients->rest.sock_fd, &(struct epoll_event) {
+  epoll_ctl_p(epoll_fd, EPOLL_CTL_ADD, clients->rest.sock_fd, &(struct epoll_event) {
     .events = TCP_EVENTS,
     .data = { .fd = clients->rest.sock_fd }
   });
 
-  epoll_ctl(epoll_fd, EPOLL_CTL_ADD, log_fd, &(struct epoll_event) {
+  epoll_ctl_p(epoll_fd, EPOLL_CTL_ADD, log_fd, &(struct epoll_event) {
     .events = LOG_EVENTS,
     .data = { .fd = log_fd }
   });

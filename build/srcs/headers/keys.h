@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 18:59:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/05 13:13:16 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/05 21:56:27 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@
 # include <openssl/bio.h>
 # include <openssl/buffer.h>
 
+# include "wrappers.h"
 # include "extensions.h"
 # include "logger.h"
 

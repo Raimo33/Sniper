@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 18:09:22 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/05 18:22:39 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/05 21:20:50 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,9 +18,9 @@ static t_log_ring g_log_ring;
 
 uint16_t init_logger(void)
 {
-  const uint8_t fd = dup(STDOUT_FILENO);
-  const uint8_t flags = fcntl(fd, F_GETFL, 0);
-  fcntl(fd, F_SETFL, flags | O_NONBLOCK);
+  const uint8_t fd = dup_p(STDOUT_FILENO);
+  const uint8_t flags = fcntl_p(fd, F_GETFL, 0);
+  fcntl_p(fd, F_SETFL, flags | O_NONBLOCK);
 
   return fd;
 }

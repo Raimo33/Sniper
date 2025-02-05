@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/29 17:07:42 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/05 18:10:39 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/05 22:22:03 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ int32_t main(void)
   app_resources_t local_app = {0};
   app = &local_app;
 
-  set_fd_limit(MAX_FDS);
+  // set_fd_limit(MAX_FDS); #TODO attivare senza valgrind
   app->log_fd = init_logger();
   atexit(free_logger_wrapper);
   app->sig_fd = init_signals();

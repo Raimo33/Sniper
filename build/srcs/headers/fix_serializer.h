@@ -16,6 +16,7 @@
 # include <stdint.h>
 # include <stdbool.h>
 
+# include "wrappers.h"
 # include "extensions.h"
 # include "errors.h"
 

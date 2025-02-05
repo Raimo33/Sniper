@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/01 11:19:17 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/01 22:24:29 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/05 21:56:12 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 # include <stdint.h>
 # include <stdlib.h>
 
+# include "wrappers.h"
 # include "fixed_point.h"
 # include "extensions.h"
 # include "errors.h"

@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/01 18:09:17 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/05 13:26:10 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/05 21:57:24 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,9 +16,9 @@ COLD static uint16_t add_currency(graph_t *restrict graph, const currency_t *res
 
 void init_graph(graph_t *restrict graph)
 {
-  graph->currencies = malloc(N_EXPECTED_CURRENCIES * sizeof(currency_t));
-  graph->pairs = malloc(N_EXPECTED_PAIRS * sizeof(trading_pair_t));
-  graph->adjacency_lists = malloc(N_EXPECTED_CURRENCIES * sizeof(adjacency_list_t));
+  graph->currencies = calloc_p(N_EXPECTED_CURRENCIES, sizeof(currency_t));
+  graph->pairs = calloc_p(N_EXPECTED_PAIRS, sizeof(trading_pair_t));
+  graph->adjacency_lists = calloc_p(N_EXPECTED_CURRENCIES, sizeof(adjacency_list_t));
   graph->n_currencies = 0;
   graph->n_pairs = 0;
   graph->n_allocated_currencies = N_EXPECTED_CURRENCIES;

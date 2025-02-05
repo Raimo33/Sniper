@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 21:02:36 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/05 18:19:37 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/05 22:14:04 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,21 +19,21 @@ COLD static bool receive_limits_response(fix_client_t *restrict client);
 
 void init_fix(fix_client_t *restrict client, keys_t *restrict keys, SSL_CTX *restrict ssl_ctx)
 {
-  const uint8_t fd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
-  setsockopt(fd, IPPROTO_TCP, TCP_FASTOPEN, &(bool){true}, sizeof(bool));
-  setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &(bool){true}, sizeof(bool));
-  setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE, &(bool){true}, sizeof(bool));
-  setsockopt(fd, IPPROTO_TCP, TCP_KEEPIDLE, &(uint16_t){FIX_KEEPALIVE_IDLE}, sizeof(uint16_t));
-  setsockopt(fd, IPPROTO_TCP, TCP_KEEPINTVL, &(uint16_t){FIX_KEEPALIVE_INTVL}, sizeof(uint16_t));
-  setsockopt(fd, IPPROTO_TCP, TCP_KEEPCNT, &(uint16_t){FIX_KEEPALIVE_CNT}, sizeof(uint16_t));
+  const uint8_t fd = socket_p(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
+  setsockopt_p(fd, IPPROTO_TCP, TCP_FASTOPEN, &(int32_t){5}, sizeof(int32_t));
+  setsockopt_p(fd, IPPROTO_TCP, TCP_NODELAY, &(int32_t){1}, sizeof(int32_t));
+  setsockopt_p(fd, SOL_SOCKET, SO_KEEPALIVE, &(int32_t){1}, sizeof(int32_t));
+  setsockopt_p(fd, IPPROTO_TCP, TCP_KEEPIDLE, &(int32_t){FIX_KEEPALIVE_IDLE}, sizeof(int32_t));
+  setsockopt_p(fd, IPPROTO_TCP, TCP_KEEPINTVL, &(int32_t){FIX_KEEPALIVE_INTVL}, sizeof(int32_t));
+  setsockopt_p(fd, IPPROTO_TCP, TCP_KEEPCNT, &(int32_t){FIX_KEEPALIVE_CNT}, sizeof(int32_t));
  
   *client = (fix_client_t){
     .sock_fd = fd,
     .addr = {},
     .ssl = init_ssl_socket(fd, ssl_ctx),
     .keys = keys,
-    .write_buffer = calloc(FIX_WRITE_BUFFER_SIZE, sizeof(char)),
-    .read_buffer = calloc(FIX_READ_BUFFER_SIZE, sizeof(char)),
+    .write_buffer = calloc_p(FIX_WRITE_BUFFER_SIZE, sizeof(char)),
+    .read_buffer = calloc_p(FIX_READ_BUFFER_SIZE, sizeof(char)),
     .write_offset = 0,
     .read_offset = 0,
     .msg_seq_num = 1,

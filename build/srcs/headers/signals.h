@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 18:15:15 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/05 18:19:37 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/05 21:56:42 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 # include <signal.h>
 # include <sys/signalfd.h>
 
+# include "wrappers.h"
 # include "extensions.h"
 # include "logger.h"
 # include "errors.h"

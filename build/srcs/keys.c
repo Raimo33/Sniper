@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 19:01:43 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/05 13:27:09 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/05 21:32:24 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,10 +23,11 @@ void init_keys(keys_t *restrict keys)
 
   memcpy(keys->api_key, api_key, API_KEY_SIZE);
   BIO *bio = BIO_new_mem_buf(priv_key, -1);
-  PEM_read_bio_PrivateKey(bio, &keys->priv_key, NULL, NULL);
+  keys->priv_key = PEM_read_bio_PrivateKey(bio, NULL, NULL, NULL);
+  fast_assert(keys->priv_key, "Failed to read private key");
   BIO_free(bio);
 
-  fast_assert(EVP_PKEY_id(keys->priv_key) == EVP_PKEY_ED25519, "Invalid private key type");
+  fast_assert(EVP_PKEY_get_id(keys->priv_key) == EVP_PKEY_ED25519, "Invalid private key type");
 }
 
 void generate_ws_key(uint8_t *restrict key)

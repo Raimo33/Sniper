@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 16:52:51 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/05 18:19:37 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/05 21:56:03 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 # include <stdint.h>
 
+# include "wrappers.h"
 # include "client_common.h"
 # include "extensions.h"
 # include "keys.h"

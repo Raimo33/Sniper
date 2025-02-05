@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 18:15:10 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/05 18:19:37 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/05 21:27:05 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,12 +16,12 @@ uint16_t init_signals(void)
 {
   sigset_t mask;
 
-  sigemptyset(&mask);
-  sigaddset(&mask, SIGINT);
-  sigaddset(&mask, SIGTERM);
-  sigprocmask(SIG_BLOCK, &mask, NULL);
+  sigemptyset_p(&mask);
+  sigaddset_p(&mask, SIGINT);
+  sigaddset_p(&mask, SIGTERM);
+  sigprocmask_p(SIG_BLOCK, &mask, NULL);
 
-  return signalfd(-1, &mask, SFD_NONBLOCK);
+  return signalfd_p(-1, &mask, SFD_NONBLOCK);
 }
 
 void handle_signal(const uint8_t fd, UNUSED const uint32_t events, UNUSED void *data)

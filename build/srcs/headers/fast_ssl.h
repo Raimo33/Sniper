@@ -19,6 +19,7 @@
 # include <openssl/err.h>
 # include <openssl/tls1.h>
 
+# include "wrappers.h"
 # include "extensions.h"
 # include "keys.h"
 

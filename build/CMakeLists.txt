@@ -25,6 +25,7 @@ set(SRCS
   message_broker.c
   string_utils.c
   system_tweaks.c
+  wrappers.c
 )
 list(TRANSFORM SRCS PREPEND "srcs/")
 
@@ -41,6 +42,7 @@ target_compile_options(fastaf PRIVATE
   -Wall -Wextra -Werror
   -fwrapv
   -fgnu89-inline
+  -g #TODO remove
   -D_GNU_SOURCE=1
   -fno-strict-aliasing
   -Ofast
@@ -67,16 +69,38 @@ target_link_libraries(fastaf PRIVATE
   xxhash
 )
 
-set(VALGRIND_SUPP "${CMAKE_SOURCE_DIR}/valgrind.supp")
-set(VALGRIND_LOG "valgrind.log")
-set(CACHEGRIND_LOG "cachegrind.log")
-set(CALLGRIND_LOG "callgrind.log")
-set(MASSIF_LOG "massif.log")
+set(VALGRIND_SUPP ${CMAKE_SOURCE_DIR}/valgrind.supp)
+set(VALGRIND_LOG ${CMAKE_BINARY_DIR}/valgrind.log)
+set(CACHEGRIND_LOG ${CMAKE_BINARY_DIR}/cachegrind.out)
+set(CALLGRIND_LOG ${CMAKE_BINARY_DIR}/callgrind.out)
+set(MASSIF_LOG ${CMAKE_BINARY_DIR}/massif.out)
 
-set(VALGRIND_FLAGS "--leak-check=full --show-leak-kinds=all --track-origins=yes --track-fds=yes --suppressions=${VALGRIND_SUPP} --log-file=${VALGRIND_LOG}")
-set(CACHEGRIND_FLAGS "--tool=cachegrind --cache-sim=yes --branch-sim=yes --dump-instr=yes --cachegrind-out-file=${CACHEGRIND_LOG}")
-set(CALLGRIND_FLAGS "--tool=callgrind --callgrind-out-file=${CALLGRIND_LOG}")
-set(MASSIF_FLAGS "--tool=massif --massif-out-file=${MASSIF_LOG}")
+set(VALGRIND_FLAGS 
+  --leak-check=full
+  --show-leak-kinds=all
+  --track-origins=yes
+  --track-fds=yes
+  --suppressions=${VALGRIND_SUPP}
+  --log-file=${VALGRIND_LOG}
+)
+
+set(CACHEGRIND_FLAGS
+  --tool=cachegrind
+  --cache-sim=yes
+  --branch-sim=yes
+  --dump-instr=yes
+  --cachegrind-out-file=${CACHEGRIND_LOG}
+)
+
+set(CALLGRIND_FLAGS
+  --tool=callgrind
+  --callgrind-out-file=${CALLGRIND_LOG}
+)
+
+set(MASSIF_FLAGS
+  --tool=massif
+  --massif-out-file=${MASSIF_LOG}
+)
 
 add_custom_target(leaks
   COMMAND valgrind ${VALGRIND_FLAGS} ./fastaf
