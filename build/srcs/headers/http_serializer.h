@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/04 11:15:12 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/04 12:04:08 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/05 16:28:50 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@
 # include "extensions.h"
 # include "logger.h"
 # include "errors.h"
-# include "str_utils.h"
+# include "string_utils.h"
 
 # define HEADER_MAP_DILUTION_FACTOR 3
 

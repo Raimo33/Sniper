@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/25 10:38:46 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/05 13:17:46 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/05 15:01:36 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,6 @@
 # include "message_broker.h"
 
 # define DNS_SERVER "1.1.1.1"
-# define DNS_FILENO 8
 # define MAX_ADDRESSES 3
 # define MAX_DOMAIN_LEN 255
 # define MAX_LABEL_LEN 63
@@ -74,6 +73,7 @@ typedef struct {
 } dns_entry_t;
 
 typedef struct {
+  uint16_t sock_fd;
   struct sockaddr_in addr;
   dns_entry_t *entries;
   uint16_t n_entries;

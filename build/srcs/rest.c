@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 17:53:55 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/05 13:27:38 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/05 16:38:05 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@ void init_rest(rest_client_t *restrict client, keys_t *restrict keys, SSL_CTX *r
   setsockopt(fd, IPPROTO_TCP, TCP_KEEPCNT, &(uint16_t){REST_KEEPALIVE_CNT}, sizeof(uint16_t));
 
   *client = (rest_client_t){
+    .sock_fd = fd,
     .addr = {
       .sin_family = AF_INET,
       .sin_port = htons(REST_PORT),
@@ -43,45 +44,32 @@ void init_rest(rest_client_t *restrict client, keys_t *restrict keys, SSL_CTX *r
     .write_offset = 0,
     .read_offset = 0
   };
-
-  dup2(fd, REST_FILENO);
-  close(fd);
 }
 
-void handle_rest_connection(rest_client_t *restrict client, const uint32_t events, dns_resolver_t *restrict resolver)
+void handle_rest_connection(const uint16_t fd, const uint32_t events, void *data)
 {
-  static void *restrict states[] = {&&dns_query, &&dns_response, &&connect, &&ssl_handshake};
+  static void *restrict states[] = {&&connect, &&ssl_handshake};
   static uint8_t sequence = 0;
+
+  rest_client_t *client = data;
 
   if (UNLIKELY(events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP)))
     panic("REST connection error");
 
   goto *states[sequence];
 
-dns_query:
-  log_msg(STR_AND_LEN("Resolving REST endpoint: " REST_HOST));
-  resolve_domain(resolver, STR_AND_LEN(REST_HOST), REST_FILENO);
-  sequence++;
-  return;
-
-dns_response:
-  log_msg(STR_AND_LEN("Resolved REST endpoint: " REST_HOST));
-  read(REST_FILENO, &client->addr.sin_addr.s_addr, sizeof(client->addr.sin_addr.s_addr));
-  sequence++;
-  return;
-
 connect:
   log_msg(STR_AND_LEN("Connecting to REST endpoint: " REST_HOST));
-  connect(REST_FILENO, (struct sockaddr *)&client->addr, sizeof(client->addr));
+  connect(fd, (struct sockaddr *)&client->addr, sizeof(client->addr));
   sequence++;
   return;
 
 ssl_handshake:
   log_msg(STR_AND_LEN("Performing SSL handshake"));
-  client->connected = SSL_connect(client->ssl);
+  client->status = (SSL_connect(client->ssl) == true) ? CONNECTED : DISCONNECTED;
 }
 
-bool handle_rest_setup(rest_client_t *restrict client, const uint32_t events, graph_t *restrict graph)
+void handle_rest_setup(const uint16_t fd, const uint32_t events, void *data)
 {
   static void *restrict states[] = {&&info_query, &&info_response};
   static uint8_t sequence = 0;
@@ -89,12 +77,14 @@ bool handle_rest_setup(rest_client_t *restrict client, const uint32_t events, gr
   if (UNLIKELY(events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP)))
     panic("REST connection error");
 
+  rest_client_t *client = data;
+
   goto *states[sequence];
 
 info_query:
   log_msg(STR_AND_LEN("Querying Exchange info"));
   sequence += send_info_query(client);
-  return false;
+  return;
 
 info_response:
   log_msg(STR_AND_LEN("Received Exchange info"));
@@ -102,15 +92,15 @@ info_response:
 
   //TODO altre chiamate per user data, limiti account ecc
   
-  (void)graph;
-  return true;
+  (void)fd;
+  // client->status = TRADING;
 }
 
-void handle_rest_trading(rest_client_t *restrict client, const uint32_t events, graph_t *restrict graph)
+void handle_rest_trading(const uint16_t fd, const uint32_t events, void *data)
 {
   //TODO eventuali chiamate di rest durante il trading
-  (void)client;
-  (void)graph;
+  (void)fd;
+  (void)data;
   (void)events;
 }
 
@@ -197,14 +187,14 @@ static void process_info_response(char *body, const uint32_t body_len)
   }
 }
 
-void free_rest(rest_client_t *restrict rest)
+void free_rest(rest_client_t *restrict client)
 {
-  close(REST_FILENO);
+  close(client->sock_fd);
   
-  if (UNLIKELY(rest == NULL))
+  if (UNLIKELY(client == NULL))
     return;
 
-  free(rest->write_buffer);
-  free(rest->read_buffer);
-  free_ssl_socket(rest->ssl);
+  free(client->write_buffer);
+  free(client->read_buffer);
+  free_ssl_socket(client->ssl);
 }

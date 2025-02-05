@@ -6,20 +6,26 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/25 11:15:29 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/05 13:17:22 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/05 16:27:56 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
+//TODO refactor totale, fare una dns cache globale, fare resolve prima di tutto il connect, getaddrinfo_a
 
 #include "headers/dns_resolver.h"
 
 COLD static void encode_domain(const char *restrict domain, const uint16_t domain_len, char *restrict qname);
 COLD static void deserialize_dns_response(const char *restrict buffer, uint16_t *restrict id, uint32_t *restrict ip);
+COLD static uint16_t deserialize_header(const char *restrict buffer, uint16_t *restrict id, uint8_t *restrict ancount);
+COLD static uint16_t skip_question(const char *restrict buffer);
+COLD static uint16_t deserialize_answer(const char *restrict buffer, uint16_t ancount, uint32_t *restrict ip);
 
 void init_dns_resolver(dns_resolver_t *restrict resolver)
 {
   const uint16_t fd = socket(AF_INET, SOCK_DGRAM | SOCK_NONBLOCK, 0);
 
   *resolver = (dns_resolver_t){
+    .sock_fd = fd,
     .addr = {
       .sin_family = AF_INET,
       .sin_port = htons(53)
@@ -27,9 +33,6 @@ void init_dns_resolver(dns_resolver_t *restrict resolver)
     .entries = calloc(MAX_ADDRESSES, sizeof(dns_entry_t)),
   };
   inet_pton(AF_INET, DNS_SERVER, &resolver->addr.sin_addr);
-  
-  dup2(fd, DNS_FILENO);
-  close(fd);
 }
 
 void handle_dns_responses(const dns_resolver_t *restrict resolver, const uint32_t events)
@@ -41,7 +44,7 @@ void handle_dns_responses(const dns_resolver_t *restrict resolver, const uint32_
   uint16_t id;
   uint32_t network_ip;
 
-  while (try_udp_recv(DNS_FILENO, buffer, sizeof(buffer), DNS_SERVER, STR_LEN(DNS_SERVER)))
+  while (try_udp_recv(resolver->sock_fd, buffer, sizeof(buffer), DNS_SERVER, STR_LEN(DNS_SERVER)))
   {
     deserialize_dns_response(buffer, &id, &network_ip);
     write(resolver->entries[id].callback_fd, &network_ip, sizeof(network_ip));
@@ -90,7 +93,7 @@ void resolve_domain(dns_resolver_t *restrict resolver, const char *restrict doma
     .msg_flags = 0
   };
 
-  sendmsg(DNS_FILENO, &msg, MSG_DONTWAIT | MSG_NOSIGNAL);
+  sendmsg(resolver->sock_fd, &msg, MSG_DONTWAIT | MSG_NOSIGNAL);
 }
 
 static void encode_domain(const char *restrict domain, uint16_t domain_len, char *restrict qname)
@@ -122,24 +125,47 @@ static void encode_domain(const char *restrict domain, uint16_t domain_len, char
   *qname++ = 0;
 }
 
-//TODO check header, check body etc, double check buffer overflows
 static void deserialize_dns_response(const char *buffer, uint16_t *restrict id, uint32_t *restrict ip)
+{
+  uint8_t ancount;
+  buffer += deserialize_header(buffer, id, &ancount);
+  buffer += skip_question(buffer);
+  buffer += deserialize_answer(buffer, ancount, ip);
+  
+  fast_assert(ip, "Invalid DNS response");
+}
+
+static uint16_t deserialize_header(const char *buffer, uint16_t *id, uint8_t *ancount)
 {
   const dns_header_t *header = (dns_header_t *)buffer;
   *id = ntohs(header->id);
+  *ancount = ntohs(header->ancount);
 
   fast_assert(header->flags & DNS_FLAG_QR, "Invalid DNS response");
   fast_assert(header->flags & DNS_FLAG_RD, "DNS server does not support recursion");
 
-  buffer += sizeof(dns_header_t);
+  return sizeof(dns_header_t);
+}
+
+static uint16_t skip_question(const char *buffer)
+{
+  const char *buffer_start = buffer;
+
   while (LIKELY(*buffer != '\0'))
     buffer += *buffer + 1;
   buffer += 1 + sizeof(dns_question_t);
 
+  return buffer - buffer_start;
+}
+
+static uint16_t deserialize_answer(const char *buffer, uint16_t ancount, uint32_t *restrict ip)
+{
+  const char *buffer_start = buffer;
+
   dns_answer_t *answer;
   uint16_t type, class, rdlength;
-  uint8_t ancount = ntohs(header->ancount);
   bool is_compressed;
+
   while (LIKELY(ancount--))
   {
     is_compressed = (*buffer & 0xC0) == 0xC0;
@@ -156,17 +182,19 @@ static void deserialize_dns_response(const char *buffer, uint16_t *restrict id, 
     if (LIKELY(type == DNS_QTYPE_A && class == DNS_QCLASS_IN))
     {
       fast_assert(rdlength == sizeof(uint32_t), "Invalid A record length");
-      memcpy(ip, answer->rdata, sizeof(uint32_t));
-      return;
+      memcpy(ip, answer->rdata, rdlength);
+      break;
     }
+
     buffer += sizeof(dns_answer_t) + rdlength;
   }
-  panic("No valid record in DNS response");
+
+  return buffer - buffer_start;
 }
 
 void free_dns_resolver(const dns_resolver_t *restrict resolver)
 {
-  close(DNS_FILENO);
+  close(resolver->sock_fd);
  
   if (UNLIKELY(resolver == NULL))
     return;

@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 17:42:49 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/02 12:19:15 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/05 16:19:09 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 # include <sys/epoll.h>
 # include <stdbool.h>
 
+# include "system_tweaks.h"
 # include "extensions.h"
 # include "signals.h"
 # include "ws.h"
@@ -29,7 +30,6 @@
 
 # define SIGNAL_EVENTS  EPOLLIN | EPOLLONESHOT | EPOLLET
 # define TCP_EVENTS     EPOLLIN | EPOLLOUT | EPOLLHUP | EPOLLRDHUP | EPOLLERR | EPOLLET
-# define UDP_EVENTS     EPOLLIN | EPOLLHUP | EPOLLRDHUP | EPOLLERR | EPOLLET
 # define LOG_EVENTS     EPOLLOUT | EPOLLHUP | EPOLLERR | EPOLLET
 
 typedef struct
@@ -42,13 +42,25 @@ typedef struct
 typedef struct
 {
   uint16_t epoll_fd;
-    // Can add more event loop related state here
+  clients_t *clients;
+  uint16_t log_fd;
+  uint16_t sig_fd;
 } event_loop_ctx_t;
 
-COLD void init_event_loop(event_loop_ctx_t *restrict ctx);
-COLD void connect_clients(const event_loop_ctx_t *restrict ctx, clients_t *restrict clients, dns_resolver_t *restrict dns_resolver);
-COLD void setup_trading(const event_loop_ctx_t *restrict ctx, clients_t *restrict clients, graph_t *restrict graph);
-COLD void trade(const event_loop_ctx_t *restrict ctx, clients_t *restrict clients, graph_t *restrict graph);
-COLD void free_event_loop(const event_loop_ctx_t *restrict ctx);
+typedef void (*EventHandler)(uint16_t fd, uint32_t events, void *data);
+
+typedef struct
+{
+  EventHandler handler;
+  void *data;
+} HandlerEntry;
+
+extern HandlerEntry handlers[MAX_FDS];
+
+COLD uint16_t init_event_loop(clients_t *restrict clients, const uint16_t log_fd, const uint16_t signal_fd);
+COLD void connect_clients(const uint16_t epoll_fd, clients_t *restrict clients, const uint16_t log_fd, const uint16_t signal_fd);
+COLD void setup_trading(const uint16_t epoll_fd, clients_t *restrict clients, const uint16_t log_fd, const uint16_t signal_fd);
+COLD void trade(const uint16_t epoll_fd, clients_t *restrict clients, const uint16_t log_fd, const uint16_t signal_fd);
+COLD void free_event_loop(const uint16_t epoll_fd);
 
 #endif

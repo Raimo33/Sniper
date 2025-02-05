@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 20:53:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/05 13:28:14 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/05 16:34:49 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@ void init_ws(ws_client_t *restrict client, SSL_CTX *restrict ssl_ctx)
   setsockopt(fd, IPPROTO_TCP, TCP_KEEPCNT, &(uint16_t){WS_KEEPALIVE_CNT}, sizeof(uint16_t));
 
   *client = (ws_client_t){
+    .sock_fd = fd,
     .addr = {
       .sin_family = AF_INET,
       .sin_port = htons(WS_PORT),
@@ -41,36 +42,25 @@ void init_ws(ws_client_t *restrict client, SSL_CTX *restrict ssl_ctx)
     .write_offset = 0,
     .read_offset = 0
   };
-
-  dup2(fd, WS_FILENO);
-  close(fd);
 }
 
-void handle_ws_connection(ws_client_t *restrict client, const uint32_t events, dns_resolver_t *restrict resolver)
+//TODO dont enforce a FD number
+
+void handle_ws_connection(const uint16_t fd, const uint32_t events, void *data)
 {
-  static void *restrict states[] = {&&dns_query, &&dns_response, &&connect, &&ssl_handshake, &&upgrade_query, &&upgrade_response};
+  static void *restrict states[] = {&&connect, &&ssl_handshake, &&upgrade_query, &&upgrade_response};
   static uint8_t sequence = 0;
+
+  ws_client_t *client = data;
 
   if (UNLIKELY(events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP)))
     panic("Websocket connection error");
 
   goto *states[sequence];
 
-dns_query:
-  log_msg(STR_AND_LEN("Resolving Websocket endpoint: " WS_HOST));
-  resolve_domain(resolver, STR_AND_LEN(WS_HOST), WS_FILENO);
-  sequence++;
-  return;
-
-dns_response:
-  log_msg(STR_AND_LEN("Resolved Websocket endpoint: " WS_HOST));
-  read(WS_FILENO, &client->addr.sin_addr.s_addr, sizeof(client->addr.sin_addr.s_addr));
-  sequence++;
-  return;
-
 connect:
   log_msg(STR_AND_LEN("Connecting to Websocket endpoint: " WS_HOST));
-  connect(WS_FILENO, (struct sockaddr *)&client->addr, sizeof(client->addr));
+  connect(fd, (struct sockaddr *)&client->addr, sizeof(client->addr));
   sequence++;
   return;
 
@@ -86,36 +76,39 @@ upgrade_query:
 
 upgrade_response:
   log_msg(STR_AND_LEN("Receiving Websocket upgrade response"));
-  client->connected = receive_upgrade_response(client);
+  client->status = receive_upgrade_response(client) ? CONNECTED : DISCONNECTED;
 }
 
-bool handle_ws_setup(ws_client_t *restrict client, const uint32_t events, graph_t *restrict graph)
+void handle_ws_setup(const uint16_t fd, const uint32_t events, void *data)
 {
   static void *restrict states[] = {};
   static uint8_t sequence = 0;
 
   if (UNLIKELY(events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP)))
-    panic("Websocket setup error");
+    panic("Websocket connection error");
 
   goto *states[sequence];
 
-  (void)graph;
-  (void)client;
-  (void)events;
+  (void)fd;
+  (void)data;
+
   //TODO subscribe to the streams once the graph is formed (derive path from graph)
-  return true;
+  // client->status = TRADING;
 }
 
-void handle_ws_trading(ws_client_t *restrict client, const uint32_t events, graph_t *restrict graph)
+void handle_ws_trading(const uint16_t fd, const uint32_t events, void *data)
 {
   static void *restrict states[] = {};
   static uint8_t sequence = 0;
 
+  if (UNLIKELY(events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP)))
+    panic("Websocket connection error");
+
   goto *states[sequence];
 
-  (void)graph;
-  (void)client;
-  (void)events;
+  (void)fd;
+  (void)data;
+
   //TODO receive price data and update graph
 }
 
@@ -170,7 +163,7 @@ static bool receive_upgrade_response(ws_client_t *restrict client)
 
 void free_ws(ws_client_t *restrict client)
 {
-  close(WS_FILENO);
+  close(client->sock_fd);
 
   if (UNLIKELY(client == NULL))
     return;

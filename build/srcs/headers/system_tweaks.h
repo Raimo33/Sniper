@@ -1,28 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   signals.h                                          :+:      :+:    :+:   */
+/*   system_tweaks.h                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/01/09 18:15:15 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/05 16:38:56 by craimond         ###   ########.fr       */
+/*   Created: 2025/02/05 16:09:14 by craimond          #+#    #+#             */
+/*   Updated: 2025/02/05 16:10:32 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef SIGNALS_H
-# define SIGNALS_H
+#ifndef SYSTEM_TWEAKS_H
+# define SYSTEM_TWEAKS_H
 
 # include <stdint.h>
-# include <signal.h>
-# include <sys/signalfd.h>
+# include <sys/resource.h>
 
 # include "extensions.h"
-# include "logger.h"
-# include "errors.h"
 
-COLD uint16_t init_signals(void);
-COLD void handle_signal(const uint16_t fd, const uint32_t events, void *data);
-COLD void free_signals(uint16_t fd);
+# define MAX_FDS 32
+
+COLD void set_fd_limit(const uint16_t limit);
 
 #endif

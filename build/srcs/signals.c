@@ -6,13 +6,13 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 18:15:10 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/05 13:17:46 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/05 16:26:08 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "headers/signals.h"
 
-void init_signals(void)
+uint16_t init_signals(void)
 {
   sigset_t mask;
 
@@ -21,15 +21,13 @@ void init_signals(void)
   sigaddset(&mask, SIGTERM);
   sigprocmask(SIG_BLOCK, &mask, NULL);
 
-  const uint16_t fd = signalfd(-1, &mask, SFD_NONBLOCK);
-  dup2(fd, SIG_FILENO);
-  close(fd);
+  return signalfd(-1, &mask, SFD_NONBLOCK);
 }
 
-void handle_signal(UNUSED const uint32_t events)
+void handle_signal(const uint16_t fd, UNUSED const uint32_t events, UNUSED void *data)
 {
   struct signalfd_siginfo info;
-  read(SIG_FILENO, &info, sizeof(info));
+  read(fd, &info, sizeof(info));
 
   switch (info.ssi_signo)
   {
@@ -42,7 +40,7 @@ void handle_signal(UNUSED const uint32_t events)
   UNREACHABLE;
 }
 
-void free_signals(void)
+void free_signals(const uint16_t fd)
 {
-  close(SIG_FILENO);
+  close(fd);
 }

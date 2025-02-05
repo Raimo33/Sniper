@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 18:08:11 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/05 13:17:46 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/05 16:41:03 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,10 +23,9 @@
 
 # include "extensions.h"
 # include "errors.h"
-# include "str_utils.h"
+# include "string_utils.h"
 
 # define LOG_RING_SIZE 4096
-# define LOG_FILENO 7
 
 typedef struct
 {
@@ -35,10 +34,9 @@ typedef struct
   uint16_t tail;
 } t_log_ring;
 
-COLD void init_logger(void);
+COLD uint16_t init_logger(void);
 HOT void log_msg(const char *restrict msg, const uint8_t msg_len);
-HOT void handle_logs(const uint32_t events);
-HOT void flush_logs(void);
-COLD void free_logger(void);
+HOT void handle_logs(const uint16_t fd, const uint32_t events, void *data);
+COLD void free_logger(uint16_t fd);
 
 #endif

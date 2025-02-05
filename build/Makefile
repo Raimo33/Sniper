@@ -539,29 +539,53 @@ srcs/signals.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/signals.c.s
 .PHONY : srcs/signals.c.s
 
-srcs/str_utils.o: srcs/str_utils.c.o
-.PHONY : srcs/str_utils.o
+srcs/string_utils.o: srcs/string_utils.c.o
+.PHONY : srcs/string_utils.o
 
 # target to build an object file
-srcs/str_utils.c.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/str_utils.c.o
-.PHONY : srcs/str_utils.c.o
+srcs/string_utils.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/string_utils.c.o
+.PHONY : srcs/string_utils.c.o
 
-srcs/str_utils.i: srcs/str_utils.c.i
-.PHONY : srcs/str_utils.i
+srcs/string_utils.i: srcs/string_utils.c.i
+.PHONY : srcs/string_utils.i
 
 # target to preprocess a source file
-srcs/str_utils.c.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/str_utils.c.i
-.PHONY : srcs/str_utils.c.i
+srcs/string_utils.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/string_utils.c.i
+.PHONY : srcs/string_utils.c.i
 
-srcs/str_utils.s: srcs/str_utils.c.s
-.PHONY : srcs/str_utils.s
+srcs/string_utils.s: srcs/string_utils.c.s
+.PHONY : srcs/string_utils.s
 
 # target to generate assembly for a file
-srcs/str_utils.c.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/str_utils.c.s
-.PHONY : srcs/str_utils.c.s
+srcs/string_utils.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/string_utils.c.s
+.PHONY : srcs/string_utils.c.s
+
+srcs/system_tweaks.o: srcs/system_tweaks.c.o
+.PHONY : srcs/system_tweaks.o
+
+# target to build an object file
+srcs/system_tweaks.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/system_tweaks.c.o
+.PHONY : srcs/system_tweaks.c.o
+
+srcs/system_tweaks.i: srcs/system_tweaks.c.i
+.PHONY : srcs/system_tweaks.i
+
+# target to preprocess a source file
+srcs/system_tweaks.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/system_tweaks.c.i
+.PHONY : srcs/system_tweaks.c.i
+
+srcs/system_tweaks.s: srcs/system_tweaks.c.s
+.PHONY : srcs/system_tweaks.s
+
+# target to generate assembly for a file
+srcs/system_tweaks.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/system_tweaks.c.s
+.PHONY : srcs/system_tweaks.c.s
 
 srcs/ws.o: srcs/ws.c.o
 .PHONY : srcs/ws.o
@@ -646,9 +670,12 @@ help:
 	@echo "... srcs/signals.o"
 	@echo "... srcs/signals.i"
 	@echo "... srcs/signals.s"
-	@echo "... srcs/str_utils.o"
-	@echo "... srcs/str_utils.i"
-	@echo "... srcs/str_utils.s"
+	@echo "... srcs/string_utils.o"
+	@echo "... srcs/string_utils.i"
+	@echo "... srcs/string_utils.s"
+	@echo "... srcs/system_tweaks.o"
+	@echo "... srcs/system_tweaks.i"
+	@echo "... srcs/system_tweaks.s"
 	@echo "... srcs/ws.o"
 	@echo "... srcs/ws.i"
 	@echo "... srcs/ws.s"

@@ -24,7 +24,8 @@ set(SRCS
   fast_ssl.c
   fixed_point.c
   message_broker.c
-  str_utils.c
+  string_utils.c
+  system_tweaks.c
 )
 list(TRANSFORM SRCS PREPEND "srcs/")
 

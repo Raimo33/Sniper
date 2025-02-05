@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 21:02:36 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/05 13:24:09 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/05 16:37:05 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@ void init_fix(fix_client_t *restrict client, keys_t *restrict keys, SSL_CTX *res
   setsockopt(fd, IPPROTO_TCP, TCP_KEEPCNT, &(uint16_t){FIX_KEEPALIVE_CNT}, sizeof(uint16_t));
  
   *client = (fix_client_t){
+    .sock_fd = fd,
     .addr = {
       .sin_family = AF_INET,
       .sin_port = htons(FIX_PORT),
@@ -43,37 +44,23 @@ void init_fix(fix_client_t *restrict client, keys_t *restrict keys, SSL_CTX *res
     .read_offset = 0,
     .msg_seq_num = 1,
   };
-
-  dup2(fd, FIX_FILENO);
-  close(fd);
 }
 
-void handle_fix_connection(fix_client_t *restrict client, const uint32_t events, dns_resolver_t *restrict resolver)
+void handle_fix_connection(const uint16_t fd, const uint32_t events, void *data)
 {
-  static void *restrict states[] = {&&dns_query, &&dns_response, &&connect, &&ssl_handshake, &&logon_query, &&logon_response};
-
+  static void *restrict states[] = {&&connect, &&ssl_handshake, &&logon_query, &&logon_response};
   static uint8_t sequence = 0;
+
+  fix_client_t *client = data;
 
   if (UNLIKELY(events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP)))
     panic("FIX connection error");
 
   goto *states[sequence];
 
-dns_query:
-  log_msg(STR_AND_LEN("Resolving FIX endpoint: " FIX_HOST));
-  resolve_domain(resolver, STR_AND_LEN(FIX_HOST), FIX_FILENO);
-  sequence++;
-  return;
-
-dns_response:
-  log_msg(STR_AND_LEN("Resolved FIX endpoint: " FIX_HOST));
-  read(FIX_FILENO, &client->addr.sin_addr.s_addr, sizeof(client->addr.sin_addr.s_addr));
-  sequence++;
-  return;
-
 connect:
   log_msg(STR_AND_LEN("Connecting to FIX endpoint: " FIX_HOST));
-  connect(FIX_FILENO, (struct sockaddr *)&client->addr, sizeof(client->addr));
+  connect(fd, (struct sockaddr *)&client->addr, sizeof(client->addr));
   sequence++;
   return;
 
@@ -89,10 +76,10 @@ logon_query:
 
 logon_response:
   log_msg(STR_AND_LEN("Receiving logon response"));
-  client->connected = receive_logon_response(client);
+  client->status = receive_logon_response(client) ? CONNECTED : DISCONNECTED;
 }
 
-bool handle_fix_setup(fix_client_t *restrict client, const uint32_t events, graph_t *restrict graph)
+void handle_fix_setup(const uint16_t fd, const uint32_t events, void *data)
 {
   static void *restrict states[] = {&&limits_query, &&limits_response};
   static uint8_t sequence = 0;
@@ -100,27 +87,29 @@ bool handle_fix_setup(fix_client_t *restrict client, const uint32_t events, grap
   if (UNLIKELY(events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP)))
     panic("FIX connection error");
 
+  fix_client_t *client = data;
+
   goto *states[sequence];
 
 limits_query:
   log_msg(STR_AND_LEN("Sending limits query"));
   sequence += send_limits_query(client);
-  return false;
+  return;
 
 limits_response:
   log_msg(STR_AND_LEN("Receiving limits response"));
   receive_limits_response(client);
 
+  (void)fd;
   //TODO salvare i limiti nella struttura client, ogni client ha i suoi limiti
-  (void)graph;
-  return true;
+  // client->status = TRADING;
 }
 
-void handle_fix_trading(fix_client_t *restrict client, const uint32_t events, graph_t *restrict graph)
+void handle_fix_trading(const uint16_t fd, const uint32_t events, void *data)
 {
   //TODO submit di ordini
-  (void)client;
-  (void)graph;
+  (void)fd;
+  (void)data;
   (void)events;
   return;
 }
@@ -211,7 +200,7 @@ UNUSED static void format_price(const fixed_point_t price, char *buffer)
 
 void free_fix(fix_client_t *restrict client)
 {
-  close(FIX_FILENO);
+  close(client->sock_fd);
   
   if (UNLIKELY(client == NULL))
     return;

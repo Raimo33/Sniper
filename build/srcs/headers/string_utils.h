@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   str_utils.h                                        :+:      :+:    :+:   */
+/*   string_utils.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -10,8 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef STR_UTILS_H
-# define STR_UTILS_H
+#ifndef STRING_UTILS_H
+# define STRING_UTILS_H
 
 # include <stdint.h>
 # include <stdbool.h>

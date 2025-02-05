@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/27 14:15:47 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/05 13:18:29 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/05 15:27:03 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,10 +28,11 @@
 typedef struct
 {
   keys_t keys;
-  event_loop_ctx_t loop;
   SSL_CTX *ssl_ctx;
+  uint16_t epoll_fd;
   clients_t clients;
-  dns_resolver_t dns_resolver;
+  uint16_t log_fd;
+  uint16_t sig_fd;
   graph_t graph;
 } app_resources_t;
 

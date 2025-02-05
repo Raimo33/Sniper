@@ -6,115 +6,90 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 17:40:24 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/03 22:24:39 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/05 16:40:21 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "headers/event_loop.h"
 
+HandlerEntry handlers[MAX_FDS] = {0};
+
 HOT static inline uint8_t get_connected_clients(const clients_t *restrict clients);
 
-void init_event_loop(event_loop_ctx_t *restrict ctx)
+uint16_t init_event_loop(clients_t *restrict clients, const uint16_t log_fd, const uint16_t signal_fd)
 {
-  ctx->epoll_fd = epoll_create1(0);
+  const uint16_t epoll_fd = epoll_create1(0);
 
-  epoll_ctl(ctx->epoll_fd, EPOLL_CTL_ADD, SIG_FILENO, &(struct epoll_event) {
+  epoll_ctl(epoll_fd, EPOLL_CTL_ADD, signal_fd, &(struct epoll_event) {
     .events = SIGNAL_EVENTS,
-    .data = { .fd = SIG_FILENO }
+    .data = { .fd = signal_fd }
   });
 
-  epoll_ctl(ctx->epoll_fd, EPOLL_CTL_ADD, WS_FILENO, &(struct epoll_event) {
+  epoll_ctl(epoll_fd, EPOLL_CTL_ADD, clients->ws.sock_fd, &(struct epoll_event) {
     .events = TCP_EVENTS,
-    .data = { .fd = WS_FILENO }
+    .data = { .fd = clients->ws.sock_fd }
   });
-  epoll_ctl(ctx->epoll_fd, EPOLL_CTL_ADD, FIX_FILENO, &(struct epoll_event) {
+  epoll_ctl(epoll_fd, EPOLL_CTL_ADD, clients->fix.sock_fd, &(struct epoll_event) {
     .events = TCP_EVENTS,
-    .data = { .fd = FIX_FILENO }
+    .data = { .fd = clients->fix.sock_fd }
   });
-  epoll_ctl(ctx->epoll_fd, EPOLL_CTL_ADD, REST_FILENO, &(struct epoll_event) {
+  epoll_ctl(epoll_fd, EPOLL_CTL_ADD, clients->rest.sock_fd, &(struct epoll_event) {
     .events = TCP_EVENTS,
-    .data = { .fd = REST_FILENO }
+    .data = { .fd = clients->rest.sock_fd }
   });
 
-  epoll_ctl(ctx->epoll_fd, EPOLL_CTL_ADD, DNS_FILENO, &(struct epoll_event) {
-    .events = UDP_EVENTS,
-    .data = { .fd = DNS_FILENO }
-  });
-
-  epoll_ctl(ctx->epoll_fd, EPOLL_CTL_ADD, LOG_FILENO, &(struct epoll_event) {
+  epoll_ctl(epoll_fd, EPOLL_CTL_ADD, log_fd, &(struct epoll_event) {
     .events = LOG_EVENTS,
-    .data = { .fd = LOG_FILENO }
+    .data = { .fd = log_fd }
   });
+
+  return epoll_fd;
 }
 
-void connect_clients(const event_loop_ctx_t *restrict ctx, clients_t *restrict clients, dns_resolver_t *restrict dns_resolver)
+void connect_clients(const uint16_t epoll_fd, clients_t *restrict clients, const uint16_t log_fd, const uint16_t signal_fd)
 {
   struct epoll_event events[MAX_EVENTS] ALIGNED(16) = {0};
   struct epoll_event *event;
   uint8_t n;
 
+  handlers[signal_fd]             = (HandlerEntry){ handle_signal, NULL };
+  handlers[clients->ws.sock_fd]   = (HandlerEntry){ handle_ws_connection, &clients->ws };
+  handlers[clients->fix.sock_fd]  = (HandlerEntry){ handle_fix_connection, &clients->fix };
+  handlers[clients->rest.sock_fd] = (HandlerEntry){ handle_rest_connection, &clients->rest };
+  handlers[log_fd]                = (HandlerEntry){ handle_logs, NULL };
+
   while (LIKELY(get_connected_clients(clients) < 3))
   {
-    n = epoll_wait(ctx->epoll_fd, events, MAX_EVENTS, -1);
+    n = epoll_wait(epoll_fd, events, MAX_EVENTS, -1);
     for (event = events; n > 0; n--, event++)
-    {    
-      switch (event->data.fd)
-      {
-        case SIG_FILENO:
-          handle_signal(event->events);
-          break;
-        case DNS_FILENO:
-          handle_dns_responses(dns_resolver, event->events);
-          break;
-        case WS_FILENO:
-          handle_ws_connection(&clients->ws, event->events, dns_resolver);
-          break;
-        case FIX_FILENO:
-          handle_fix_connection(&clients->fix, event->events, dns_resolver);
-          break;
-        case REST_FILENO:
-          handle_rest_connection(&clients->rest, event->events, dns_resolver);
-          break;
-        case LOG_FILENO:
-          handle_logs(event->events);
-          break;
-        default:
-          UNREACHABLE;
-      }
-    }
+      handlers[event->data.fd].handler(event->data.fd, event->events, handlers[event->data.fd].data);
   }
 }
 
-void setup_trading(const event_loop_ctx_t *restrict ctx, clients_t *restrict clients, graph_t *restrict graph)
+void setup_trading(const uint16_t epoll_fd, clients_t *restrict clients, const uint16_t log_fd, const uint16_t signal_fd)
 {
-  //TODO fetches exchange info, fetches user info, fills graph and other
-  (void)ctx;
+  (void)epoll_fd;
   (void)clients;
-  (void)graph;
+  (void)log_fd;
+  (void)signal_fd;
+  //TODO fetches exchange info, fetches user info, fills graph and other
 }
 
-void trade(const event_loop_ctx_t *restrict ctx, clients_t *restrict clients, graph_t *restrict graph)
+void trade(const uint16_t epoll_fd, clients_t *restrict clients, const uint16_t log_fd, const uint16_t signal_fd)
 {
-  //TODO: updates graph with live ws data, sends fix orders, heartbeats, periodical checks with rest
-  (void)ctx;
+  (void)epoll_fd;
   (void)clients;
-  (void)graph;
+  (void)log_fd;
+  (void)signal_fd;
+  //TODO: updates graph with live ws data, sends fix orders, heartbeats, periodical checks with rest
 }
 
 static uint8_t get_connected_clients(const clients_t *restrict clients)
 {
-  return clients->ws.connected + clients->fix.connected + clients->rest.connected;
+  return (clients->ws.status >= CONNECTED) + (clients->fix.status >= CONNECTED) + (clients->rest.status >= CONNECTED);
 }
 
-void free_event_loop(const event_loop_ctx_t *restrict ctx)
+void free_event_loop(const uint16_t epoll_fd)
 {
-  if (UNLIKELY(ctx == NULL))
-    return;
-
-  epoll_ctl(ctx->epoll_fd, EPOLL_CTL_DEL, SIG_FILENO, NULL);
-  epoll_ctl(ctx->epoll_fd, EPOLL_CTL_DEL, WS_FILENO, NULL);
-  epoll_ctl(ctx->epoll_fd, EPOLL_CTL_DEL, FIX_FILENO, NULL);
-  epoll_ctl(ctx->epoll_fd, EPOLL_CTL_DEL, REST_FILENO, NULL);
-  epoll_ctl(ctx->epoll_fd, EPOLL_CTL_DEL, LOG_FILENO, NULL);
-  close(ctx->epoll_fd);
+  close(epoll_fd);
 }

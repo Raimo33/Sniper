@@ -1,28 +1,23 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   signals.h                                          :+:      :+:    :+:   */
+/*   system_tweaks.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/01/09 18:15:15 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/05 16:38:56 by craimond         ###   ########.fr       */
+/*   Created: 2025/02/05 16:09:57 by craimond          #+#    #+#             */
+/*   Updated: 2025/02/05 16:10:16 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef SIGNALS_H
-# define SIGNALS_H
+#include "headers/system_tweaks.h"
 
-# include <stdint.h>
-# include <signal.h>
-# include <sys/signalfd.h>
+void set_fd_limit(const uint16_t limit)
+{
+  const struct rlimit rlim = {
+    .rlim_cur = limit,
+    .rlim_max = limit
+  };
 
-# include "extensions.h"
-# include "logger.h"
-# include "errors.h"
-
-COLD uint16_t init_signals(void);
-COLD void handle_signal(const uint16_t fd, const uint32_t events, void *data);
-COLD void free_signals(uint16_t fd);
-
-#endif
+  setrlimit(RLIMIT_NOFILE, &rlim);
+}

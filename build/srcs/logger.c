@@ -6,19 +6,23 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 18:09:22 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/05 13:17:46 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/05 16:40:52 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "headers/logger.h"
 
+HOT static void flush_logs(const uint16_t fd);
+
 static t_log_ring g_log_ring;
 
-void init_logger(void)
+uint16_t init_logger(void)
 {
-  dup2(STDOUT_FILENO, LOG_FILENO);
-  const uint8_t flags = fcntl(LOG_FILENO, F_GETFL, 0);
-  fcntl(LOG_FILENO, F_SETFL, flags | O_NONBLOCK);
+  const uint16_t fd = dup(STDOUT_FILENO);
+  const uint8_t flags = fcntl(fd, F_GETFL, 0);
+  fcntl(fd, F_SETFL, flags | O_NONBLOCK);
+
+  return fd;
 }
 
 void log_msg(const char *restrict msg, const uint8_t msg_len)
@@ -35,15 +39,16 @@ void log_msg(const char *restrict msg, const uint8_t msg_len)
   g_log_ring.head = next_head;
 }
 
-void handle_logs(const uint32_t events)
+void handle_logs(const uint16_t fd, const uint32_t events, UNUSED void *data)
 {
   if (LIKELY(events & EPOLLOUT))
-    flush_logs();
+    flush_logs(fd);
   else
     panic("Error on logger fd");
 }
 
-void flush_logs(void)
+//TODO tutti glifd int8, tanto sono limitati
+static void flush_logs(const uint16_t fd)
 {
   struct iovec iov[2];
   uint8_t iovcnt = 1;
@@ -68,15 +73,15 @@ void flush_logs(void)
     }
   }
 
-  const uint16_t written = writev(LOG_FILENO, iov, iovcnt);
+  const uint16_t written = writev(fd, iov, iovcnt);
   if (written > 0)
     g_log_ring.tail = (g_log_ring.tail + written) % LOG_RING_SIZE;
   // TODO: Handle EAGAIN/EWOULDBLOCK
 }
 
-void free_logger(void)
+void free_logger(uint16_t fd)
 {
-  flush_logs();
-  close(LOG_FILENO);
+  flush_logs(fd);
+  close(fd);
 }
 
