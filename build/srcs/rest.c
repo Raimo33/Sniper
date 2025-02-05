@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 17:53:55 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/03 22:54:28 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/05 13:27:38 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@ COLD static bool send_info_query(rest_client_t *restrict client);
 COLD static bool receive_info_response(rest_client_t *restrict client);
 COLD static void process_info_response(char *body, const uint32_t body_len);
 
-void init_rest(rest_client_t *restrict client, const keys_t *restrict keys, SSL_CTX *restrict ssl_ctx)
+void init_rest(rest_client_t *restrict client, keys_t *restrict keys, SSL_CTX *restrict ssl_ctx)
 {
 
   const uint16_t fd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
@@ -48,13 +48,13 @@ void init_rest(rest_client_t *restrict client, const keys_t *restrict keys, SSL_
   close(fd);
 }
 
-void handle_rest_connection(rest_client_t *restrict client, const uint8_t events, dns_resolver_t *restrict resolver)
+void handle_rest_connection(rest_client_t *restrict client, const uint32_t events, dns_resolver_t *restrict resolver)
 {
   static void *restrict states[] = {&&dns_query, &&dns_response, &&connect, &&ssl_handshake};
   static uint8_t sequence = 0;
 
   if (UNLIKELY(events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP)))
-    panic(STR_AND_LEN("REST connection error"));
+    panic("REST connection error");
 
   goto *states[sequence];
 
@@ -81,31 +81,32 @@ ssl_handshake:
   client->connected = SSL_connect(client->ssl);
 }
 
-//TODO capire return
-void handle_rest_setup(rest_client_t *restrict client, const uint8_t events, graph_t *restrict graph)
+bool handle_rest_setup(rest_client_t *restrict client, const uint32_t events, graph_t *restrict graph)
 {
   static void *restrict states[] = {&&info_query, &&info_response};
   static uint8_t sequence = 0;
 
   if (UNLIKELY(events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP)))
-    panic(STR_AND_LEN("REST connection error"));
+    panic("REST connection error");
 
   goto *states[sequence];
 
 info_query:
   log_msg(STR_AND_LEN("Querying Exchange info"));
   sequence += send_info_query(client);
-  return;
+  return false;
 
 info_response:
   log_msg(STR_AND_LEN("Received Exchange info"));
   receive_info_response(client);
 
-  (void)graph;
   //TODO altre chiamate per user data, limiti account ecc
+  
+  (void)graph;
+  return true;
 }
 
-void handle_rest_trading(rest_client_t *restrict client, const uint8_t events, graph_t *restrict graph)
+void handle_rest_trading(rest_client_t *restrict client, const uint32_t events, graph_t *restrict graph)
 {
   //TODO eventuali chiamate di rest durante il trading
   (void)client;

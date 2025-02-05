@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 18:08:11 by craimond          #+#    #+#             */
-/*   Updated: 2025/01/31 21:41:31 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/05 13:17:46 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ typedef struct
 
 COLD void init_logger(void);
 HOT void log_msg(const char *restrict msg, const uint8_t msg_len);
-HOT void handle_logs(const uint8_t events);
+HOT void handle_logs(const uint32_t events);
 HOT void flush_logs(void);
 COLD void free_logger(void);
 

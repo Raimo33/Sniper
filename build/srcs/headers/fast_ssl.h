@@ -26,7 +26,6 @@
 
 COLD void init_ssl(SSL_CTX **restrict ctx);
 COLD SSL *init_ssl_socket(const uint16_t fd, SSL_CTX *restrict ctx);
- //TODO funzioni per generare firme
 COLD void free_ssl_socket(SSL *restrict ssl);
 COLD void free_ssl(SSL_CTX *restrict ctx);
 

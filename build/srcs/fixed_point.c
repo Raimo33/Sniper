@@ -6,16 +6,14 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/24 19:10:57 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/01 21:40:06 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/05 13:24:46 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "headers/fixed_point.h"
 
-//TODO overflow detection?
-//TODO division by zero?
 //TODO considerare INT_MIN e INT_MAX come infiniti?
-//TODO precision normalization?max precision?
+//TODO precision normalization? prendere la max tra l due?
 
 static const int32_t powers_of_ten[] = {
   1,

@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 16:35:17 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/03 22:24:44 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/05 13:00:33 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,12 +31,6 @@ SSL *init_ssl_socket(const uint16_t fd, SSL_CTX *restrict ctx)
   SSL_set_fd(ssl, fd);
   return ssl;
 }
-
-//TODO generate per-message signature (0.03ms max)
-// void generate_signature(
-// {
-  
-// }
 
 void free_ssl_socket(SSL *restrict ssl)
 {

@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 18:09:22 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/03 13:36:15 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/05 13:17:46 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,12 +35,12 @@ void log_msg(const char *restrict msg, const uint8_t msg_len)
   g_log_ring.head = next_head;
 }
 
-void handle_logs(const uint8_t events)
+void handle_logs(const uint32_t events)
 {
   if (LIKELY(events & EPOLLOUT))
     flush_logs();
   else
-    panic(STR_AND_LEN("Error on logger fd"));
+    panic("Error on logger fd");
 }
 
 void flush_logs(void)

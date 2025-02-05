@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 16:52:43 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/03 22:06:52 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/05 13:18:10 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ typedef struct
 {
   struct sockaddr_in addr;
   SSL *ssl;
-  const keys_t *keys;
+  keys_t *keys;
   char *write_buffer;
   char *read_buffer;
   http_response_t http_response;
@@ -53,12 +53,10 @@ typedef struct
   bool connected;
 } rest_client_t;
 
-//TODO events come uint32?? velocita' di read da parte della cpu
-
-COLD void init_rest(rest_client_t *restrict client, const keys_t *restrict keys, SSL_CTX *restrict ssl_ctx);
-HOT void handle_rest_connection(rest_client_t *restrict client, const uint8_t events, dns_resolver_t *restrict resolver);
-HOT void handle_rest_setup(rest_client_t *restrict client, const uint8_t events, graph_t *restrict graph);
-HOT void handle_rest_trading(rest_client_t *restrict client, const uint8_t events, graph_t *restrict graph);
+COLD void init_rest(rest_client_t *restrict client, keys_t *restrict keys, SSL_CTX *restrict ssl_ctx);
+HOT void handle_rest_connection(rest_client_t *restrict client, const uint32_t events, dns_resolver_t *restrict resolver);
+HOT void handle_rest_setup(rest_client_t *restrict client, const uint32_t events, graph_t *restrict graph);
+HOT void handle_rest_trading(rest_client_t *restrict client, const uint32_t events, graph_t *restrict graph);
 COLD void free_rest(rest_client_t *restrict client);
 
 #endif

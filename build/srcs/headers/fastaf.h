@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/27 14:15:47 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/02 11:15:15 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/05 13:18:29 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,8 +34,6 @@ typedef struct
   dns_resolver_t dns_resolver;
   graph_t graph;
 } app_resources_t;
-
-//TODO more defensive programming (assert everywhere)
 
 //https://developers.binance.com/docs/binance-spot-api-docs/faqs/spot_glossary
 

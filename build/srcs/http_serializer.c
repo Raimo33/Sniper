@@ -59,7 +59,7 @@ uint32_t serialize_http_request(char *restrict buffer, const uint32_t buffer_siz
 
   fast_assert(buffer && request, "Unexpected NULL pointer");
   if (!request_fits_in_buffer(request, buffer_size))
-    panic(STR_AND_LEN("Request does not fit in buffer"));
+    panic("Request does not fit in buffer");
 
   buffer += serialize_method(buffer, request->method);
   buffer += serialize_path(buffer, request->path, request->path_len);
@@ -173,7 +173,7 @@ bool is_full_http_response(const char *restrict buffer, const uint32_t buffer_si
     return ((headers_len + body_len) == response_len);
   }
 
-  panic(STR_AND_LEN("No content length or transfer encoding"));
+  panic("No content length or transfer encoding");
   UNREACHABLE;
 }
 
@@ -268,7 +268,7 @@ static uint32_t deserialize_body(const char *restrict buffer, char *restrict bod
   if (content_length)
     return deserialize_unified_body(buffer, &body, content_length->value, buffer_size);
 
-  panic(STR_AND_LEN("No content length or transfer encoding"));
+  panic("No content length or transfer encoding");
   UNREACHABLE;
 }
 

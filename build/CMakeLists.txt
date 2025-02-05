@@ -42,6 +42,7 @@ target_compile_options(fastaf PRIVATE
   -fwrapv
   -fgnu89-inline
   -D_GNU_SOURCE=1
+  -fno-strict-aliasing
   -Ofast
   -march=native
   -flto

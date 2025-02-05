@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 16:52:51 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/04 16:02:05 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/05 13:17:46 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,7 @@ typedef struct
 {
   struct sockaddr_in addr;
   SSL *ssl;
-  const keys_t *keys;
+  keys_t *keys;
   char *write_buffer;
   char *read_buffer;
   // http_response_t http_response;
@@ -60,10 +60,10 @@ typedef struct
   bool connected;
 } fix_client_t;
 
-COLD void init_fix(fix_client_t *restrict client, const keys_t *restrict keys, SSL_CTX *restrict ssl_ctx);
-HOT void handle_fix_connection(fix_client_t *restrict client, const uint8_t events, dns_resolver_t *restrict resolver);
-HOT void handle_fix_setup(fix_client_t *restrict client, const uint8_t events, graph_t *restrict graph);
-HOT void handle_fix_trading(fix_client_t *restrict client, const uint8_t events, graph_t *restrict graph);
+COLD void init_fix(fix_client_t *restrict client, keys_t *restrict keys, SSL_CTX *restrict ssl_ctx);
+HOT void handle_fix_connection(fix_client_t *restrict client, const uint32_t events, dns_resolver_t *restrict resolver);
+HOT void handle_fix_setup(fix_client_t *restrict client, const uint32_t events, graph_t *restrict graph);
+HOT void handle_fix_trading(fix_client_t *restrict client, const uint32_t events, graph_t *restrict graph);
 COLD void free_fix(fix_client_t *restrict client);
 
 #endif

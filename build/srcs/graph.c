@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/01 18:09:17 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/03 22:31:19 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/05 13:26:10 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ void add_pair(graph_t *restrict graph, trading_pair_t *restrict pair)
 {
   fast_assert(graph && pair, "Unexpected NULL pointer");
 
-  const uint16_t base_idx = add_currency(graph, &pair->base_currency); //TODO adds currency if it doesn't exist, and allocs the adjency list of that currency
+  const uint16_t base_idx = add_currency(graph, &pair->base_currency);
   const uint16_t quote_idx = add_currency(graph, &pair->quote_currency);
 
   fast_assert(base_idx != quote_idx, "Base and quote currencies must be different");
@@ -73,9 +73,15 @@ COLD static uint16_t add_currency(graph_t *restrict graph, const currency_t *res
   return graph->n_currencies++;
 }
 
-//TODO implement
 void free_graph(graph_t *restrict graph)
 {
   if (UNLIKELY(graph == NULL))
     return;
+
+  free(graph->currencies);
+  free(graph->pairs);
+  
+  for (uint16_t i = 0; i < graph->n_currencies; i++)
+    free(graph->adjacency_lists[i].edges);
+  free(graph->adjacency_lists);
 }

@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 21:02:36 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/04 22:50:48 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/05 13:24:09 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ COLD static bool receive_logon_response(fix_client_t *restrict client);
 COLD static bool send_limits_query(fix_client_t *restrict client);
 COLD static bool receive_limits_response(fix_client_t *restrict client);
 
-void init_fix(fix_client_t *restrict client, const keys_t *restrict keys, SSL_CTX *restrict ssl_ctx)
+void init_fix(fix_client_t *restrict client, keys_t *restrict keys, SSL_CTX *restrict ssl_ctx)
 {
   const uint16_t fd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
   setsockopt(fd, IPPROTO_TCP, TCP_FASTOPEN, &(bool){true}, sizeof(bool));
@@ -48,14 +48,14 @@ void init_fix(fix_client_t *restrict client, const keys_t *restrict keys, SSL_CT
   close(fd);
 }
 
-void handle_fix_connection(fix_client_t *restrict client, const uint8_t events, dns_resolver_t *restrict resolver)
+void handle_fix_connection(fix_client_t *restrict client, const uint32_t events, dns_resolver_t *restrict resolver)
 {
   static void *restrict states[] = {&&dns_query, &&dns_response, &&connect, &&ssl_handshake, &&logon_query, &&logon_response};
 
   static uint8_t sequence = 0;
 
   if (UNLIKELY(events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP)))
-    panic(STR_AND_LEN("FIX connection error"));
+    panic("FIX connection error");
 
   goto *states[sequence];
 
@@ -92,30 +92,31 @@ logon_response:
   client->connected = receive_logon_response(client);
 }
 
-//TODO capire il valore di return
-void handle_fix_setup(fix_client_t *restrict client, const uint8_t events, graph_t *restrict graph)
+bool handle_fix_setup(fix_client_t *restrict client, const uint32_t events, graph_t *restrict graph)
 {
   static void *restrict states[] = {&&limits_query, &&limits_response};
   static uint8_t sequence = 0;
 
   if (UNLIKELY(events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP)))
-    panic(STR_AND_LEN("FIX connection error"));
+    panic("FIX connection error");
 
   goto *states[sequence];
 
 limits_query:
   log_msg(STR_AND_LEN("Sending limits query"));
   sequence += send_limits_query(client);
-  return;
+  return false;
 
 limits_response:
   log_msg(STR_AND_LEN("Receiving limits response"));
   receive_limits_response(client);
 
+  //TODO salvare i limiti nella struttura client, ogni client ha i suoi limiti
   (void)graph;
+  return true;
 }
 
-void handle_fix_trading(fix_client_t *restrict client, const uint8_t events, graph_t *restrict graph)
+void handle_fix_trading(fix_client_t *restrict client, const uint32_t events, graph_t *restrict graph)
 {
   //TODO submit di ordini
   (void)client;
@@ -133,7 +134,7 @@ static bool send_logon_query(fix_client_t *restrict client)
   {
     const char *timestamp_str = get_timestamp_utc_str();
     char seq_num_str[16];
-    const uint8_t seq_num_str_len = ltoa(client->msg_seq_num, seq_num_str);
+    const uint8_t seq_num_str_len = ultoa(client->msg_seq_num, seq_num_str);
 
     const fix_field_t raw_data[] = {
       {STR_AND_LEN(FIX_MSGTYPE),      STR_AND_LEN(FIX_MSG_TYPE_LOGON)},
@@ -143,11 +144,18 @@ static bool send_logon_query(fix_client_t *restrict client)
       {STR_AND_LEN(FIX_SENDINGTIME),  timestamp_str, UTC_TIMESTAMP_SIZE},
     };
 
-    char raw_data_str[1024];
-    const uint16_t raw_data_len = serialize_fix_fields(raw_data_str, sizeof(raw_data_str), raw_data, ARR_LEN(raw_data));
-    //TODO base64 encode raw_data_str
-    char raw_data_len_str[16];
-    const uint8_t raw_data_len_str_len = ltoa(raw_data_len, raw_data_len_str);
+    char serialized_data[1024];
+    uint16_t data_len = serialize_fix_fields(serialized_data, sizeof(serialized_data), raw_data, ARR_LEN(raw_data));
+    
+    char signed_data[ECD25519_SIG_SIZE];
+    sign_ecd25519(client->keys->priv_key, serialized_data, data_len, signed_data);
+    data_len = sizeof(signed_data);
+    
+    char encoded_data[BASE64_SIZE(ECD25519_SIG_SIZE)];
+    data_len = base64_encode(signed_data, data_len, encoded_data, sizeof(encoded_data));
+  
+    char data_len_str[16];
+    const uint8_t data_len_str_len = ultoa(data_len, data_len_str);
 
     const fix_field_t fields[] = {
       {STR_AND_LEN(FIX_MSGTYPE),         STR_AND_LEN(FIX_MSG_TYPE_LOGON)},
@@ -157,8 +165,8 @@ static bool send_logon_query(fix_client_t *restrict client)
       {STR_AND_LEN(FIX_SENDINGTIME),     timestamp_str, UTC_TIMESTAMP_SIZE},
       {STR_AND_LEN(FIX_ENCRYPTMETHOD),   STR_AND_LEN("0")},
       {STR_AND_LEN(FIX_HEARTBTINT),      STR_AND_LEN(FIX_HEARTBEAT_INTERVAL)},
-      {STR_AND_LEN(FIX_RAWDATALENGTH),   raw_data_len_str, raw_data_len_str_len},
-      {STR_AND_LEN(FIX_RAWDATA),         raw_data_str, raw_data_len},
+      {STR_AND_LEN(FIX_RAWDATALENGTH),   data_len_str, data_len_str_len},
+      {STR_AND_LEN(FIX_RAWDATA),         encoded_data, data_len},
       {STR_AND_LEN(FIX_RESETSEQNUMFLAG), STR_AND_LEN("Y")},
       {STR_AND_LEN(FIX_USERNAME),        (char *)client->keys->api_key, API_KEY_SIZE},
       {STR_AND_LEN(FIX_MESSAGEHANDLING), STR_AND_LEN("1")},
@@ -166,8 +174,8 @@ static bool send_logon_query(fix_client_t *restrict client)
     };
   
     client->msg_seq_num++;
-    serialize_fix_fields(client->write_buffer, FIX_WRITE_BUFFER_SIZE, fields, ARR_LEN(fields));
-    len = finalize_fix_message(client->write_buffer, FIX_WRITE_BUFFER_SIZE);
+    len = serialize_fix_fields(client->write_buffer, FIX_WRITE_BUFFER_SIZE, fields, ARR_LEN(fields));
+    len = finalize_fix_message(client->write_buffer, FIX_WRITE_BUFFER_SIZE, len);
   }
 
   return try_ssl_send(client->ssl, client->write_buffer, len, &client->write_offset);

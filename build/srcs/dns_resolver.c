@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/25 11:15:29 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/03 22:56:47 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/05 13:17:22 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,10 +32,10 @@ void init_dns_resolver(dns_resolver_t *restrict resolver)
   close(fd);
 }
 
-void handle_dns_responses(const dns_resolver_t *restrict resolver, const uint8_t events)
+void handle_dns_responses(const dns_resolver_t *restrict resolver, const uint32_t events)
 {
   if (UNLIKELY(events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP)))
-    panic(STR_AND_LEN("DNS resolver connection error"));
+    panic("DNS resolver connection error");
 
   char buffer[DNS_MAX_PACKET_SIZE];
   uint16_t id;
@@ -161,7 +161,7 @@ static void deserialize_dns_response(const char *buffer, uint16_t *restrict id, 
     }
     buffer += sizeof(dns_answer_t) + rdlength;
   }
-  panic(STR_AND_LEN("No valid record in DNS response"));
+  panic("No valid record in DNS response");
 }
 
 void free_dns_resolver(const dns_resolver_t *restrict resolver)

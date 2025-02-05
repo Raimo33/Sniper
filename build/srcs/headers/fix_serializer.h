@@ -17,10 +17,7 @@
 # include <stdbool.h>
 
 # include "extensions.h"
-
-//TODO riordinare variabili nelle stuct in base a dimensione? farlo ovunque?
-//TODO const dove possibile
-//TODO ALIGNED??
+# include "errors.h"
 
 # define FIX_BEGINSTRING "8"
 # define FIX_BODYLENGTH "9"
@@ -51,7 +48,7 @@
 
 # define FIX_MSG_TYPE_LOGON "A"
 
-# define SOH '\x01'
+# define FIX_VERSION "FIX.4.4"
 
 typedef struct
 {
@@ -62,6 +59,6 @@ typedef struct
 } fix_field_t;
 
 HOT uint16_t serialize_fix_fields(char *restrict buffer, const uint16_t buffer_size, const fix_field_t *restrict fields, const uint16_t n_fields);
-//TODO deserialize
+HOT uint16_t finalize_fix_message(char *restrict buffer, const uint16_t buffer_size, const uint16_t len);
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 20:53:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/03 22:52:17 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/05 13:28:14 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,6 @@
 COLD static bool send_upgrade_query(ws_client_t *restrict client);
 COLD static bool receive_upgrade_response(ws_client_t *restrict client);
 
-//TODO pool di connessioni
 void init_ws(ws_client_t *restrict client, SSL_CTX *restrict ssl_ctx)
 {
   const uint16_t fd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
@@ -47,13 +46,13 @@ void init_ws(ws_client_t *restrict client, SSL_CTX *restrict ssl_ctx)
   close(fd);
 }
 
-void handle_ws_connection(ws_client_t *restrict client, const uint8_t events, dns_resolver_t *restrict resolver)
+void handle_ws_connection(ws_client_t *restrict client, const uint32_t events, dns_resolver_t *restrict resolver)
 {
   static void *restrict states[] = {&&dns_query, &&dns_response, &&connect, &&ssl_handshake, &&upgrade_query, &&upgrade_response};
   static uint8_t sequence = 0;
 
   if (UNLIKELY(events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP)))
-    panic(STR_AND_LEN("Websocket connection error"));
+    panic("Websocket connection error");
 
   goto *states[sequence];
 
@@ -90,13 +89,13 @@ upgrade_response:
   client->connected = receive_upgrade_response(client);
 }
 
-void handle_ws_setup(ws_client_t *restrict client, const uint8_t events, graph_t *restrict graph)
+bool handle_ws_setup(ws_client_t *restrict client, const uint32_t events, graph_t *restrict graph)
 {
   static void *restrict states[] = {};
   static uint8_t sequence = 0;
 
   if (UNLIKELY(events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP)))
-    panic(STR_AND_LEN("Websocket setup error"));
+    panic("Websocket setup error");
 
   goto *states[sequence];
 
@@ -104,9 +103,10 @@ void handle_ws_setup(ws_client_t *restrict client, const uint8_t events, graph_t
   (void)client;
   (void)events;
   //TODO subscribe to the streams once the graph is formed (derive path from graph)
+  return true;
 }
 
-void handle_ws_trading(ws_client_t *restrict client, const uint8_t events, graph_t *restrict graph)
+void handle_ws_trading(ws_client_t *restrict client, const uint32_t events, graph_t *restrict graph)
 {
   static void *restrict states[] = {};
   static uint8_t sequence = 0;
@@ -162,7 +162,7 @@ static bool receive_upgrade_response(ws_client_t *restrict client)
   fast_assert(accept_header, "Websocket upgrade failed: missing Upgrade header");
 
   if (verify_ws_key(client->conn_key, (uint8_t *)accept_header->value, accept_header->value_len) == false)
-    panic(STR_AND_LEN("Websocket upgrade failed: key mismatch"));
+    panic("Websocket upgrade failed: key mismatch");
 
   free_http_response(&client->http_response);
   return true;
