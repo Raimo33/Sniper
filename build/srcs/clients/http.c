@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 17:53:55 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/06 11:18:46 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/06 11:38:05 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,9 +40,9 @@ void init_http(http_client_t *restrict client, keys_t *restrict keys, SSL_CTX *r
   };
 }
 
-void handle_http_connection(const uint8_t fd, const uint32_t events, void *data)
+void handle_http_connection(UNUSED const uint8_t fd, const uint32_t events, void *data)
 {
-  static void *restrict states[] = {&&connect, &&ssl_handshake};
+  static void *restrict states[] = {&&ssl_handshake};
   static uint8_t sequence = 0;
 
   http_client_t *client = data;
@@ -51,12 +51,6 @@ void handle_http_connection(const uint8_t fd, const uint32_t events, void *data)
     panic("HTTP connection error");
 
   goto *states[sequence];
-
-connect:
-  log_msg(STR_AND_LEN("Connecting to HTTP endpoint: " HTTP_HOST));
-  connect_p(fd, (struct sockaddr *)&client->addr, sizeof(client->addr));
-  sequence++;
-  return;
 
 ssl_handshake:
   log_msg(STR_AND_LEN("Performing SSL handshake"));

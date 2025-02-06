@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 21:02:36 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/06 11:19:31 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/06 11:37:57 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,9 +40,9 @@ void init_fix(fix_client_t *restrict client, keys_t *restrict keys, SSL_CTX *res
   };
 }
 
-void handle_fix_connection(const uint8_t fd, const uint32_t events, void *data)
+void handle_fix_connection(UNUSED const uint8_t fd, const uint32_t events, void *data)
 {
-  static void *restrict states[] = {&&connect, &&ssl_handshake, &&logon_query, &&logon_response};
+  static void *restrict states[] = {&&ssl_handshake, &&logon_query, &&logon_response};
   static uint8_t sequence = 0;
 
   fix_client_t *client = data;
@@ -51,12 +51,6 @@ void handle_fix_connection(const uint8_t fd, const uint32_t events, void *data)
     panic("FIX connection error");
 
   goto *states[sequence];
-
-connect:
-  log_msg(STR_AND_LEN("Connecting to FIX endpoint: " FIX_HOST));
-  connect_p(fd, (struct sockaddr *)&client->addr, sizeof(client->addr));
-  sequence++;
-  return;
 
 ssl_handshake:
   log_msg(STR_AND_LEN("Performing SSL handshake"));

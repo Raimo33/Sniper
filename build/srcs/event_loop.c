@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 17:40:24 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/06 11:20:03 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/06 11:37:35 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,7 +97,9 @@ void connect_clients(const uint8_t epoll_fd, clients_t *restrict clients, const 
   handlers[clients->http.sock_fd] = (HandlerEntry){ handle_http_connection, &clients->http };
   handlers[log_fd]                = (HandlerEntry){ handle_logs, NULL };
 
-  //TODO tutti i connect qui, prima di epoll
+  connect_p(clients->ws.sock_fd, (struct sockaddr *)&clients->ws.addr, sizeof(clients->ws.addr));
+  connect_p(clients->fix.sock_fd, (struct sockaddr *)&clients->fix.addr, sizeof(clients->fix.addr));
+  connect_p(clients->http.sock_fd, (struct sockaddr *)&clients->http.addr, sizeof(clients->http.addr));
 
   while (LIKELY(get_connected_clients(clients) < 3))
   {

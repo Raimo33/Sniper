@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/06 10:06:06 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/06 11:22:25 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/06 12:17:47 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@
 # include "extensions.h"
 # include "errors.h"
 
-COLD extern inline int32_t OPENSSL_init_ssl_p(uint32_t opts, const OPENSSL_INIT_SETTINGS *settings);
+COLD extern inline int32_t OPENSSL_init_ssl_p(uint64_t opts, const OPENSSL_INIT_SETTINGS *settings);
 COLD extern inline SSL_CTX *SSL_CTX_new_p(const SSL_METHOD *method);
 COLD extern inline int32_t SSL_CTX_set_min_proto_version_p(SSL_CTX *ctx, int32_t version);
 COLD extern inline int32_t SSL_CTX_set_max_proto_version_p(SSL_CTX *ctx, int32_t version);

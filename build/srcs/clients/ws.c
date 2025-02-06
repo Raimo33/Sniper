@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 20:53:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/06 11:17:28 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/06 11:38:16 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,23 +38,17 @@ void init_ws(ws_client_t *restrict client, SSL_CTX *restrict ssl_ctx)
   };
 }
 
-void handle_ws_connection(const uint8_t fd, const uint32_t events, void *data)
+void handle_ws_connection(UNUSED const uint8_t fd, const uint32_t events, void *data)
 {
-  static void *restrict states[] = {&&connect, &&ssl_handshake, &&upgrade_query, &&upgrade_response};
+  static void *restrict states[] = {&&ssl_handshake, &&upgrade_query, &&upgrade_response};
   static uint8_t sequence = 0;
 
   ws_client_t *client = data;
 
   if (UNLIKELY(events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP)))
-    panic("Websocket connection error"); //TODO continuare a mettere wrappers
+    panic("Websocket connection error");
 
   goto *states[sequence];
-
-connect:
-  log_msg(STR_AND_LEN("Connecting to Websocket endpoint: " WS_HOST));
-  connect_p(fd, (struct sockaddr *)&client->addr, sizeof(client->addr));
-  sequence++;
-  return;
 
 ssl_handshake:
   log_msg(STR_AND_LEN("Performing SSL handshake"));

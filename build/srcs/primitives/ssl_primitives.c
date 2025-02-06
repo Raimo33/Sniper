@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/06 09:58:08 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/06 11:22:51 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/06 12:31:59 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,9 @@
 
 # include <stdio.h> //TODO remove
 
-static void handle_ssl_error(void);
+COLD static void handle_ssl_error(void);
 
-inline int32_t OPENSSL_init_ssl_p(uint32_t opts, const OPENSSL_INIT_SETTINGS *settings)
+inline int32_t OPENSSL_init_ssl_p(uint64_t opts, const OPENSSL_INIT_SETTINGS *settings)
 {
   if (OPENSSL_init_ssl(opts, settings) == 0)
   {
@@ -117,6 +117,9 @@ inline int32_t SSL_write_p(SSL *ssl, const void *buf, int32_t num)
   const int32_t ret = SSL_write(ssl, buf, num);
   if (ret <= 0)
   {
+    const int32_t ssl_error = SSL_get_error(ssl, ret);
+    if (ssl_error == SSL_ERROR_WANT_WRITE || ssl_error == SSL_ERROR_WANT_READ)
+      return 0;
     printf("DEB SSL_WRITE ERROR\n");
     handle_ssl_error();
   }
@@ -128,6 +131,9 @@ inline int32_t SSL_read_p(SSL *ssl, void *buf, int32_t num)
   const int32_t ret = SSL_read(ssl, buf, num);
   if (ret <= 0)
   {
+    const int32_t ssl_error = SSL_get_error(ssl, ret);
+    if (ssl_error == SSL_ERROR_WANT_WRITE || ssl_error == SSL_ERROR_WANT_READ)
+      return 0;
     printf("DEB SSL_READ ERROR\n");
     handle_ssl_error();
   }
@@ -139,6 +145,9 @@ inline int32_t SSL_connect_p(SSL *ssl)
   const int32_t ret = SSL_connect(ssl);
   if (ret <= 0)
   {
+    const int32_t ssl_error = SSL_get_error(ssl, ret);
+    if (ssl_error == SSL_ERROR_WANT_WRITE || ssl_error == SSL_ERROR_WANT_READ)
+      return 0;
     printf("DEB SSL_CONNECT ERROR\n");
     handle_ssl_error();
   }
@@ -148,8 +157,7 @@ inline int32_t SSL_connect_p(SSL *ssl)
 
 static void handle_ssl_error(void)
 {
-  const uint64_t error_code = ERR_get_error();
-  char error_msg[256] = {0};
-  ERR_error_string_n(error_code, error_msg, sizeof(error_msg));
-  panic(error_msg);
+  char msg[256] = {0};
+  ERR_error_string_n(ERR_get_error(), msg, sizeof(msg));
+  panic(msg);
 }
