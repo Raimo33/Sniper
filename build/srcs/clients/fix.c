@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 21:02:36 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/06 11:37:57 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/06 20:44:34 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,16 +124,16 @@ static bool send_logon_query(fix_client_t *restrict client)
     char serialized_data[1024];
     uint16_t data_len = serialize_fix_fields(serialized_data, sizeof(serialized_data), raw_data, ARR_LEN(raw_data));
     
-    char signed_data[ECD25519_SIG_SIZE];
-    sign_ecd25519(client->keys->priv_key, serialized_data, data_len, signed_data);
+    char signed_data[ed25519_SIG_SIZE];
+    sign_ed25519(client->keys->priv_key, serialized_data, data_len, signed_data);
     data_len = sizeof(signed_data);
-    
-    char encoded_data[BASE64_SIZE(ECD25519_SIG_SIZE)];
+  
+    char encoded_data[BASE64_SIZE(ed25519_SIG_SIZE)];
     data_len = base64_encode(signed_data, data_len, encoded_data, sizeof(encoded_data));
   
     char data_len_str[16];
     const uint8_t data_len_str_len = ultoa(data_len, data_len_str);
-
+  
     const fix_field_t fields[] = {
       {STR_AND_LEN(FIX_MSGTYPE),         STR_AND_LEN(FIX_MSG_TYPE_LOGON)},
       {STR_AND_LEN(FIX_SENDERCOMPID),    STR_AND_LEN(FIX_COMP_ID)},

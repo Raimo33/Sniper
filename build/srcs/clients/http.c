@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 17:53:55 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/06 11:38:05 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/06 18:22:13 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,9 @@ void handle_http_connection(UNUSED const uint8_t fd, const uint32_t events, void
   static uint8_t sequence = 0;
 
   http_client_t *client = data;
+
+  printf("http_sequence: %d\n", sequence);
+  printf("http_events: %d\n", events);
 
   if (UNLIKELY(events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP)))
     panic("HTTP connection error");

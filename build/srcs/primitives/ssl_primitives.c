@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/06 09:58:08 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/06 12:50:11 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/06 21:09:39 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ COLD static void handle_ssl_error(void);
 
 inline int32_t OPENSSL_init_ssl_p(uint64_t opts, const OPENSSL_INIT_SETTINGS *settings)
 {
-  if (OPENSSL_init_ssl(opts, settings) == 0)
+  if (UNLIKELY(OPENSSL_init_ssl(opts, settings) == 0))
   {
     printf("DEB OPENSSL_INIT_SSL ERROR\n");
     handle_ssl_error();
@@ -29,7 +29,7 @@ inline int32_t OPENSSL_init_ssl_p(uint64_t opts, const OPENSSL_INIT_SETTINGS *se
 inline SSL_CTX *SSL_CTX_new_p(const SSL_METHOD *method)
 {
   SSL_CTX *ctx = SSL_CTX_new(method);
-  if (ctx == NULL)
+  if (UNLIKELY(ctx == NULL))
   {
     printf("DEB SSL_CTX_NEW ERROR\n");
     handle_ssl_error();
@@ -39,7 +39,7 @@ inline SSL_CTX *SSL_CTX_new_p(const SSL_METHOD *method)
 
 inline int32_t SSL_CTX_set_min_proto_version_p(SSL_CTX *ctx, int32_t version)
 {
-  if (SSL_CTX_set_min_proto_version(ctx, version) == 0)
+  if (UNLIKELY(SSL_CTX_set_min_proto_version(ctx, version) == 0))
   {
     printf("DEB SSL_CTX_SET_MIN_PROTO_VERSION ERROR\n");
     handle_ssl_error();
@@ -49,7 +49,7 @@ inline int32_t SSL_CTX_set_min_proto_version_p(SSL_CTX *ctx, int32_t version)
 
 inline int32_t SSL_CTX_set_max_proto_version_p(SSL_CTX *ctx, int32_t version)
 {
-  if (SSL_CTX_set_max_proto_version(ctx, version) == 0)
+  if (UNLIKELY(SSL_CTX_set_max_proto_version(ctx, version) == 0))
   {
     printf("DEB SSL_CTX_SET_MAX_PROTO_VERSION ERROR\n");
     handle_ssl_error();
@@ -60,7 +60,7 @@ inline int32_t SSL_CTX_set_max_proto_version_p(SSL_CTX *ctx, int32_t version)
 inline SSL *SSL_new_p(SSL_CTX *ctx)
 {
   SSL *ssl = SSL_new(ctx);
-  if (ssl == NULL)
+  if (UNLIKELY(ssl == NULL))
   {
     printf("DEB SSL_NEW ERROR\n");
     handle_ssl_error();
@@ -71,7 +71,7 @@ inline SSL *SSL_new_p(SSL_CTX *ctx)
 inline int32_t SSL_set_fd_p(SSL *ssl, int32_t fd)
 {
   const int32_t ret = SSL_set_fd(ssl, fd);
-  if (ret == 0)
+  if (UNLIKELY(ret == 0))
   {
     printf("DEB SSL_SET_FD ERROR\n");
     handle_ssl_error();
@@ -82,7 +82,7 @@ inline int32_t SSL_set_fd_p(SSL *ssl, int32_t fd)
 inline int32_t EVP_DigestSignInit_p(EVP_MD_CTX *ctx, EVP_PKEY_CTX **pctx, const EVP_MD *type, ENGINE *e, EVP_PKEY *pkey)
 {
   const int32_t ret = EVP_DigestSignInit(ctx, pctx, type, e, pkey);
-  if (ret <= 0)
+  if (UNLIKELY(ret <= 0))
   {
     printf("DEB EVP_DIGESTSIGNINIT ERROR\n");
     handle_ssl_error();
@@ -93,7 +93,7 @@ inline int32_t EVP_DigestSignInit_p(EVP_MD_CTX *ctx, EVP_PKEY_CTX **pctx, const 
 inline int32_t EVP_DigestSign_p(EVP_MD_CTX *ctx, unsigned char *sigret, size_t *siglen, const unsigned char *tbs, size_t tbslen)
 {
   const int32_t ret = EVP_DigestSign(ctx, sigret, siglen, tbs, tbslen);
-  if (ret <= 0)
+  if (UNLIKELY(ret <= 0))
   {
     printf("DEB EVP_DIGESTSIGN ERROR\n");
     handle_ssl_error();
@@ -104,10 +104,10 @@ inline int32_t EVP_DigestSign_p(EVP_MD_CTX *ctx, unsigned char *sigret, size_t *
 inline int32_t SSL_write_p(SSL *ssl, const void *buf, int32_t num)
 {
   const int32_t ret = SSL_write(ssl, buf, num);
-  if (ret <= 0)
+  if (LIKELY(ret <= 0))
   {
     const int32_t ssl_error = SSL_get_error(ssl, ret);
-    if (ssl_error == SSL_ERROR_WANT_WRITE || ssl_error == SSL_ERROR_WANT_READ)
+    if (LIKELY(ssl_error == SSL_ERROR_WANT_WRITE || ssl_error == SSL_ERROR_WANT_READ))
       return 0;
     printf("DEB SSL_WRITE ERROR\n");
     handle_ssl_error();
@@ -118,10 +118,10 @@ inline int32_t SSL_write_p(SSL *ssl, const void *buf, int32_t num)
 inline int32_t SSL_read_p(SSL *ssl, void *buf, int32_t num)
 {
   const int32_t ret = SSL_read(ssl, buf, num);
-  if (ret <= 0)
+  if (LIKELY(ret <= 0))
   {
     const int32_t ssl_error = SSL_get_error(ssl, ret);
-    if (ssl_error == SSL_ERROR_WANT_WRITE || ssl_error == SSL_ERROR_WANT_READ)
+    if (LIKELY(ssl_error == SSL_ERROR_WANT_WRITE || ssl_error == SSL_ERROR_WANT_READ))
       return 0;
     printf("DEB SSL_READ ERROR\n");
     handle_ssl_error();
@@ -131,11 +131,12 @@ inline int32_t SSL_read_p(SSL *ssl, void *buf, int32_t num)
 
 inline int32_t SSL_connect_p(SSL *ssl)
 {
+  printf("DEB SSL_CONNECT\n");
   const int32_t ret = SSL_connect(ssl);
-  if (ret <= 0)
+  if (LIKELY(ret <= 0))
   {
     const int32_t ssl_error = SSL_get_error(ssl, ret);
-    if (ssl_error == SSL_ERROR_WANT_WRITE || ssl_error == SSL_ERROR_WANT_READ)
+    if (LIKELY(ssl_error == SSL_ERROR_WANT_WRITE || ssl_error == SSL_ERROR_WANT_READ))
       return 0;
     printf("DEB SSL_CONNECT ERROR\n");
     handle_ssl_error();

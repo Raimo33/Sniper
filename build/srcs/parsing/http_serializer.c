@@ -149,7 +149,7 @@ static bool request_fits_in_buffer(const http_request_t *restrict request, const
   
   request_len += 2 + request->body_len;
 
-  return request_len < buffer_size;
+  return request_len <= buffer_size;
 }
 
 bool is_full_http_response(const char *restrict buffer, const uint32_t buffer_size, const uint32_t response_len)
@@ -169,7 +169,7 @@ bool is_full_http_response(const char *restrict buffer, const uint32_t buffer_si
     const uint32_t headers_len = headers_end - buffer + STR_LEN("\r\n\r\n");
     const uint32_t body_len = atoi(content_length + STR_LEN("Content-Length:"));
     const uint32_t available_space = buffer_size - headers_len;
-    fast_assert(body_len < available_space, "Body size exceeds available space");
+    fast_assert(body_len <= available_space, "Body size exceeds available space");
     return ((headers_len + body_len) == response_len);
   }
 

@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/29 14:17:03 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/06 11:00:48 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/06 20:44:12 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ bool try_ssl_recv_http(SSL *restrict ssl, char *restrict buffer, const uint32_t 
     return false;
 
   *offset += ret;
-  fast_assert(*offset < buffer_size, "Response too big");
+  fast_assert(*offset <= buffer_size, "Response too big");
   if (!is_full_http_response(buffer, buffer_size, *offset))
     return false;
 

@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 20:53:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/06 11:38:16 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/06 18:16:01 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,9 @@ void handle_ws_connection(UNUSED const uint8_t fd, const uint32_t events, void *
   static uint8_t sequence = 0;
 
   ws_client_t *client = data;
+
+  printf("ws_sequence: %d\n", sequence);
+  printf("ws_events: %d\n", events);
 
   if (UNLIKELY(events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP)))
     panic("Websocket connection error");
@@ -134,6 +137,8 @@ static bool receive_upgrade_response(ws_client_t *restrict client)
     return false;
 
   const http_response_t *restrict response = &client->http_response;
+  printf("response status code: %d\n", response->status_code);
+
   fast_assert(response->status_code == 101, "Websocket upgrade failed: invalid status code");
   fast_assert(response->headers.n_entries == 3, "Websocket upgrade failed: missing response headers");
 

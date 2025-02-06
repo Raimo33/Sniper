@@ -50,7 +50,7 @@ uint16_t finalize_fix_message(char *buffer, const uint16_t buffer_size, const ui
 
   const uint8_t added_len = begin_string.tag_len + 1 + begin_string.value_len + 1 + body_length.tag_len + 1 + body_length.value_len + 1;
   const uint8_t checksum_len = STR_LEN(FIX_CHECKSUM) + 1 + 3 + 1;
-  fast_assert(len + added_len + checksum_len < buffer_size, "FIX message does not fit in buffer");
+  fast_assert(len + added_len + checksum_len <= buffer_size, "FIX message does not fit in buffer");
 
   memmove(buffer + added_len, buffer, len);
 
@@ -102,7 +102,8 @@ static bool fields_fit_in_buffer(const fix_field_t *fields, const uint16_t n_fie
   uint16_t fields_len = 0;
   for (uint8_t i = 0; i < n_fields; i++)
     fields_len += fields[i].tag_len + 1 + fields[i].value_len + 1;
-  return fields_len < buffer_size;
+
+  return fields_len <= buffer_size;
 }
 
 static uint8_t calculate_checksum(const char *buffer, const uint16_t len)

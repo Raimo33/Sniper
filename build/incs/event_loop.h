@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 17:42:49 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/06 10:38:19 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/06 20:52:31 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@
 
 # define MAX_EVENTS 128
 
-# define SIGNAL_EVENTS  EPOLLIN | EPOLLONESHOT | EPOLLET
+# define SIGNAL_EVENTS  EPOLLIN | EPOLLONESHOT | EPOLLWAKEUP | EPOLLET
 # define TCP_EVENTS     EPOLLIN | EPOLLOUT | EPOLLHUP | EPOLLRDHUP | EPOLLERR | EPOLLET
 # define LOG_EVENTS     EPOLLOUT | EPOLLHUP | EPOLLERR | EPOLLET
 

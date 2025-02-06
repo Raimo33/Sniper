@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 17:40:24 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/06 11:37:35 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/06 21:12:18 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,14 +29,14 @@ uint16_t init_event_loop(clients_t *restrict clients, const uint8_t log_fd, cons
     .events = TCP_EVENTS,
     .data = { .fd = clients->ws.sock_fd }
   });
-  epoll_ctl_p(epoll_fd, EPOLL_CTL_ADD, clients->fix.sock_fd, &(struct epoll_event) {
-    .events = TCP_EVENTS,
-    .data = { .fd = clients->fix.sock_fd }
-  });
-  epoll_ctl_p(epoll_fd, EPOLL_CTL_ADD, clients->http.sock_fd, &(struct epoll_event) {
-    .events = TCP_EVENTS,
-    .data = { .fd = clients->http.sock_fd }
-  });
+  // epoll_ctl_p(epoll_fd, EPOLL_CTL_ADD, clients->fix.sock_fd, &(struct epoll_event) {
+  //   .events = TCP_EVENTS,
+  //   .data = { .fd = clients->fix.sock_fd }
+  // });
+  // epoll_ctl_p(epoll_fd, EPOLL_CTL_ADD, clients->http.sock_fd, &(struct epoll_event) {
+  //   .events = TCP_EVENTS,
+  //   .data = { .fd = clients->http.sock_fd }
+  // });
 
   epoll_ctl_p(epoll_fd, EPOLL_CTL_ADD, log_fd, &(struct epoll_event) {
     .events = LOG_EVENTS,
@@ -80,6 +80,10 @@ void resolve_domains(clients_t *restrict clients)
   clients->fix.addr = *(struct sockaddr_in *)fix_request.ar_result->ai_addr;
   clients->http.addr = *(struct sockaddr_in *)rest_request.ar_result->ai_addr;
 
+  printf("ws_ip: %s\n", inet_ntoa(clients->ws.addr.sin_addr));
+  printf("fix_ip: %s\n", inet_ntoa(clients->fix.addr.sin_addr));
+  printf("http_ip: %s\n", inet_ntoa(clients->http.addr.sin_addr));
+
   freeaddrinfo(ws_request.ar_result);
   freeaddrinfo(fix_request.ar_result);
   freeaddrinfo(rest_request.ar_result);
@@ -98,8 +102,11 @@ void connect_clients(const uint8_t epoll_fd, clients_t *restrict clients, const 
   handlers[log_fd]                = (HandlerEntry){ handle_logs, NULL };
 
   connect_p(clients->ws.sock_fd, (struct sockaddr *)&clients->ws.addr, sizeof(clients->ws.addr));
-  connect_p(clients->fix.sock_fd, (struct sockaddr *)&clients->fix.addr, sizeof(clients->fix.addr));
-  connect_p(clients->http.sock_fd, (struct sockaddr *)&clients->http.addr, sizeof(clients->http.addr));
+  // connect_p(clients->fix.sock_fd, (struct sockaddr *)&clients->fix.addr, sizeof(clients->fix.addr));
+  // connect_p(clients->http.sock_fd, (struct sockaddr *)&clients->http.addr, sizeof(clients->http.addr));
+
+  printf("socket fix: %d\n", clients->fix.sock_fd);
+  printf("socket http: %d\n", clients->http.sock_fd);
 
   while (LIKELY(get_connected_clients(clients) < 3))
   {
