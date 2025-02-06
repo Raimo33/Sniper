@@ -1,23 +1,24 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   system_tweaks.c                                    :+:      :+:    :+:   */
+/*   network_primitives.h                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/02/05 16:09:57 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/06 10:21:54 by craimond         ###   ########.fr       */
+/*   Created: 2025/02/06 10:34:14 by craimond          #+#    #+#             */
+/*   Updated: 2025/02/06 10:34:55 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "system_tweaks.h"
+#ifndef NETWORK_PRIMITIVES_H
+# define NETWORK_PRIMITIVES_H
 
-void set_fd_limit(const uint16_t limit)
-{
-  const struct rlimit rlim = {
-    .rlim_cur = limit,
-    .rlim_max = limit
-  };
+# include <stdint.h>
+# include <netdb.h>
 
-  setrlimit_p(RLIMIT_NOFILE, &rlim);
-}
+# include "extensions.h"
+# include "errors.h"
+
+COLD extern inline int32_t getaddrinfo_a_p(int32_t mode, struct gaicb *list[], int32_t ent, struct sigevent *sig);
+
+#endif

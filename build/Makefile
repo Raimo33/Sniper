@@ -155,29 +155,77 @@ memory/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/memory.dir/build.make CMakeFiles/memory.dir/build
 .PHONY : memory/fast
 
-srcs/decompression.o: srcs/decompression.c.o
-.PHONY : srcs/decompression.o
+srcs/clients/fix.o: srcs/clients/fix.c.o
+.PHONY : srcs/clients/fix.o
 
 # target to build an object file
-srcs/decompression.c.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/decompression.c.o
-.PHONY : srcs/decompression.c.o
+srcs/clients/fix.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/clients/fix.c.o
+.PHONY : srcs/clients/fix.c.o
 
-srcs/decompression.i: srcs/decompression.c.i
-.PHONY : srcs/decompression.i
+srcs/clients/fix.i: srcs/clients/fix.c.i
+.PHONY : srcs/clients/fix.i
 
 # target to preprocess a source file
-srcs/decompression.c.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/decompression.c.i
-.PHONY : srcs/decompression.c.i
+srcs/clients/fix.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/clients/fix.c.i
+.PHONY : srcs/clients/fix.c.i
 
-srcs/decompression.s: srcs/decompression.c.s
-.PHONY : srcs/decompression.s
+srcs/clients/fix.s: srcs/clients/fix.c.s
+.PHONY : srcs/clients/fix.s
 
 # target to generate assembly for a file
-srcs/decompression.c.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/decompression.c.s
-.PHONY : srcs/decompression.c.s
+srcs/clients/fix.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/clients/fix.c.s
+.PHONY : srcs/clients/fix.c.s
+
+srcs/clients/http.o: srcs/clients/http.c.o
+.PHONY : srcs/clients/http.o
+
+# target to build an object file
+srcs/clients/http.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/clients/http.c.o
+.PHONY : srcs/clients/http.c.o
+
+srcs/clients/http.i: srcs/clients/http.c.i
+.PHONY : srcs/clients/http.i
+
+# target to preprocess a source file
+srcs/clients/http.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/clients/http.c.i
+.PHONY : srcs/clients/http.c.i
+
+srcs/clients/http.s: srcs/clients/http.c.s
+.PHONY : srcs/clients/http.s
+
+# target to generate assembly for a file
+srcs/clients/http.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/clients/http.c.s
+.PHONY : srcs/clients/http.c.s
+
+srcs/clients/ws.o: srcs/clients/ws.c.o
+.PHONY : srcs/clients/ws.o
+
+# target to build an object file
+srcs/clients/ws.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/clients/ws.c.o
+.PHONY : srcs/clients/ws.c.o
+
+srcs/clients/ws.i: srcs/clients/ws.c.i
+.PHONY : srcs/clients/ws.i
+
+# target to preprocess a source file
+srcs/clients/ws.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/clients/ws.c.i
+.PHONY : srcs/clients/ws.c.i
+
+srcs/clients/ws.s: srcs/clients/ws.c.s
+.PHONY : srcs/clients/ws.s
+
+# target to generate assembly for a file
+srcs/clients/ws.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/clients/ws.c.s
+.PHONY : srcs/clients/ws.c.s
 
 srcs/errors.o: srcs/errors.c.o
 .PHONY : srcs/errors.o
@@ -275,54 +323,6 @@ srcs/fastaf.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/fastaf.c.s
 .PHONY : srcs/fastaf.c.s
 
-srcs/fix.o: srcs/fix.c.o
-.PHONY : srcs/fix.o
-
-# target to build an object file
-srcs/fix.c.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/fix.c.o
-.PHONY : srcs/fix.c.o
-
-srcs/fix.i: srcs/fix.c.i
-.PHONY : srcs/fix.i
-
-# target to preprocess a source file
-srcs/fix.c.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/fix.c.i
-.PHONY : srcs/fix.c.i
-
-srcs/fix.s: srcs/fix.c.s
-.PHONY : srcs/fix.s
-
-# target to generate assembly for a file
-srcs/fix.c.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/fix.c.s
-.PHONY : srcs/fix.c.s
-
-srcs/fix_serializer.o: srcs/fix_serializer.c.o
-.PHONY : srcs/fix_serializer.o
-
-# target to build an object file
-srcs/fix_serializer.c.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/fix_serializer.c.o
-.PHONY : srcs/fix_serializer.c.o
-
-srcs/fix_serializer.i: srcs/fix_serializer.c.i
-.PHONY : srcs/fix_serializer.i
-
-# target to preprocess a source file
-srcs/fix_serializer.c.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/fix_serializer.c.i
-.PHONY : srcs/fix_serializer.c.i
-
-srcs/fix_serializer.s: srcs/fix_serializer.c.s
-.PHONY : srcs/fix_serializer.s
-
-# target to generate assembly for a file
-srcs/fix_serializer.c.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/fix_serializer.c.s
-.PHONY : srcs/fix_serializer.c.s
-
 srcs/fixed_point.o: srcs/fixed_point.c.o
 .PHONY : srcs/fixed_point.o
 
@@ -370,30 +370,6 @@ srcs/graph.s: srcs/graph.c.s
 srcs/graph.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/graph.c.s
 .PHONY : srcs/graph.c.s
-
-srcs/http_serializer.o: srcs/http_serializer.c.o
-.PHONY : srcs/http_serializer.o
-
-# target to build an object file
-srcs/http_serializer.c.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/http_serializer.c.o
-.PHONY : srcs/http_serializer.c.o
-
-srcs/http_serializer.i: srcs/http_serializer.c.i
-.PHONY : srcs/http_serializer.i
-
-# target to preprocess a source file
-srcs/http_serializer.c.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/http_serializer.c.i
-.PHONY : srcs/http_serializer.c.i
-
-srcs/http_serializer.s: srcs/http_serializer.c.s
-.PHONY : srcs/http_serializer.s
-
-# target to generate assembly for a file
-srcs/http_serializer.c.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/http_serializer.c.s
-.PHONY : srcs/http_serializer.c.s
 
 srcs/keys.o: srcs/keys.c.o
 .PHONY : srcs/keys.o
@@ -467,29 +443,245 @@ srcs/message_broker.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/message_broker.c.s
 .PHONY : srcs/message_broker.c.s
 
-srcs/rest.o: srcs/rest.c.o
-.PHONY : srcs/rest.o
+srcs/parsing/decompression.o: srcs/parsing/decompression.c.o
+.PHONY : srcs/parsing/decompression.o
 
 # target to build an object file
-srcs/rest.c.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/rest.c.o
-.PHONY : srcs/rest.c.o
+srcs/parsing/decompression.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/parsing/decompression.c.o
+.PHONY : srcs/parsing/decompression.c.o
 
-srcs/rest.i: srcs/rest.c.i
-.PHONY : srcs/rest.i
+srcs/parsing/decompression.i: srcs/parsing/decompression.c.i
+.PHONY : srcs/parsing/decompression.i
 
 # target to preprocess a source file
-srcs/rest.c.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/rest.c.i
-.PHONY : srcs/rest.c.i
+srcs/parsing/decompression.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/parsing/decompression.c.i
+.PHONY : srcs/parsing/decompression.c.i
 
-srcs/rest.s: srcs/rest.c.s
-.PHONY : srcs/rest.s
+srcs/parsing/decompression.s: srcs/parsing/decompression.c.s
+.PHONY : srcs/parsing/decompression.s
 
 # target to generate assembly for a file
-srcs/rest.c.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/rest.c.s
-.PHONY : srcs/rest.c.s
+srcs/parsing/decompression.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/parsing/decompression.c.s
+.PHONY : srcs/parsing/decompression.c.s
+
+srcs/parsing/fix_serializer.o: srcs/parsing/fix_serializer.c.o
+.PHONY : srcs/parsing/fix_serializer.o
+
+# target to build an object file
+srcs/parsing/fix_serializer.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/parsing/fix_serializer.c.o
+.PHONY : srcs/parsing/fix_serializer.c.o
+
+srcs/parsing/fix_serializer.i: srcs/parsing/fix_serializer.c.i
+.PHONY : srcs/parsing/fix_serializer.i
+
+# target to preprocess a source file
+srcs/parsing/fix_serializer.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/parsing/fix_serializer.c.i
+.PHONY : srcs/parsing/fix_serializer.c.i
+
+srcs/parsing/fix_serializer.s: srcs/parsing/fix_serializer.c.s
+.PHONY : srcs/parsing/fix_serializer.s
+
+# target to generate assembly for a file
+srcs/parsing/fix_serializer.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/parsing/fix_serializer.c.s
+.PHONY : srcs/parsing/fix_serializer.c.s
+
+srcs/parsing/http_serializer.o: srcs/parsing/http_serializer.c.o
+.PHONY : srcs/parsing/http_serializer.o
+
+# target to build an object file
+srcs/parsing/http_serializer.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/parsing/http_serializer.c.o
+.PHONY : srcs/parsing/http_serializer.c.o
+
+srcs/parsing/http_serializer.i: srcs/parsing/http_serializer.c.i
+.PHONY : srcs/parsing/http_serializer.i
+
+# target to preprocess a source file
+srcs/parsing/http_serializer.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/parsing/http_serializer.c.i
+.PHONY : srcs/parsing/http_serializer.c.i
+
+srcs/parsing/http_serializer.s: srcs/parsing/http_serializer.c.s
+.PHONY : srcs/parsing/http_serializer.s
+
+# target to generate assembly for a file
+srcs/parsing/http_serializer.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/parsing/http_serializer.c.s
+.PHONY : srcs/parsing/http_serializer.c.s
+
+srcs/primitives/alloc_primitives.o: srcs/primitives/alloc_primitives.c.o
+.PHONY : srcs/primitives/alloc_primitives.o
+
+# target to build an object file
+srcs/primitives/alloc_primitives.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/primitives/alloc_primitives.c.o
+.PHONY : srcs/primitives/alloc_primitives.c.o
+
+srcs/primitives/alloc_primitives.i: srcs/primitives/alloc_primitives.c.i
+.PHONY : srcs/primitives/alloc_primitives.i
+
+# target to preprocess a source file
+srcs/primitives/alloc_primitives.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/primitives/alloc_primitives.c.i
+.PHONY : srcs/primitives/alloc_primitives.c.i
+
+srcs/primitives/alloc_primitives.s: srcs/primitives/alloc_primitives.c.s
+.PHONY : srcs/primitives/alloc_primitives.s
+
+# target to generate assembly for a file
+srcs/primitives/alloc_primitives.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/primitives/alloc_primitives.c.s
+.PHONY : srcs/primitives/alloc_primitives.c.s
+
+srcs/primitives/file_primitives.o: srcs/primitives/file_primitives.c.o
+.PHONY : srcs/primitives/file_primitives.o
+
+# target to build an object file
+srcs/primitives/file_primitives.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/primitives/file_primitives.c.o
+.PHONY : srcs/primitives/file_primitives.c.o
+
+srcs/primitives/file_primitives.i: srcs/primitives/file_primitives.c.i
+.PHONY : srcs/primitives/file_primitives.i
+
+# target to preprocess a source file
+srcs/primitives/file_primitives.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/primitives/file_primitives.c.i
+.PHONY : srcs/primitives/file_primitives.c.i
+
+srcs/primitives/file_primitives.s: srcs/primitives/file_primitives.c.s
+.PHONY : srcs/primitives/file_primitives.s
+
+# target to generate assembly for a file
+srcs/primitives/file_primitives.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/primitives/file_primitives.c.s
+.PHONY : srcs/primitives/file_primitives.c.s
+
+srcs/primitives/network_primitives.o: srcs/primitives/network_primitives.c.o
+.PHONY : srcs/primitives/network_primitives.o
+
+# target to build an object file
+srcs/primitives/network_primitives.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/primitives/network_primitives.c.o
+.PHONY : srcs/primitives/network_primitives.c.o
+
+srcs/primitives/network_primitives.i: srcs/primitives/network_primitives.c.i
+.PHONY : srcs/primitives/network_primitives.i
+
+# target to preprocess a source file
+srcs/primitives/network_primitives.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/primitives/network_primitives.c.i
+.PHONY : srcs/primitives/network_primitives.c.i
+
+srcs/primitives/network_primitives.s: srcs/primitives/network_primitives.c.s
+.PHONY : srcs/primitives/network_primitives.s
+
+# target to generate assembly for a file
+srcs/primitives/network_primitives.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/primitives/network_primitives.c.s
+.PHONY : srcs/primitives/network_primitives.c.s
+
+srcs/primitives/signal_primitives.o: srcs/primitives/signal_primitives.c.o
+.PHONY : srcs/primitives/signal_primitives.o
+
+# target to build an object file
+srcs/primitives/signal_primitives.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/primitives/signal_primitives.c.o
+.PHONY : srcs/primitives/signal_primitives.c.o
+
+srcs/primitives/signal_primitives.i: srcs/primitives/signal_primitives.c.i
+.PHONY : srcs/primitives/signal_primitives.i
+
+# target to preprocess a source file
+srcs/primitives/signal_primitives.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/primitives/signal_primitives.c.i
+.PHONY : srcs/primitives/signal_primitives.c.i
+
+srcs/primitives/signal_primitives.s: srcs/primitives/signal_primitives.c.s
+.PHONY : srcs/primitives/signal_primitives.s
+
+# target to generate assembly for a file
+srcs/primitives/signal_primitives.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/primitives/signal_primitives.c.s
+.PHONY : srcs/primitives/signal_primitives.c.s
+
+srcs/primitives/ssl_primitives.o: srcs/primitives/ssl_primitives.c.o
+.PHONY : srcs/primitives/ssl_primitives.o
+
+# target to build an object file
+srcs/primitives/ssl_primitives.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/primitives/ssl_primitives.c.o
+.PHONY : srcs/primitives/ssl_primitives.c.o
+
+srcs/primitives/ssl_primitives.i: srcs/primitives/ssl_primitives.c.i
+.PHONY : srcs/primitives/ssl_primitives.i
+
+# target to preprocess a source file
+srcs/primitives/ssl_primitives.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/primitives/ssl_primitives.c.i
+.PHONY : srcs/primitives/ssl_primitives.c.i
+
+srcs/primitives/ssl_primitives.s: srcs/primitives/ssl_primitives.c.s
+.PHONY : srcs/primitives/ssl_primitives.s
+
+# target to generate assembly for a file
+srcs/primitives/ssl_primitives.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/primitives/ssl_primitives.c.s
+.PHONY : srcs/primitives/ssl_primitives.c.s
+
+srcs/primitives/sys_primitives.o: srcs/primitives/sys_primitives.c.o
+.PHONY : srcs/primitives/sys_primitives.o
+
+# target to build an object file
+srcs/primitives/sys_primitives.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/primitives/sys_primitives.c.o
+.PHONY : srcs/primitives/sys_primitives.c.o
+
+srcs/primitives/sys_primitives.i: srcs/primitives/sys_primitives.c.i
+.PHONY : srcs/primitives/sys_primitives.i
+
+# target to preprocess a source file
+srcs/primitives/sys_primitives.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/primitives/sys_primitives.c.i
+.PHONY : srcs/primitives/sys_primitives.c.i
+
+srcs/primitives/sys_primitives.s: srcs/primitives/sys_primitives.c.s
+.PHONY : srcs/primitives/sys_primitives.s
+
+# target to generate assembly for a file
+srcs/primitives/sys_primitives.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/primitives/sys_primitives.c.s
+.PHONY : srcs/primitives/sys_primitives.c.s
+
+srcs/primitives/time_primitives.o: srcs/primitives/time_primitives.c.o
+.PHONY : srcs/primitives/time_primitives.o
+
+# target to build an object file
+srcs/primitives/time_primitives.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/primitives/time_primitives.c.o
+.PHONY : srcs/primitives/time_primitives.c.o
+
+srcs/primitives/time_primitives.i: srcs/primitives/time_primitives.c.i
+.PHONY : srcs/primitives/time_primitives.i
+
+# target to preprocess a source file
+srcs/primitives/time_primitives.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/primitives/time_primitives.c.i
+.PHONY : srcs/primitives/time_primitives.c.i
+
+srcs/primitives/time_primitives.s: srcs/primitives/time_primitives.c.s
+.PHONY : srcs/primitives/time_primitives.s
+
+# target to generate assembly for a file
+srcs/primitives/time_primitives.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/primitives/time_primitives.c.s
+.PHONY : srcs/primitives/time_primitives.c.s
 
 srcs/signals.o: srcs/signals.c.o
 .PHONY : srcs/signals.o
@@ -563,54 +755,6 @@ srcs/system_tweaks.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/system_tweaks.c.s
 .PHONY : srcs/system_tweaks.c.s
 
-srcs/wrappers.o: srcs/wrappers.c.o
-.PHONY : srcs/wrappers.o
-
-# target to build an object file
-srcs/wrappers.c.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/wrappers.c.o
-.PHONY : srcs/wrappers.c.o
-
-srcs/wrappers.i: srcs/wrappers.c.i
-.PHONY : srcs/wrappers.i
-
-# target to preprocess a source file
-srcs/wrappers.c.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/wrappers.c.i
-.PHONY : srcs/wrappers.c.i
-
-srcs/wrappers.s: srcs/wrappers.c.s
-.PHONY : srcs/wrappers.s
-
-# target to generate assembly for a file
-srcs/wrappers.c.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/wrappers.c.s
-.PHONY : srcs/wrappers.c.s
-
-srcs/ws.o: srcs/ws.c.o
-.PHONY : srcs/ws.o
-
-# target to build an object file
-srcs/ws.c.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/ws.c.o
-.PHONY : srcs/ws.c.o
-
-srcs/ws.i: srcs/ws.c.i
-.PHONY : srcs/ws.i
-
-# target to preprocess a source file
-srcs/ws.c.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/ws.c.i
-.PHONY : srcs/ws.c.i
-
-srcs/ws.s: srcs/ws.c.s
-.PHONY : srcs/ws.s
-
-# target to generate assembly for a file
-srcs/ws.c.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/ws.c.s
-.PHONY : srcs/ws.c.s
-
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -622,9 +766,15 @@ help:
 	@echo "... leaks"
 	@echo "... memory"
 	@echo "... fastaf"
-	@echo "... srcs/decompression.o"
-	@echo "... srcs/decompression.i"
-	@echo "... srcs/decompression.s"
+	@echo "... srcs/clients/fix.o"
+	@echo "... srcs/clients/fix.i"
+	@echo "... srcs/clients/fix.s"
+	@echo "... srcs/clients/http.o"
+	@echo "... srcs/clients/http.i"
+	@echo "... srcs/clients/http.s"
+	@echo "... srcs/clients/ws.o"
+	@echo "... srcs/clients/ws.i"
+	@echo "... srcs/clients/ws.s"
 	@echo "... srcs/errors.o"
 	@echo "... srcs/errors.i"
 	@echo "... srcs/errors.s"
@@ -637,21 +787,12 @@ help:
 	@echo "... srcs/fastaf.o"
 	@echo "... srcs/fastaf.i"
 	@echo "... srcs/fastaf.s"
-	@echo "... srcs/fix.o"
-	@echo "... srcs/fix.i"
-	@echo "... srcs/fix.s"
-	@echo "... srcs/fix_serializer.o"
-	@echo "... srcs/fix_serializer.i"
-	@echo "... srcs/fix_serializer.s"
 	@echo "... srcs/fixed_point.o"
 	@echo "... srcs/fixed_point.i"
 	@echo "... srcs/fixed_point.s"
 	@echo "... srcs/graph.o"
 	@echo "... srcs/graph.i"
 	@echo "... srcs/graph.s"
-	@echo "... srcs/http_serializer.o"
-	@echo "... srcs/http_serializer.i"
-	@echo "... srcs/http_serializer.s"
 	@echo "... srcs/keys.o"
 	@echo "... srcs/keys.i"
 	@echo "... srcs/keys.s"
@@ -661,9 +802,36 @@ help:
 	@echo "... srcs/message_broker.o"
 	@echo "... srcs/message_broker.i"
 	@echo "... srcs/message_broker.s"
-	@echo "... srcs/rest.o"
-	@echo "... srcs/rest.i"
-	@echo "... srcs/rest.s"
+	@echo "... srcs/parsing/decompression.o"
+	@echo "... srcs/parsing/decompression.i"
+	@echo "... srcs/parsing/decompression.s"
+	@echo "... srcs/parsing/fix_serializer.o"
+	@echo "... srcs/parsing/fix_serializer.i"
+	@echo "... srcs/parsing/fix_serializer.s"
+	@echo "... srcs/parsing/http_serializer.o"
+	@echo "... srcs/parsing/http_serializer.i"
+	@echo "... srcs/parsing/http_serializer.s"
+	@echo "... srcs/primitives/alloc_primitives.o"
+	@echo "... srcs/primitives/alloc_primitives.i"
+	@echo "... srcs/primitives/alloc_primitives.s"
+	@echo "... srcs/primitives/file_primitives.o"
+	@echo "... srcs/primitives/file_primitives.i"
+	@echo "... srcs/primitives/file_primitives.s"
+	@echo "... srcs/primitives/network_primitives.o"
+	@echo "... srcs/primitives/network_primitives.i"
+	@echo "... srcs/primitives/network_primitives.s"
+	@echo "... srcs/primitives/signal_primitives.o"
+	@echo "... srcs/primitives/signal_primitives.i"
+	@echo "... srcs/primitives/signal_primitives.s"
+	@echo "... srcs/primitives/ssl_primitives.o"
+	@echo "... srcs/primitives/ssl_primitives.i"
+	@echo "... srcs/primitives/ssl_primitives.s"
+	@echo "... srcs/primitives/sys_primitives.o"
+	@echo "... srcs/primitives/sys_primitives.i"
+	@echo "... srcs/primitives/sys_primitives.s"
+	@echo "... srcs/primitives/time_primitives.o"
+	@echo "... srcs/primitives/time_primitives.i"
+	@echo "... srcs/primitives/time_primitives.s"
 	@echo "... srcs/signals.o"
 	@echo "... srcs/signals.i"
 	@echo "... srcs/signals.s"
@@ -673,12 +841,6 @@ help:
 	@echo "... srcs/system_tweaks.o"
 	@echo "... srcs/system_tweaks.i"
 	@echo "... srcs/system_tweaks.s"
-	@echo "... srcs/wrappers.o"
-	@echo "... srcs/wrappers.i"
-	@echo "... srcs/wrappers.s"
-	@echo "... srcs/ws.o"
-	@echo "... srcs/ws.i"
-	@echo "... srcs/ws.s"
 .PHONY : help
 
 

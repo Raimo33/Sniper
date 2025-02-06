@@ -6,11 +6,11 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 16:35:17 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/05 21:45:08 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/06 10:21:54 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "headers/fast_ssl.h"
+#include "fast_ssl.h"
 
 void init_ssl(SSL_CTX **restrict ctx)
 {  

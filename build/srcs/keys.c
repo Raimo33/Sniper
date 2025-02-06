@@ -6,11 +6,11 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 19:01:43 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/05 21:32:24 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/06 10:56:32 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "headers/keys.h"
+#include "keys.h"
 
 void init_keys(keys_t *restrict keys)
 {
@@ -56,7 +56,7 @@ bool verify_ws_key(const uint8_t *restrict key, const uint8_t *restrict accept, 
 
   uint8_t sha1_hash[20];
   SHA1(concatenated_key, sizeof(concatenated_key), sha1_hash);
-  return !memcmp(decoded_key, sha1_hash, sizeof(sha1_hash));
+  return (memcmp(decoded_key, sha1_hash, sizeof(sha1_hash)) == 0);
 }
 
 void sign_ecd25519(EVP_PKEY *key, const char *data, const uint16_t data_len, char *restrict buffer)
@@ -64,10 +64,11 @@ void sign_ecd25519(EVP_PKEY *key, const char *data, const uint16_t data_len, cha
   fast_assert(key && data && buffer, "Unexpected NULL pointer");
 
   EVP_MD_CTX *ctx = EVP_MD_CTX_new();
-  EVP_DigestSignInit(ctx, NULL, NULL, NULL, key);
+  EVP_DigestSignInit_p(ctx, NULL, NULL, NULL, key);
 
   uint16_t signature_len = ECD25519_SIG_SIZE;
-  EVP_DigestSign(ctx, (uint8_t *)buffer, (size_t *)&signature_len, (const uint8_t *)data, data_len);
+  EVP_DigestSignUpdate_p(ctx, data, data_len);
+  EVP_DigestSignFinal_p(ctx, (uint8_t *)buffer, (size_t *)&signature_len);
 
   EVP_MD_CTX_free(ctx);
 }

@@ -6,11 +6,11 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/29 17:07:42 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/05 22:22:03 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/06 10:21:30 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "headers/fastaf.h"
+#include "fastaf.h"
 
 static app_resources_t *restrict app;
 
@@ -20,7 +20,7 @@ COLD static inline void free_keys_wrapper(void)         { free_keys(&app->keys);
 COLD static inline void free_ssl_wrapper(void)          { free_ssl(app->ssl_ctx); }
 COLD static inline void free_fix_wrapper(void)          { free_fix(&app->clients.fix); }
 COLD static inline void free_ws_wrapper(void)           { free_ws(&app->clients.ws); }
-COLD static inline void free_rest_wrapper(void)         { free_rest(&app->clients.rest); }
+COLD static inline void free_http_wrapper(void)         { free_http(&app->clients.http); }
 COLD static inline void free_event_loop_wrapper(void)   { free_event_loop(app->epoll_fd); }
 COLD static inline void free_graph_wrapper(void)        { free_graph(&app->graph); }
 
@@ -42,8 +42,8 @@ int32_t main(void)
   atexit(free_fix_wrapper);
   init_ws(&app->clients.ws, app->ssl_ctx);
   atexit(free_ws_wrapper);
-  init_rest(&app->clients.rest, &app->keys, app->ssl_ctx);
-  atexit(free_rest_wrapper);
+  init_http(&app->clients.http, &app->keys, app->ssl_ctx);
+  atexit(free_http_wrapper);
   app->epoll_fd = init_event_loop(&app->clients, app->log_fd, app->sig_fd);
   atexit(free_event_loop_wrapper);
   init_graph(&app->graph);

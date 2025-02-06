@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "headers/string_utils.h"
+#include "string_utils.h"
 
 HOT static inline uint64_t tolower8(uint64_t octets);
 
@@ -31,13 +31,13 @@ const char *get_timestamp_utc_str(void)
   static time_t last_time;
   static char last_timestamp[UTC_TIMESTAMP_SIZE];
 
-  const time_t now = time(NULL);
+  const time_t now = time_p(NULL);
   
   if (UNLIKELY(now == last_time))
     return last_timestamp;
 
   struct tm now_utc;
-  gmtime_r(&now, &now_utc);
+  gmtime_r_p(&now, &now_utc);
   strftime(last_timestamp, UTC_TIMESTAMP_SIZE, "%Y%m%d-%H:%M:%S", &now_utc);
   last_time = now;
 

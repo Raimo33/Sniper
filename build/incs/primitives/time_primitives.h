@@ -1,23 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   system_tweaks.c                                    :+:      :+:    :+:   */
+/*   time_primitives.h                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/02/05 16:09:57 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/06 10:21:54 by craimond         ###   ########.fr       */
+/*   Created: 2025/02/06 11:04:22 by craimond          #+#    #+#             */
+/*   Updated: 2025/02/06 11:10:26 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "system_tweaks.h"
+#ifndef TIME_PRIMITIVES_H
+# define TIME_PRIMITIVES_H
 
-void set_fd_limit(const uint16_t limit)
-{
-  const struct rlimit rlim = {
-    .rlim_cur = limit,
-    .rlim_max = limit
-  };
+# include <stdint.h>
+# include <time.h>
 
-  setrlimit_p(RLIMIT_NOFILE, &rlim);
-}
+# include "extensions.h"
+# include "errors.h"
+
+HOT extern inline time_t time_p(time_t *tloc);
+HOT extern inline struct tm *gmtime_r_p(const time_t *timep, struct tm *result);
+
+#endif

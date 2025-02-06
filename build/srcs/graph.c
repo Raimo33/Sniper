@@ -6,11 +6,11 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/01 18:09:17 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/05 21:57:24 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/06 10:43:28 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "headers/graph.h"
+#include "graph.h"
 
 COLD static uint16_t add_currency(graph_t *restrict graph, const currency_t *restrict currency);
 
@@ -35,7 +35,7 @@ void add_pair(graph_t *restrict graph, trading_pair_t *restrict pair)
   fast_assert(base_idx != quote_idx, "Base and quote currencies must be different");
 
   if (graph->n_pairs == graph->n_allocated_pairs)
-    graph->pairs = realloc(graph->pairs, (++graph->n_allocated_pairs) * sizeof(trading_pair_t));
+    graph->pairs = realloc_p(graph->pairs, (++graph->n_allocated_pairs) * sizeof(trading_pair_t));
   memcpy(&graph->pairs[graph->n_pairs++], pair, sizeof(trading_pair_t));
 
   const fixed_point_t fee_weight = fast_log2(fast_sub(FIXED_ONE, pair->fee));
@@ -47,7 +47,7 @@ void add_pair(graph_t *restrict graph, trading_pair_t *restrict pair)
   };
 
   adjacency_list_t *base_adj = &graph->adjacency_lists[base_idx];
-  base_adj->edges = realloc(base_adj->edges, (base_adj->n_edges + 1) * sizeof(edge_t));
+  base_adj->edges = realloc_p(base_adj->edges, (base_adj->n_edges + 1) * sizeof(edge_t));
   memcpy(&base_adj->edges[base_adj->n_edges++], &edge, sizeof(edge_t));
 }
 
@@ -63,8 +63,8 @@ COLD static uint16_t add_currency(graph_t *restrict graph, const currency_t *res
 
   if (graph->n_currencies == graph->n_allocated_currencies)
   {
-    graph->currencies = realloc(graph->currencies, (graph->n_allocated_currencies + 1) * sizeof(currency_t));
-    graph->adjacency_lists = realloc(graph->adjacency_lists, (graph->n_allocated_currencies + 1) * sizeof(adjacency_list_t));
+    graph->currencies = realloc_p(graph->currencies, (graph->n_allocated_currencies + 1) * sizeof(currency_t));
+    graph->adjacency_lists = realloc_p(graph->adjacency_lists, (graph->n_allocated_currencies + 1) * sizeof(adjacency_list_t));
     graph->n_allocated_currencies++;
   }
   memcpy(&graph->currencies[graph->n_currencies], currency, sizeof(currency_t));

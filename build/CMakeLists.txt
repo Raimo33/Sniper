@@ -6,33 +6,12 @@ set(CMAKE_C_STANDARD 23)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS ON)
 
-set(SRCS
-  fastaf.c
-  ws.c
-  fix.c
-  rest.c
-  event_loop.c
-  http_serializer.c
-  fix_serializer.c
-  decompression.c
-  graph.c
-  logger.c
-  signals.c
-  errors.c
-  keys.c
-  fast_ssl.c
-  fixed_point.c
-  message_broker.c
-  string_utils.c
-  system_tweaks.c
-  wrappers.c
-)
-list(TRANSFORM SRCS PREPEND "srcs/")
+file(GLOB_RECURSE SRCS "srcs/*.c")
 
 add_executable(fastaf ${SRCS})
 
 target_include_directories(fastaf PRIVATE 
-  srcs/headers
+  ${CMAKE_CURRENT_SOURCE_DIR}/incs
   /usr/include
 )
 

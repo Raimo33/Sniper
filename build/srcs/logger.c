@@ -6,11 +6,11 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 18:09:22 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/05 21:20:50 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/06 10:57:34 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "headers/logger.h"
+#include "logger.h"
 
 HOT static void flush_logs(const uint8_t fd);
 
@@ -73,7 +73,7 @@ static void flush_logs(const uint8_t fd)
     }
   }
 
-  const uint16_t written = writev(fd, iov, iovcnt);
+  const uint16_t written = writev_p(fd, iov, iovcnt);
   if (written > 0)
     g_log_ring.tail = (g_log_ring.tail + written) % LOG_RING_SIZE;
   // TODO: Handle EAGAIN/EWOULDBLOCK

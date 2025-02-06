@@ -1,23 +1,29 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   system_tweaks.c                                    :+:      :+:    :+:   */
+/*   client_common.h                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/02/05 16:09:57 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/06 10:21:54 by craimond         ###   ########.fr       */
+/*   Created: 2025/02/05 14:12:17 by craimond          #+#    #+#             */
+/*   Updated: 2025/02/06 10:23:48 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "system_tweaks.h"
+#ifndef CLIENT_COMMON_H
+# define CLIENT_COMMON_H
 
-void set_fd_limit(const uint16_t limit)
-{
-  const struct rlimit rlim = {
-    .rlim_cur = limit,
-    .rlim_max = limit
-  };
+# include <stdint.h>
+# include <sys/socket.h>
+# include <netinet/in.h>
+# include <netinet/tcp.h>
+# include <arpa/inet.h>
+# include <netdb.h>
 
-  setrlimit_p(RLIMIT_NOFILE, &rlim);
-}
+# include "fast_ssl.h"
+# include "parsing/http_serializer.h"
+# include "message_broker.h"
+
+typedef enum: uint8_t {DISCONNECTED, CONNECTED, TRADING} client_status_t;
+
+#endif

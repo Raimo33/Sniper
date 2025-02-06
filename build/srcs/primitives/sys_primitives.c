@@ -1,23 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   system_tweaks.c                                    :+:      :+:    :+:   */
+/*   sys_primitives.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/02/05 16:09:57 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/06 10:21:54 by craimond         ###   ########.fr       */
+/*   Created: 2025/02/06 10:00:52 by craimond          #+#    #+#             */
+/*   Updated: 2025/02/06 10:30:10 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "system_tweaks.h"
+#include "primitives/sys_primitives.h"
 
-void set_fd_limit(const uint16_t limit)
+# include <stdio.h> //TODO remove
+
+inline int32_t setrlimit_p(int32_t resource, const struct rlimit *rlim)
 {
-  const struct rlimit rlim = {
-    .rlim_cur = limit,
-    .rlim_max = limit
-  };
-
-  setrlimit_p(RLIMIT_NOFILE, &rlim);
+  if (setrlimit(resource, rlim) == -1)
+  {
+    printf("DEB SETRLIMIT ERROR\n"); 
+    panic(strerror(errno));
+  }
+  return 0;
 }

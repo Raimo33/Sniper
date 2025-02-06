@@ -6,11 +6,11 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 18:15:10 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/05 21:27:05 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/06 11:01:10 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "headers/signals.h"
+#include "signals.h"
 
 uint16_t init_signals(void)
 {
@@ -27,7 +27,7 @@ uint16_t init_signals(void)
 void handle_signal(const uint8_t fd, UNUSED const uint32_t events, UNUSED void *data)
 {
   struct signalfd_siginfo info;
-  read(fd, &info, sizeof(info));
+  read_p(fd, &info, sizeof(info));
 
   switch (info.ssi_signo)
   {
