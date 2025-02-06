@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 19:01:43 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/06 10:56:32 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/06 12:51:19 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,8 +67,7 @@ void sign_ecd25519(EVP_PKEY *key, const char *data, const uint16_t data_len, cha
   EVP_DigestSignInit_p(ctx, NULL, NULL, NULL, key);
 
   uint16_t signature_len = ECD25519_SIG_SIZE;
-  EVP_DigestSignUpdate_p(ctx, data, data_len);
-  EVP_DigestSignFinal_p(ctx, (uint8_t *)buffer, (size_t *)&signature_len);
+  EVP_DigestSign_p(ctx, (unsigned char *)buffer, (size_t *)&signature_len, (const unsigned char *)data, data_len);
 
   EVP_MD_CTX_free(ctx);
 }

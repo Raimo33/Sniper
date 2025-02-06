@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/06 09:58:08 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/06 12:31:59 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/06 12:50:11 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,23 +90,12 @@ inline int32_t EVP_DigestSignInit_p(EVP_MD_CTX *ctx, EVP_PKEY_CTX **pctx, const 
   return ret;
 }
 
-inline int32_t EVP_DigestSignUpdate_p(EVP_MD_CTX *ctx, const void *d, size_t cnt)
+inline int32_t EVP_DigestSign_p(EVP_MD_CTX *ctx, unsigned char *sigret, size_t *siglen, const unsigned char *tbs, size_t tbslen)
 {
-  const int32_t ret = EVP_DigestSignUpdate(ctx, d, cnt);
+  const int32_t ret = EVP_DigestSign(ctx, sigret, siglen, tbs, tbslen);
   if (ret <= 0)
   {
-    printf("DEB EVP_DIGESTSIGNUPDATE ERROR\n");
-    handle_ssl_error();
-  }
-  return ret;
-}
-
-inline int32_t EVP_DigestSignFinal_p(EVP_MD_CTX *ctx, uint8_t *sig, size_t *siglen)
-{
-  const int32_t ret = EVP_DigestSignFinal(ctx, sig, siglen);
-  if (ret <= 0)
-  {
-    printf("DEB EVP_DIGESTSIGNFINAL ERROR\n");
+    printf("DEB EVP_DIGESTSIGN ERROR\n");
     handle_ssl_error();
   }
   return ret;
