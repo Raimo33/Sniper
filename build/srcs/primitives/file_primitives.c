@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/06 10:00:24 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/06 11:01:47 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/06 11:24:36 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,6 +106,17 @@ inline int32_t read_p(int32_t fd, void *buf, size_t count)
   if (ret == -1)
   {
     printf("DEB READ ERROR\n");
+    panic(strerror(errno));
+  }
+  return ret;
+}
+
+inline FILE *fdopen_p(const int32_t fd, const char *mode)
+{
+  FILE *restrict ret = fdopen(fd, mode);
+  if (ret == NULL)
+  {
+    printf("DEB FDOPEN ERROR\n");
     panic(strerror(errno));
   }
   return ret;

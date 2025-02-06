@@ -1,25 +1,26 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   network_primitives.h                               :+:      :+:    :+:   */
+/*   yyjson_primitives.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/02/06 10:34:14 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/06 11:21:11 by craimond         ###   ########.fr       */
+/*   Created: 2025/02/06 11:25:32 by craimond          #+#    #+#             */
+/*   Updated: 2025/02/06 11:30:38 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef NETWORK_PRIMITIVES_H
-# define NETWORK_PRIMITIVES_H
+#include "primitives/yyjson_primitives.h"
 
-# include <stdint.h>
-# include <netdb.h>
+# include <stdio.h> //TODO remove
 
-# include "extensions.h"
-# include "errors.h"
-
-COLD extern inline int32_t getaddrinfo_a_p(int32_t mode, struct gaicb *list[], int32_t ent, struct sigevent *sig);
-COLD extern inline int32_t connect_p(int32_t sockfd, const struct sockaddr *addr, socklen_t addrlen);
-
-#endif
+inline yyjson_doc *yyjson_read_fd(FILE *fp, yyjson_read_flag flg, const yyjson_alc *alc, yyjson_read_err *err)
+{
+  yyjson_doc *doc = yyjson_read_fp(fp, flg, alc, err);
+  if (doc == NULL)
+  {
+    printf("DEB YYJSON_READ_FD ERROR\n");
+    panic(err->msg);
+  }
+  return doc;
+}

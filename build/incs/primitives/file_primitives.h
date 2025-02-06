@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/06 10:02:51 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/06 11:01:28 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/06 11:25:09 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 # include <sys/socket.h>
 # include <unistd.h>
 # include <fcntl.h>
+# include <stdio.h>
 
 # include "extensions.h"
 # include "errors.h"
@@ -31,5 +32,6 @@ COLD extern inline int32_t epoll_ctl_p(int32_t epfd, int32_t op, int32_t fd, str
 HOT extern inline int32_t epoll_wait_p(int32_t epfd, struct epoll_event *events, int32_t maxevents, int32_t timeout);
 HOT extern inline int32_t writev_p(int32_t fd, const struct iovec *iov, int32_t iovcnt);
 HOT extern inline int32_t read_p(int32_t fd, void *buf, size_t count);
+HOT extern inline FILE *fdopen_p(int32_t fd, const char *mode);
 
 #endif

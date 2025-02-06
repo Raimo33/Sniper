@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 17:53:55 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/06 10:27:55 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/06 11:18:46 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,13 +54,13 @@ void handle_http_connection(const uint8_t fd, const uint32_t events, void *data)
 
 connect:
   log_msg(STR_AND_LEN("Connecting to HTTP endpoint: " HTTP_HOST));
-  connect(fd, (struct sockaddr *)&client->addr, sizeof(client->addr));
+  connect_p(fd, (struct sockaddr *)&client->addr, sizeof(client->addr));
   sequence++;
   return;
 
 ssl_handshake:
   log_msg(STR_AND_LEN("Performing SSL handshake"));
-  client->status = (SSL_connect(client->ssl) == true) ? CONNECTED : DISCONNECTED;
+  client->status = (SSL_connect_p(client->ssl) == true) ? CONNECTED : DISCONNECTED;
 }
 
 void handle_http_setup(const uint8_t fd, const uint32_t events, void *data)
@@ -134,7 +134,7 @@ static bool receive_info_response(http_client_t *restrict client)
 
   if (!initialized)
   {
-    client->read_buffer = realloc(client->read_buffer, info_response_size);
+    client->read_buffer = realloc_p(client->read_buffer, info_response_size);
     initialized = true;
   }
 
@@ -152,7 +152,7 @@ static bool receive_info_response(http_client_t *restrict client)
   process_info_response(response->body, response->body_len);
 
   free_http_response(&client->http_response);
-  client->read_buffer = realloc(client->read_buffer, HTTP_READ_BUFFER_SIZE);
+  client->read_buffer = realloc_p(client->read_buffer, HTTP_READ_BUFFER_SIZE);
   return true;
 }
 
@@ -172,8 +172,8 @@ static void process_info_response(char *body, const uint32_t body_len)
   else
   {
     close(pipe_fds[1]);
-    FILE *restrict fp = fdopen(pipe_fds[0], "rb");
-    yyjson_doc *restrict doc = yyjson_read_fp(fp, 0, NULL, NULL);
+    FILE *restrict fp = fdopen_p(pipe_fds[0], "rb");
+    yyjson_doc *restrict doc = yyjson_read_fp_p(fp, 0, NULL, NULL);
     fclose(fp);
     //TODO processare il json
     yyjson_doc_free(doc);

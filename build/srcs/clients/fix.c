@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 21:02:36 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/06 10:27:49 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/06 11:19:31 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,13 +54,13 @@ void handle_fix_connection(const uint8_t fd, const uint32_t events, void *data)
 
 connect:
   log_msg(STR_AND_LEN("Connecting to FIX endpoint: " FIX_HOST));
-  connect(fd, (struct sockaddr *)&client->addr, sizeof(client->addr));
+  connect_p(fd, (struct sockaddr *)&client->addr, sizeof(client->addr));
   sequence++;
   return;
 
 ssl_handshake:
   log_msg(STR_AND_LEN("Performing SSL handshake"));
-  sequence += SSL_connect(client->ssl) == true;
+  sequence += SSL_connect_p(client->ssl) == true;
   return;
 
 logon_query:

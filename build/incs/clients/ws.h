@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 16:53:00 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/06 10:21:56 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/06 11:32:12 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 
 # include <stdint.h>
 
-
+# include "primitives/network_primitives.h"
 # include "client_common.h"
 # include "extensions.h"
 # include "keys.h"

@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 16:52:43 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/06 10:24:45 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/06 11:31:54 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,8 @@
 # include <stdint.h>
 # include <yyjson.h>
 
+# include "primitives/network_primitives.h"
+# include "primitives/yyjson_primitives.h"
 # include "client_common.h"
 # include "extensions.h"
 # include "keys.h"

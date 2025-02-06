@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/06 10:06:06 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/06 10:59:50 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/06 11:22:25 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,5 +31,6 @@ HOT extern inline int32_t EVP_DigestSignUpdate_p(EVP_MD_CTX *ctx, const void *d,
 HOT extern inline int32_t EVP_DigestSignFinal_p(EVP_MD_CTX *ctx, unsigned char *sig, size_t *siglen);
 HOT extern inline int32_t SSL_write_p(SSL *ssl, const void *buf, int num);
 HOT extern inline int32_t SSL_read_p(SSL *ssl, void *buf, int num);
+COLD extern inline int32_t SSL_connect_p(SSL *ssl);
 
 #endif

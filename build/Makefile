@@ -683,6 +683,30 @@ srcs/primitives/time_primitives.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/primitives/time_primitives.c.s
 .PHONY : srcs/primitives/time_primitives.c.s
 
+srcs/primitives/yyjson_primitives.o: srcs/primitives/yyjson_primitives.c.o
+.PHONY : srcs/primitives/yyjson_primitives.o
+
+# target to build an object file
+srcs/primitives/yyjson_primitives.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/primitives/yyjson_primitives.c.o
+.PHONY : srcs/primitives/yyjson_primitives.c.o
+
+srcs/primitives/yyjson_primitives.i: srcs/primitives/yyjson_primitives.c.i
+.PHONY : srcs/primitives/yyjson_primitives.i
+
+# target to preprocess a source file
+srcs/primitives/yyjson_primitives.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/primitives/yyjson_primitives.c.i
+.PHONY : srcs/primitives/yyjson_primitives.c.i
+
+srcs/primitives/yyjson_primitives.s: srcs/primitives/yyjson_primitives.c.s
+.PHONY : srcs/primitives/yyjson_primitives.s
+
+# target to generate assembly for a file
+srcs/primitives/yyjson_primitives.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/primitives/yyjson_primitives.c.s
+.PHONY : srcs/primitives/yyjson_primitives.c.s
+
 srcs/signals.o: srcs/signals.c.o
 .PHONY : srcs/signals.o
 
@@ -832,6 +856,9 @@ help:
 	@echo "... srcs/primitives/time_primitives.o"
 	@echo "... srcs/primitives/time_primitives.i"
 	@echo "... srcs/primitives/time_primitives.s"
+	@echo "... srcs/primitives/yyjson_primitives.o"
+	@echo "... srcs/primitives/yyjson_primitives.i"
+	@echo "... srcs/primitives/yyjson_primitives.s"
 	@echo "... srcs/signals.o"
 	@echo "... srcs/signals.i"
 	@echo "... srcs/signals.s"

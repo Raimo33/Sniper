@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/06 09:58:08 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/06 11:00:26 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/06 11:22:51 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,6 +129,17 @@ inline int32_t SSL_read_p(SSL *ssl, void *buf, int32_t num)
   if (ret <= 0)
   {
     printf("DEB SSL_READ ERROR\n");
+    handle_ssl_error();
+  }
+  return ret;
+}
+
+inline int32_t SSL_connect_p(SSL *ssl)
+{
+  const int32_t ret = SSL_connect(ssl);
+  if (ret <= 0)
+  {
+    printf("DEB SSL_CONNECT ERROR\n");
     handle_ssl_error();
   }
   return ret;
