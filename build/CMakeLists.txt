@@ -37,7 +37,6 @@ target_compile_options(fastaf PRIVATE
 
 target_link_options(fastaf PRIVATE
   -flto
-  -static
 )
 
 target_link_libraries(fastaf PRIVATE
@@ -46,6 +45,7 @@ target_link_libraries(fastaf PRIVATE
   z
   yyjson
   xxhash
+  m
 )
 
 set(VALGRIND_SUPP ${CMAKE_SOURCE_DIR}/valgrind.supp)
@@ -59,6 +59,8 @@ set(VALGRIND_FLAGS
   --show-leak-kinds=all
   --track-origins=yes
   --track-fds=yes
+  # --gen-suppressions=all
+  --trace-children=yes
   --suppressions=${VALGRIND_SUPP}
   --log-file=${VALGRIND_LOG}
 )

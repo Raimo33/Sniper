@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/06 11:25:43 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/06 11:26:22 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/06 13:53:18 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,6 @@
 # include "extensions.h"
 # include "errors.h"
 
-HOT extern inline yyjson_doc *yyjson_read_fp_p(FILE *fp, size_t flags, size_t *err_line, size_t *err_col);
+HOT extern inline yyjson_doc * yyjson_read_fp_p(FILE *fp, yyjson_read_flag flg, const yyjson_alc *alc, yyjson_read_err *err);
 
 #endif

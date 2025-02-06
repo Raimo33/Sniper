@@ -40,7 +40,7 @@
 			{
 				"command" : 2,
 				"file" : 0,
-				"line" : 43,
+				"line" : 42,
 				"parent" : 0
 			},
 			{
@@ -192,11 +192,6 @@
 				"role" : "flags"
 			},
 			{
-				"backtrace" : 2,
-				"fragment" : "-static",
-				"role" : "flags"
-			},
-			{
 				"backtrace" : 3,
 				"fragment" : "-lssl",
 				"role" : "libraries"
@@ -219,6 +214,11 @@
 			{
 				"backtrace" : 3,
 				"fragment" : "-lxxhash",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 3,
+				"fragment" : "-lm",
 				"role" : "libraries"
 			}
 		],
