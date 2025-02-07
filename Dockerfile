@@ -6,7 +6,7 @@
 #    By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/12/29 17:07:44 by craimond          #+#    #+#              #
-#    Updated: 2025/02/07 17:02:22 by craimond         ###   ########.fr        #
+#    Updated: 2025/02/07 22:51:16 by craimond         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -22,8 +22,7 @@ RUN useradd -s /bin/bash fastaf
 RUN chown -R fastaf:fastaf /build
 
 WORKDIR /build
-RUN cmake .
-RUN make -j$(nproc)
+RUN cmake . && cmake --build . --parallel $(nproc)
 
 # TODO:
 # disable_interrupt_coalescing
