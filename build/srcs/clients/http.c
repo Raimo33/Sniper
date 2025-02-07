@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 17:53:55 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/07 09:31:12 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/07 18:01:00 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ void init_http(http_client_t *restrict client, keys_t *restrict keys, SSL_CTX *r
   *client = (http_client_t){
     .sock_fd = fd,
     .addr = {},
-    .ssl = init_ssl_socket(fd, ssl_ctx),
+    .ssl = init_ssl_socket(fd, ssl_ctx, HTTP_HOST),
     .keys = keys,
     .write_buffer = calloc_p(HTTP_WRITE_BUFFER_SIZE, sizeof(char)),
     .read_buffer = calloc_p(HTTP_READ_BUFFER_SIZE, sizeof(char)),
@@ -48,7 +48,6 @@ void handle_http_connection(UNUSED const uint8_t fd, const uint32_t events, void
   http_client_t *client = data;
 
   printf("http_sequence: %d\n", sequence);
-  printf("http_events: %d\n", events);
 
   if (UNLIKELY(events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP)))
     panic("HTTP connection error");

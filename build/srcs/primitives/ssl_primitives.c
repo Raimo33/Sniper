@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/06 09:58:08 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/07 12:15:41 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/07 18:50:21 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,6 +62,16 @@ inline int32_t SSL_CTX_set_ciphersuites_p(SSL_CTX *ctx, const char *str)
   if (UNLIKELY(SSL_CTX_set_ciphersuites(ctx, str) == 0))
   {
     printf("DEB SSL_CTX_SET_CIPHERSUITES ERROR\n");
+    handle_ssl_error();
+  }
+  return 0;
+}
+
+inline int32_t SSL_CTX_set_cipher_list_p(SSL_CTX *ctx, const char *str)
+{
+  if (UNLIKELY(SSL_CTX_set_cipher_list(ctx, str) == 0))
+  {
+    printf("DEB SSL_CTX_SET_CIPHER_LIST ERROR\n");
     handle_ssl_error();
   }
   return 0;
@@ -152,14 +162,13 @@ inline int32_t SSL_read_p(SSL *ssl, void *buf, int32_t num)
 
 inline int32_t SSL_connect_p(SSL *ssl)
 {
-  printf("DEB SSL_CONNECT\n");
   const int32_t ret = SSL_connect(ssl);
   if (LIKELY(ret <= 0))
   {
     const int32_t ssl_error = SSL_get_error(ssl, ret);
     if (LIKELY(ssl_error == SSL_ERROR_WANT_WRITE || ssl_error == SSL_ERROR_WANT_READ))
       return 0;
-    printf("DEB SSL_CONNECT ERROR\n");
+    printf("DEB SSL_connect ERROR\n");
     handle_ssl_error();
   }
   return ret;

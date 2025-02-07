@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 20:53:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/06 22:09:18 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/07 19:03:08 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ void init_ws(ws_client_t *restrict client, SSL_CTX *restrict ssl_ctx)
   *client = (ws_client_t){
     .sock_fd = fd,
     .addr = {},
-    .ssl = init_ssl_socket(fd, ssl_ctx),
+    .ssl = init_ssl_socket(fd, ssl_ctx, WS_HOST),
     .conn_key = {},
     .write_buffer = calloc_p(WS_WRITE_BUFFER_SIZE, sizeof(char)),
     .read_buffer = calloc_p(WS_READ_BUFFER_SIZE, sizeof(char)),
@@ -45,9 +45,6 @@ void handle_ws_connection(UNUSED const uint8_t fd, const uint32_t events, void *
 
   ws_client_t *client = data;
 
-  printf("ws_sequence: %d\n", sequence);
-  printf("ws_events: %d\n", events);
-
   if (UNLIKELY(events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP)))
     panic("Websocket connection error");
 
@@ -56,6 +53,7 @@ void handle_ws_connection(UNUSED const uint8_t fd, const uint32_t events, void *
 ssl_handshake:
   log_msg(STR_AND_LEN("Performing SSL handshake"));
   sequence += SSL_connect_p(client->ssl) == true;
+  //TODO reregister epollout. rearm helper
   return;
 
 upgrade_query:

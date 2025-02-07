@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 21:02:36 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/07 16:38:12 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/07 18:01:00 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ void init_fix(fix_client_t *restrict client, keys_t *restrict keys, SSL_CTX *res
   *client = (fix_client_t){
     .sock_fd = fd,
     .addr = {},
-    .ssl = init_ssl_socket(fd, ssl_ctx),
+    .ssl = init_ssl_socket(fd, ssl_ctx, FIX_HOST),
     .keys = keys,
     .write_buffer = calloc_p(FIX_WRITE_BUFFER_SIZE, sizeof(char)),
     .read_buffer = calloc_p(FIX_READ_BUFFER_SIZE, sizeof(char)),

@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/17 17:07:01 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/06 21:41:08 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/07 18:06:51 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,8 @@ inline void fast_assert(const bool condition, const char *restrict msg)
 inline void panic(const char *restrict msg)
 {
   log_msg(msg, strlen(msg));
+  fflush(stderr); //TODO remove
+  fflush(stdout); //TODO remove
   exit(EXIT_FAILURE);
 }
 

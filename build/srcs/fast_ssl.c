@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 16:35:17 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/07 11:29:54 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/07 18:21:38 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,8 +19,9 @@ SSL_CTX *init_ssl(void)
   SSL_CTX *ctx = SSL_CTX_new_p(TLS_client_method());
 
   SSL_CTX_set_verify(ctx, SSL_VERIFY_NONE, NULL);
-  SSL_CTX_set_min_proto_version_p(ctx, TLS1_3_VERSION);
+  SSL_CTX_set_min_proto_version_p(ctx, TLS1_2_VERSION);
   SSL_CTX_set_max_proto_version_p(ctx, TLS1_3_VERSION);
+  SSL_CTX_set_cipher_list_p(ctx, TLS_CIPHER_LIST);
   SSL_CTX_set_ciphersuites_p(ctx, TLS_CIPHERSUITE);
 
   SSL_CTX_set_read_ahead(ctx, true);
@@ -29,10 +30,11 @@ SSL_CTX *init_ssl(void)
   return ctx;
 }
 
-SSL *init_ssl_socket(const uint8_t fd, SSL_CTX *restrict ctx)
+SSL *init_ssl_socket(const uint8_t fd, SSL_CTX *restrict ctx, const char *restrict host)
 {
   SSL *ssl = SSL_new_p(ctx);
   SSL_set_fd_p(ssl, fd);
+  SSL_set_tlsext_host_name(ssl, host);
   return ssl;
 }
 

@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/06 10:06:06 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/07 12:17:13 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/07 18:21:18 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@ COLD extern inline SSL_CTX *SSL_CTX_new_p(const SSL_METHOD *method);
 COLD extern inline int32_t SSL_CTX_set_min_proto_version_p(SSL_CTX *ctx, int32_t version);
 COLD extern inline int32_t SSL_CTX_set_max_proto_version_p(SSL_CTX *ctx, int32_t version);
 COLD extern inline int32_t SSL_CTX_set_ciphersuites_p(SSL_CTX *ctx, const char *str);
+COLD extern inline int32_t SSL_CTX_set_cipher_list_p(SSL_CTX *ctx, const char *str);
 COLD extern inline SSL *SSL_new_p(SSL_CTX *ctx);
 COLD extern inline int32_t SSL_set_fd_p(SSL *ssl, int fd);
 COLD extern inline EVP_PKEY *EVP_PKEY_new_raw_private_key_p(int type, ENGINE *e, const unsigned char *key, size_t keylen);
