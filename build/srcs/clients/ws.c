@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 20:53:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/07 19:03:08 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/07 20:08:58 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,18 +52,22 @@ void handle_ws_connection(UNUSED const uint8_t fd, const uint32_t events, void *
 
 ssl_handshake:
   log_msg(STR_AND_LEN("Performing SSL handshake"));
-  sequence += SSL_connect_p(client->ssl) == true;
-  //TODO reregister epollout. rearm helper
-  return;
+  if (!SSL_connect_p(client->ssl))
+    return;
+  sequence++;
 
 upgrade_query:
   log_msg(STR_AND_LEN("Sending Websocket upgrade query"));
-  sequence += send_upgrade_query(client);
-  return;
+  if (!send_upgrade_query(client))
+    return;
+  sequence++;
 
 upgrade_response:
   log_msg(STR_AND_LEN("Receiving Websocket upgrade response"));
-  client->status = receive_upgrade_response(client) ? CONNECTED : DISCONNECTED;
+  if (!receive_upgrade_response(client))
+    return;
+
+  client->status = CONNECTED;
 }
 
 void handle_ws_setup(const uint8_t fd, const uint32_t events, void *data)

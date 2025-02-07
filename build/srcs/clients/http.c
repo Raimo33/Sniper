@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 17:53:55 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/07 18:01:00 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/07 20:09:38 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,10 @@ void handle_http_connection(UNUSED const uint8_t fd, const uint32_t events, void
 
 ssl_handshake:
   log_msg(STR_AND_LEN("Performing SSL handshake"));
-  client->status = (SSL_connect_p(client->ssl) == true) ? CONNECTED : DISCONNECTED;
+  if (!SSL_connect_p(client->ssl))
+    return;
+  
+  client->status = CONNECTED;
 }
 
 void handle_http_setup(const uint8_t fd, const uint32_t events, void *data)

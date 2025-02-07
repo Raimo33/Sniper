@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 21:02:36 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/07 18:01:00 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/07 20:10:14 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,17 +54,22 @@ void handle_fix_connection(UNUSED const uint8_t fd, const uint32_t events, void 
 
 ssl_handshake:
   log_msg(STR_AND_LEN("Performing SSL handshake"));
-  sequence += SSL_connect_p(client->ssl) == true;
-  return;
+  if (!SSL_connect_p(client->ssl))
+    return;
+  sequence++;
 
 logon_query:
   log_msg(STR_AND_LEN("Sending logon query"));
-  sequence += send_logon_query(client);
-  return;
+  if (!send_logon_query(client))
+    return;
+  sequence++;
 
 logon_response:
   log_msg(STR_AND_LEN("Receiving logon response"));
-  client->status = receive_logon_response(client) ? CONNECTED : DISCONNECTED;
+  if (!receive_logon_response(client))
+    return;
+  
+  client->status = CONNECTED;
 }
 
 void handle_fix_setup(const uint8_t fd, const uint32_t events, void *data)
