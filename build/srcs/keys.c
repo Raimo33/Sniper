@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 19:01:43 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/07 16:41:37 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/07 20:38:10 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,7 @@ bool verify_ws_key(const uint8_t *restrict key, const uint8_t *restrict accept, 
 
   uint8_t sha1_hash[20];
   SHA1(concatenated_key, sizeof(concatenated_key), sha1_hash);
-  return (memcmp(decoded_key, sha1_hash, sizeof(sha1_hash)) == 0);
+  return !memcmp(decoded_key, sha1_hash, sizeof(sha1_hash));
 }
 
 void sign_ed25519(EVP_PKEY *key, const char *data, const uint16_t data_len, char *restrict buffer)

@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/04 11:15:12 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/05 16:28:50 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/07 21:38:37 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,12 +18,13 @@
 # include <stdlib.h>
 # include <xxhash.h>
 
+# include "primitives/alloc_primitives.h"
 # include "extensions.h"
 # include "logger.h"
 # include "errors.h"
 # include "string_utils.h"
 
-# define HEADER_MAP_DILUTION_FACTOR 3
+# define HEADER_MAP_DILUTION_FACTOR 5
 
 typedef enum: uint8_t {GET, POST, PUT, DELETE} http_method_t;
 typedef enum: uint8_t {HTTP_1_0, HTTP_1_1} http_version_t;
@@ -40,6 +41,7 @@ typedef struct
 {
   header_entry_t *entries;
   uint8_t n_entries;
+  uint16_t size;
 } header_map_t;
 
 typedef struct ALIGNED(16)
