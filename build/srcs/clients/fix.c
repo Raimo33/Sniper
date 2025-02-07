@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 21:02:36 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/06 20:44:34 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/07 16:38:12 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,12 +124,12 @@ static bool send_logon_query(fix_client_t *restrict client)
     char serialized_data[1024];
     uint16_t data_len = serialize_fix_fields(serialized_data, sizeof(serialized_data), raw_data, ARR_LEN(raw_data));
     
-    char signed_data[ed25519_SIG_SIZE];
+    char signed_data[ED25519_SIG_SIZE];
     sign_ed25519(client->keys->priv_key, serialized_data, data_len, signed_data);
     data_len = sizeof(signed_data);
   
-    char encoded_data[BASE64_SIZE(ed25519_SIG_SIZE)];
-    data_len = base64_encode(signed_data, data_len, encoded_data, sizeof(encoded_data));
+    char encoded_data[BASE64_ENCODED_SIZE(ED25519_SIG_SIZE)];
+    data_len = base64_encode((uint8_t *)signed_data, data_len, (uint8_t *)encoded_data, sizeof(encoded_data));
   
     char data_len_str[16];
     const uint8_t data_len_str_len = ultoa(data_len, data_len_str);

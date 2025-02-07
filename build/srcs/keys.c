@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 19:01:43 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/07 12:58:51 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/07 16:41:37 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,10 +17,10 @@ void init_keys(keys_t *restrict keys)
   const char *priv_key = getenv("PRIV_KEY");
   const char *api_key = getenv("API_KEY");
 
-  fast_assert(priv_key && api_key, "Missing keys");
+  fast_assert(priv_key && api_key, "Missing environment variables");
 
   memcpy(keys->api_key, api_key, API_KEY_SIZE);
-  keys->priv_key = EVP_PKEY_new_raw_private_key_p(EVP_PKEY_ED25519, NULL, priv_key, priv_key_len);
+  keys->priv_key = EVP_PKEY_new_raw_private_key_p(EVP_PKEY_ED25519, NULL, (const uint8_t *)priv_key, PRIV_KEY_SIZE);
 }
 
 void generate_ws_key(uint8_t *restrict key)
@@ -59,26 +59,26 @@ void sign_ed25519(EVP_PKEY *key, const char *data, const uint16_t data_len, char
   EVP_MD_CTX *ctx = EVP_MD_CTX_new();
   EVP_DigestSignInit_p(ctx, NULL, NULL, NULL, key);
 
-  size_t signature_len = ed25519_SIG_SIZE;
+  size_t signature_len = ED25519_SIG_SIZE;
   EVP_DigestSign_p(ctx, (unsigned char *)buffer, &signature_len, (const unsigned char *)data, data_len);
 
   EVP_MD_CTX_free(ctx);
 }
 
-uint16_t base64_encode(const char *data, const uint16_t data_len, char *restrict buffer, const uint16_t buffer_size)
+uint16_t base64_encode(const uint8_t *data, const uint16_t data_len, uint8_t *restrict buffer, const uint16_t buffer_size)
 {
   fast_assert(data && buffer, "Unexpected NULL pointer");
-  fast_assert(buffer_size >= BASE64_SIZE(data_len), "Buffer too small for encoding");
+  fast_assert(buffer_size >= BASE64_ENCODED_SIZE(data_len), "Buffer too small for encoding");
 
-  return EVP_EncodeBlock((uint8_t *)buffer, (const uint8_t *)data, data_len);
+  return EVP_EncodeBlock(buffer, data, data_len);
 }
 
-uint16_t base64_decode(const char *data, const uint16_t data_len, uint8_t *restrict buffer, const uint16_t buffer_size)
+uint16_t base64_decode(const uint8_t *data, const uint16_t data_len, uint8_t *restrict buffer, const uint16_t buffer_size)
 {
   fast_assert(data && buffer, "Unexpected NULL pointer");
-  fast_assert(buffer_size >= data_len, "Buffer too small for decoding");
+  fast_assert(buffer_size >= BASE64_DECODED_SIZE(data_len), "Buffer too small for decoding");
 
-  return EVP_DecodeBlock(buffer, (const uint8_t *)data, data_len);
+  return EVP_DecodeBlock(buffer, data, data_len);
 }
 
 void free_keys(keys_t *restrict keys)
