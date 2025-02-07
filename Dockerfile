@@ -6,7 +6,7 @@
 #    By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/12/29 17:07:44 by craimond          #+#    #+#              #
-#    Updated: 2025/02/02 11:59:45 by craimond         ###   ########.fr        #
+#    Updated: 2025/02/07 12:01:47 by craimond         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,7 +14,7 @@
 FROM clearlinux:latest 
 
 RUN swupd update
-RUN swupd bundle-add c-basic os-core-dev devpkg-openssl devpkg-zlib
+RUN swupd bundle-add devpkg-openssl devpkg-zlib devpkg-yyjson valgrind
 
 COPY ./build /build
 
@@ -25,10 +25,10 @@ WORKDIR /build
 RUN cmake .
 RUN make
 
-#TODO:
-#disable_interrupt_coalescing
-#disable_gro_lro
-#disable RSS
-#Set Low-Latency IRQ Affinity
+# TODO:
+# disable_interrupt_coalescing
+# disable_gro_lro
+# disable RSS
+# Set Low-Latency IRQ Affinity
 
 CMD ["./fastaf"]
