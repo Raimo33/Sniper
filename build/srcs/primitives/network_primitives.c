@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/06 10:31:19 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/06 11:55:28 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/07 09:57:05 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,5 +33,6 @@ inline int32_t connect_p(int32_t sockfd, const struct sockaddr *addr, socklen_t 
     printf("DEB CONNECT ERROR\n");
     panic(strerror(errno));
   }
+
   return ret;
 }

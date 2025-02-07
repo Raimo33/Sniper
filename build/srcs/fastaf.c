@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/29 17:07:42 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/06 19:49:07 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/07 11:29:20 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ int32_t main(void)
   atexit(free_signals_wrapper);
   init_keys(&app->keys);
   atexit(free_keys_wrapper);
-  init_ssl(&app->ssl_ctx);
+  app->ssl_ctx = init_ssl();
   atexit(free_ssl_wrapper);
   init_fix(&app->clients.fix, &app->keys, app->ssl_ctx);
   atexit(free_fix_wrapper);

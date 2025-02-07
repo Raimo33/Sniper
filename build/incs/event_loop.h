@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 17:42:49 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/06 20:52:31 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/07 09:47:30 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,7 @@ typedef struct
 
 extern HandlerEntry handlers[MAX_FDS];
 
-COLD uint16_t init_event_loop(clients_t *restrict clients, const uint8_t log_fd, const uint8_t signal_fd);
+COLD uint8_t init_event_loop(clients_t *restrict clients, const uint8_t log_fd, const uint8_t signal_fd);
 COLD void resolve_domains(clients_t *restrict clients);
 COLD void connect_clients(const uint8_t epoll_fd, clients_t *restrict clients, const uint8_t log_fd, const uint8_t signal_fd);
 COLD void setup_trading(const uint8_t epoll_fd, clients_t *restrict clients, const uint8_t log_fd, const uint8_t signal_fd);

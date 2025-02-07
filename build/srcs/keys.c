@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 19:01:43 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/06 20:35:47 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/07 12:58:51 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,20 +14,13 @@
 
 void init_keys(keys_t *restrict keys)
 {
-  OpenSSL_add_all_algorithms();
-
-  const char *restrict priv_key = getenv("PRIV_KEY");
-  const char *restrict api_key  = getenv("API_KEY");
+  const char *priv_key = getenv("PRIV_KEY");
+  const char *api_key = getenv("API_KEY");
 
   fast_assert(priv_key && api_key, "Missing keys");
 
   memcpy(keys->api_key, api_key, API_KEY_SIZE);
-  BIO *bio = BIO_new_mem_buf(priv_key, -1);
-  keys->priv_key = PEM_read_bio_PrivateKey(bio, NULL, NULL, NULL);
-  fast_assert(keys->priv_key, "Failed to read private key");
-  BIO_free(bio);
-
-  fast_assert(EVP_PKEY_get_id(keys->priv_key) == EVP_PKEY_ED25519, "Invalid private key type");
+  keys->priv_key = EVP_PKEY_new_raw_private_key_p(EVP_PKEY_ED25519, NULL, priv_key, priv_key_len);
 }
 
 void generate_ws_key(uint8_t *restrict key)
@@ -75,9 +68,17 @@ void sign_ed25519(EVP_PKEY *key, const char *data, const uint16_t data_len, char
 uint16_t base64_encode(const char *data, const uint16_t data_len, char *restrict buffer, const uint16_t buffer_size)
 {
   fast_assert(data && buffer, "Unexpected NULL pointer");
-  fast_assert(buffer_size >= BASE64_SIZE(data_len), "Buffer too small");
+  fast_assert(buffer_size >= BASE64_SIZE(data_len), "Buffer too small for encoding");
 
   return EVP_EncodeBlock((uint8_t *)buffer, (const uint8_t *)data, data_len);
+}
+
+uint16_t base64_decode(const char *data, const uint16_t data_len, uint8_t *restrict buffer, const uint16_t buffer_size)
+{
+  fast_assert(data && buffer, "Unexpected NULL pointer");
+  fast_assert(buffer_size >= data_len, "Buffer too small for decoding");
+
+  return EVP_DecodeBlock(buffer, (const uint8_t *)data, data_len);
 }
 
 void free_keys(keys_t *restrict keys)

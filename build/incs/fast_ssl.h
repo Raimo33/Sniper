@@ -23,9 +23,11 @@
 # include "extensions.h"
 # include "keys.h"
 
+# define TLS_CIPHERSUITE "TLS_AES_128_GCM_SHA256:TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256"
+
 //https://docs.openssl.org/master/man3/
 
-COLD void init_ssl(SSL_CTX **restrict ctx);
+COLD SSL_CTX *init_ssl(void);
 COLD SSL *init_ssl_socket(const uint8_t fd, SSL_CTX *restrict ctx);
 COLD void free_ssl_socket(SSL *restrict ssl);
 COLD void free_ssl(SSL_CTX *restrict ctx);

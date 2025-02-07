@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 18:09:22 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/06 10:57:34 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/07 09:46:35 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,6 @@ void handle_logs(const uint8_t fd, const uint32_t events, UNUSED void *data)
     panic("Error on logger fd");
 }
 
-//TODO tutti glifd int8, tanto sono limitati
 static void flush_logs(const uint8_t fd)
 {
   struct iovec iov[2];
@@ -76,7 +75,6 @@ static void flush_logs(const uint8_t fd)
   const uint16_t written = writev_p(fd, iov, iovcnt);
   if (written > 0)
     g_log_ring.tail = (g_log_ring.tail + written) % LOG_RING_SIZE;
-  // TODO: Handle EAGAIN/EWOULDBLOCK
 }
 
 void free_logger(uint8_t fd)

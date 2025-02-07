@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/06 10:00:24 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/06 11:24:36 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/07 09:54:24 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,7 +92,7 @@ inline int32_t epoll_wait_p(int32_t epfd, struct epoll_event *events, int32_t ma
 inline int32_t writev_p(int32_t fd, const struct iovec *iov, int32_t iovcnt)
 {
   const int32_t ret = writev(fd, iov, iovcnt);
-  if (ret == -1)
+  if (ret == -1 && errno != EAGAIN && errno != EWOULDBLOCK)
   {
     printf("DEB WRITEV ERROR\n");
     panic(strerror(errno));
@@ -103,7 +103,7 @@ inline int32_t writev_p(int32_t fd, const struct iovec *iov, int32_t iovcnt)
 inline int32_t read_p(int32_t fd, void *buf, size_t count)
 {
   const int32_t ret = read(fd, buf, count);
-  if (ret == -1)
+  if (ret == -1 && errno != EAGAIN && errno != EWOULDBLOCK)
   {
     printf("DEB READ ERROR\n");
     panic(strerror(errno));

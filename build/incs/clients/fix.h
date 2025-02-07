@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 16:52:51 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/06 11:22:09 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/06 22:16:07 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,8 @@
 # include "fixed_point.h"
 # include "graph.h"
 
-# define FIX_HOST "fix-oe.binance.com"
+// # define FIX_HOST "fix-oe.binance.com"
+# define FIX_HOST "fix-oe.testnet.binance.vision"
 # define FIX_PORT "9000"
 # define FIX_KEEPALIVE_IDLE 300
 # define FIX_KEEPALIVE_INTVL 30

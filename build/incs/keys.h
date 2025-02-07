@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 18:59:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/06 20:04:31 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/07 12:16:42 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,7 @@ COLD void generate_ws_key(uint8_t *restrict key);
 COLD bool verify_ws_key(const uint8_t *restrict key, const uint8_t *restrict accept, const uint16_t len);
 HOT void sign_ed25519(EVP_PKEY *key, const char *data, const uint16_t data_len, char *restrict buffer);
 HOT uint16_t base64_encode(const char *data, const uint16_t data_len, char *restrict buffer, const uint16_t buffer_size);
+HOT uint16_t base64_decode(const char *data, const uint16_t data_len, uint8_t *restrict buffer, const uint16_t buffer_size);
 COLD void free_keys(keys_t *restrict keys);
 
 #endif

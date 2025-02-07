@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/06 09:58:08 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/06 21:09:39 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/07 12:15:41 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,6 +57,16 @@ inline int32_t SSL_CTX_set_max_proto_version_p(SSL_CTX *ctx, int32_t version)
   return 0;
 }
 
+inline int32_t SSL_CTX_set_ciphersuites_p(SSL_CTX *ctx, const char *str)
+{
+  if (UNLIKELY(SSL_CTX_set_ciphersuites(ctx, str) == 0))
+  {
+    printf("DEB SSL_CTX_SET_CIPHERSUITES ERROR\n");
+    handle_ssl_error();
+  }
+  return 0;
+}
+
 inline SSL *SSL_new_p(SSL_CTX *ctx)
 {
   SSL *ssl = SSL_new(ctx);
@@ -77,6 +87,17 @@ inline int32_t SSL_set_fd_p(SSL *ssl, int32_t fd)
     handle_ssl_error();
   }
   return ret;
+}
+
+inline EVP_PKEY *EVP_PKEY_new_raw_private_key_p(int type, ENGINE *e, const unsigned char *key, size_t keylen)
+{
+  EVP_PKEY *pkey = EVP_PKEY_new_raw_private_key(type, e, key, keylen);
+  if (UNLIKELY(pkey == NULL))
+  {
+    printf("DEB EVP_PKEY_NEW_RAW_PRIVATE_KEY ERROR\n");
+    handle_ssl_error();
+  }
+  return pkey;
 }
 
 inline int32_t EVP_DigestSignInit_p(EVP_MD_CTX *ctx, EVP_PKEY_CTX **pctx, const EVP_MD *type, ENGINE *e, EVP_PKEY *pkey)

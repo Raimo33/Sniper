@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 20:53:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/06 18:16:01 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/06 22:09:18 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -128,6 +128,7 @@ static bool send_upgrade_query(ws_client_t *restrict client)
     initialized = true;
   }
   
+  printf("SENDING UPGRADE QUERY\n");
   return try_ssl_send(client->ssl, client->write_buffer, len, &client->write_offset);
 }
 
@@ -148,7 +149,9 @@ static bool receive_upgrade_response(ws_client_t *restrict client)
   if (verify_ws_key(client->conn_key, (uint8_t *)accept_header->value, accept_header->value_len) == false)
     panic("Websocket upgrade failed: key mismatch");
 
+  printf("FREEING HTTP RESPONSE\n");
   free_http_response(&client->http_response);
+  printf("FREED HTTP RESPONSE\n");
   return true;
 }
 

@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 16:52:43 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/06 13:47:57 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/07 10:05:03 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,8 +23,9 @@
 # include "parsing/decompression.h"
 # include "graph.h"
 
-# define HTTP_HOST "api.binance.com"
-# define HTTP_PORT "8080"
+// # define HTTP_HOST "api.binance.com"
+# define HTTP_HOST "testnet.binance.vision"
+# define HTTP_PORT "443"
 # define HTTP_READ_BUFFER_SIZE 4096
 # define HTTP_WRITE_BUFFER_SIZE 4096
 # define HTTP_KEEPALIVE_IDLE  5

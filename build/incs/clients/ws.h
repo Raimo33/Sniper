@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 16:53:00 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/06 11:32:12 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/06 22:15:01 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,8 @@
 # include "keys.h"
 # include "graph.h"
 
-# define WS_HOST "stream.binance.com"
+// # define WS_HOST "stream.binance.com"
+# define WS_HOST "stream.testnet.binance.vision"
 # define WS_PORT "9443"
 # define WS_PATH "/stream?timeUnit=microsecond"
 # define WS_READ_BUFFER_SIZE 4096
