@@ -539,6 +539,30 @@ srcs/primitives/alloc_primitives.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/primitives/alloc_primitives.c.s
 .PHONY : srcs/primitives/alloc_primitives.c.s
 
+srcs/primitives/crypto_primitives.o: srcs/primitives/crypto_primitives.c.o
+.PHONY : srcs/primitives/crypto_primitives.o
+
+# target to build an object file
+srcs/primitives/crypto_primitives.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/primitives/crypto_primitives.c.o
+.PHONY : srcs/primitives/crypto_primitives.c.o
+
+srcs/primitives/crypto_primitives.i: srcs/primitives/crypto_primitives.c.i
+.PHONY : srcs/primitives/crypto_primitives.i
+
+# target to preprocess a source file
+srcs/primitives/crypto_primitives.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/primitives/crypto_primitives.c.i
+.PHONY : srcs/primitives/crypto_primitives.c.i
+
+srcs/primitives/crypto_primitives.s: srcs/primitives/crypto_primitives.c.s
+.PHONY : srcs/primitives/crypto_primitives.s
+
+# target to generate assembly for a file
+srcs/primitives/crypto_primitives.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fastaf.dir/build.make CMakeFiles/fastaf.dir/srcs/primitives/crypto_primitives.c.s
+.PHONY : srcs/primitives/crypto_primitives.c.s
+
 srcs/primitives/file_primitives.o: srcs/primitives/file_primitives.c.o
 .PHONY : srcs/primitives/file_primitives.o
 
@@ -838,6 +862,9 @@ help:
 	@echo "... srcs/primitives/alloc_primitives.o"
 	@echo "... srcs/primitives/alloc_primitives.i"
 	@echo "... srcs/primitives/alloc_primitives.s"
+	@echo "... srcs/primitives/crypto_primitives.o"
+	@echo "... srcs/primitives/crypto_primitives.i"
+	@echo "... srcs/primitives/crypto_primitives.s"
 	@echo "... srcs/primitives/file_primitives.o"
 	@echo "... srcs/primitives/file_primitives.i"
 	@echo "... srcs/primitives/file_primitives.s"

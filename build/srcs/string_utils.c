@@ -52,48 +52,56 @@ uint8_t ultoa(uint64_t num, char *buffer)
     return 1;
   }
 
-  static const uint64_t power10[] = {
-    1ULL,
-    10ULL,
-    100ULL,
-    1000ULL,
-    10000ULL,
-    100000ULL,
-    1000000ULL,
-    10000000ULL,
-    100000000ULL,
-    1000000000ULL,
-    10000000000ULL,
-    100000000000ULL,
-    1000000000000ULL,
-    10000000000000ULL,
-    100000000000000ULL,
-    1000000000000000ULL,
-    10000000000000000ULL,
-    100000000000000000ULL,
-    1000000000000000000ULL,
-  };
+  const uint8_t digits = 1 +
+    (num >= 10UL) +
+    (num >= 100UL) +
+    (num >= 1000UL) +
+    (num >= 10000UL) +
+    (num >= 100000UL) +
+    (num >= 1000000UL) +
+    (num >= 10000000UL) +
+    (num >= 100000000UL) +
+    (num >= 1000000000UL) +
+    (num >= 10000000000UL) +
+    (num >= 100000000000UL) +
+    (num >= 1000000000000UL) +
+    (num >= 10000000000000UL) +
+    (num >= 100000000000000UL) +
+    (num >= 1000000000000000UL) +
+    (num >= 10000000000000000UL) +
+    (num >= 100000000000000000UL) +
+    (num >= 1000000000000000000UL);
 
-  int low = 0, high = 18, digits = 0;
-  while (LIKELY(low <= high))
-  {
-    int mid = (low + high) / 2;
-    if (num >= power10[mid])
-    {
-      digits = mid + 1;
-      low = mid + 1;
-    }
-    else
-      high = mid - 1;
-  }
+  static const uint64_t power10[] = {
+    1UL,
+    10UL,
+    100UL,
+    1000UL,
+    10000UL,
+    100000UL,
+    1000000UL,
+    10000000UL,
+    100000000UL,
+    1000000000UL,
+    10000000000UL,
+    100000000000UL,
+    1000000000000UL,
+    10000000000000UL,
+    100000000000000UL,
+    1000000000000000UL,
+    10000000000000000UL,
+    100000000000000000UL,
+    1000000000000000000UL,
+  };
 
   uint64_t power = power10[digits - 1];
   char *p = buffer;
-  for (uint8_t i = 0; LIKELY(i < digits); ++i)
+  uint64_t quotient;
+  for (int i = 0; i < digits; i++)
   {
-    uint64_t digit = num / power;
-    *p++ = (char)('0' + digit);
-    num -= digit * power;
+    quotient = num / power;
+    *p++ = (char)('0' + quotient);
+    num -= quotient * power;
     power /= 10;
   }
 
@@ -102,11 +110,11 @@ uint8_t ultoa(uint64_t num, char *buffer)
 
 static inline uint64_t tolower8(uint64_t octets)
 {
-  uint64_t all_bytes = 0x0101010101010101;
-  uint64_t heptets = octets & (0x7F * all_bytes);
-  uint64_t is_gt_Z = heptets + (0x7F - 'Z') * all_bytes;
-  uint64_t is_ge_A = heptets + (0x80 - 'A') * all_bytes;
-  uint64_t is_ascii = ~octets & (0x80 * all_bytes);
-  uint64_t is_upper = is_ascii & (is_ge_A ^ is_gt_Z);
+  const uint64_t all_bytes = 0x0101010101010101;
+  const uint64_t heptets = octets & (0x7F * all_bytes);
+  const uint64_t is_gt_Z = heptets + (0x7F - 'Z') * all_bytes;
+  const uint64_t is_ge_A = heptets + (0x80 - 'A') * all_bytes;
+  const uint64_t is_ascii = ~octets & (0x80 * all_bytes);
+  const uint64_t is_upper = is_ascii & (is_ge_A ^ is_gt_Z);
   return (octets | (is_upper >> 2));
 }

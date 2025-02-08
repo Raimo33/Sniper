@@ -173,7 +173,8 @@
 				22,
 				23,
 				24,
-				25
+				25,
+				26
 			]
 		}
 	],
@@ -262,7 +263,8 @@
 				22,
 				23,
 				24,
-				25
+				25,
+				26
 			]
 		}
 	],
@@ -362,6 +364,12 @@
 			"backtrace" : 1,
 			"compileGroupIndex" : 0,
 			"path" : "srcs/primitives/alloc_primitives.c",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "srcs/primitives/crypto_primitives.c",
 			"sourceGroupIndex" : 0
 		},
 		{

@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 21:02:36 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/07 20:10:14 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/08 13:54:57 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,7 @@ logon_response:
   log_msg(STR_AND_LEN("Receiving logon response"));
   if (!receive_logon_response(client))
     return;
-  
+
   client->status = CONNECTED;
 }
 
@@ -129,12 +129,12 @@ static bool send_logon_query(fix_client_t *restrict client)
     char serialized_data[1024];
     uint16_t data_len = serialize_fix_fields(serialized_data, sizeof(serialized_data), raw_data, ARR_LEN(raw_data));
     
-    char signed_data[ED25519_SIG_SIZE];
+    char signed_data[ED25519_SIGSIZE];
     sign_ed25519(client->keys->priv_key, serialized_data, data_len, signed_data);
     data_len = sizeof(signed_data);
   
-    char encoded_data[BASE64_ENCODED_SIZE(ED25519_SIG_SIZE)];
-    data_len = base64_encode((uint8_t *)signed_data, data_len, (uint8_t *)encoded_data, sizeof(encoded_data));
+    char encoded_data[BASE64_ENCODED_SIZE(ED25519_SIGSIZE) + 1];
+    data_len = EVP_EncodeBlock_p((uint8_t *)encoded_data, (const uint8_t *)signed_data, data_len);
   
     char data_len_str[16];
     const uint8_t data_len_str_len = ultoa(data_len, data_len_str);

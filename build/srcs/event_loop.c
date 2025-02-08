@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 17:40:24 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/07 18:42:53 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/08 13:37:21 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,14 +29,14 @@ uint8_t init_event_loop(clients_t *restrict clients, const uint8_t log_fd, const
     .events = TCP_EVENTS,
     .data = { .fd = clients->ws.sock_fd }
   });
-  // epoll_ctl_p(epoll_fd, EPOLL_CTL_ADD, clients->fix.sock_fd, &(struct epoll_event) {
-  //   .events = TCP_EVENTS,
-  //   .data = { .fd = clients->fix.sock_fd }
-  // });
-  // epoll_ctl_p(epoll_fd, EPOLL_CTL_ADD, clients->http.sock_fd, &(struct epoll_event) {
-  //   .events = TCP_EVENTS,
-  //   .data = { .fd = clients->http.sock_fd }
-  // });
+  epoll_ctl_p(epoll_fd, EPOLL_CTL_ADD, clients->fix.sock_fd, &(struct epoll_event) {
+    .events = TCP_EVENTS,
+    .data = { .fd = clients->fix.sock_fd }
+  });
+  epoll_ctl_p(epoll_fd, EPOLL_CTL_ADD, clients->http.sock_fd, &(struct epoll_event) {
+    .events = TCP_EVENTS,
+    .data = { .fd = clients->http.sock_fd }
+  });
 
   epoll_ctl_p(epoll_fd, EPOLL_CTL_ADD, log_fd, &(struct epoll_event) {
     .events = LOG_EVENTS,
@@ -99,8 +99,8 @@ void connect_clients(const uint8_t epoll_fd, clients_t *restrict clients, const 
   handlers[log_fd]                = (HandlerEntry){ handle_logs, NULL };
 
   connect_p(clients->ws.sock_fd, (struct sockaddr *)&clients->ws.addr, sizeof(clients->ws.addr));
-  // connect_p(clients->fix.sock_fd, (struct sockaddr *)&clients->fix.addr, sizeof(clients->fix.addr));
-  // connect_p(clients->http.sock_fd, (struct sockaddr *)&clients->http.addr, sizeof(clients->http.addr));
+  connect_p(clients->fix.sock_fd, (struct sockaddr *)&clients->fix.addr, sizeof(clients->fix.addr));
+  connect_p(clients->http.sock_fd, (struct sockaddr *)&clients->http.addr, sizeof(clients->http.addr));
 
   while (LIKELY(get_connected_clients(clients) < 3))
   {
@@ -131,7 +131,7 @@ void trade(const uint8_t epoll_fd, clients_t *restrict clients, const uint8_t lo
   //TODO: updates graph with live ws data, sends fix orders, heartbeats, periodical checks with http
 }
 
-static uint8_t get_connected_clients(const clients_t *restrict clients)
+static inline uint8_t get_connected_clients(const clients_t *restrict clients)
 {
   return (clients->ws.status >= CONNECTED) + (clients->fix.status >= CONNECTED) + (clients->http.status >= CONNECTED);
 }

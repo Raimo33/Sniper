@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 17:53:55 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/07 20:09:38 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/08 13:19:57 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,8 +46,6 @@ void handle_http_connection(UNUSED const uint8_t fd, const uint32_t events, void
   static uint8_t sequence = 0;
 
   http_client_t *client = data;
-
-  printf("http_sequence: %d\n", sequence);
 
   if (UNLIKELY(events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP)))
     panic("HTTP connection error");
@@ -145,7 +143,7 @@ static bool receive_info_response(http_client_t *restrict client)
   
   const header_entry_t *restrict content_encoding = header_map_get(&response->headers, STR_AND_LEN("content-encoding"));
   fast_assert(content_encoding, "Exchange info query failed: missing content encoding header");
-  fast_assert(memcmp(content_encoding->value, STR_AND_LEN("gzip")) == 0, "Exchange info query failed: invalid content encoding");
+  fast_assert(!memcmp(content_encoding->value, STR_AND_LEN("gzip")), "Exchange info query failed: invalid content encoding");
   fast_assert(response->body, "Exchange info query failed: missing body");
   
   process_info_response(response->body, response->body_len);

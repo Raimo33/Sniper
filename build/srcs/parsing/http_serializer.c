@@ -200,7 +200,7 @@ static uint8_t deserialize_version(const char *restrict buffer, http_version_t *
   
   while (*version < n_versions)
   {
-    if (memcmp(buffer, versions_str[*version], versions_len[*version]) == 0)
+    if (!memcmp(buffer, versions_str[*version], versions_len[*version]))
       break;
     version++;
   }
@@ -264,7 +264,7 @@ static uint32_t deserialize_headers(const char *restrict buffer, header_map_t *h
 
     buffer = line_end + STR_LEN("\r\n");
   }
-  headers_end += STR_LEN("\r\n\r\n");
+  headers_end += STR_LEN("\r\n");
 
   return headers_end - headers_start;
 }
@@ -272,7 +272,7 @@ static uint32_t deserialize_headers(const char *restrict buffer, header_map_t *h
 static uint32_t deserialize_body(const char *restrict buffer, char *restrict body, header_map_t *restrict headers, const uint32_t buffer_size)
 {
   const header_entry_t *transfer_encoding = header_map_get(headers, STR_AND_LEN("transfer-encoding"));
-  if (transfer_encoding && memcmp(transfer_encoding->value, STR_AND_LEN("chunked")) == 0)
+  if (transfer_encoding && !memcmp(transfer_encoding->value, STR_AND_LEN("chunked")))
     return deserialize_chunked_body(buffer, &body, buffer_size);
 
   const header_entry_t *content_length = header_map_get(headers, STR_AND_LEN("content-length"));
@@ -373,7 +373,7 @@ const header_entry_t *header_map_get(const header_map_t *restrict map, const cha
   uint16_t index = original_index;
   for (uint8_t i = 1; UNLIKELY(map->entries[index].key != NULL); i++)
   {
-    if (LIKELY(memcmp(map->entries[index].key, key, key_len) == 0))
+    if (LIKELY(!memcmp(map->entries[index].key, key, key_len)))
       return &map->entries[index];
     index = (original_index + i * i) % map->size;
   }

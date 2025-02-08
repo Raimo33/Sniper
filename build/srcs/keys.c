@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 19:01:43 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/07 20:38:10 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/08 13:12:27 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,36 +20,7 @@ void init_keys(keys_t *restrict keys)
   fast_assert(priv_key && api_key, "Missing environment variables");
 
   memcpy(keys->api_key, api_key, API_KEY_SIZE);
-  keys->priv_key = EVP_PKEY_new_raw_private_key_p(EVP_PKEY_ED25519, NULL, (const uint8_t *)priv_key, PRIV_KEY_SIZE);
-}
-
-void generate_ws_key(uint8_t *restrict key)
-{
-  fast_assert(key, "Unexpected NULL pointer");
-
-  uint8_t random_data[16];
-  RAND_bytes(random_data, sizeof(random_data));
-
-  const uint8_t encoded_size = EVP_EncodeBlock(key, random_data, sizeof(random_data));
-  fast_assert(encoded_size == WS_KEY_SIZE, "Failed to encode ws key");
-}
-
-bool verify_ws_key(const uint8_t *restrict key, const uint8_t *restrict accept, const uint16_t len)
-{
-  fast_assert(key && accept, "Unexpected NULL pointer");
-
-  uint8_t decoded_key[WS_KEY_SIZE];
-
-  const uint8_t decoded_size = EVP_DecodeBlock(decoded_key, accept, len);
-  fast_assert(decoded_size == WS_KEY_SIZE, "Failed to decode ws key");
-
-  uint8_t concatenated_key[WS_KEY_SIZE + STR_LEN(WS_KEY_GUID)];
-  memcpy(concatenated_key, key, WS_KEY_SIZE);
-  memcpy(concatenated_key + WS_KEY_SIZE, STR_AND_LEN(WS_KEY_GUID));
-
-  uint8_t sha1_hash[20];
-  SHA1(concatenated_key, sizeof(concatenated_key), sha1_hash);
-  return !memcmp(decoded_key, sha1_hash, sizeof(sha1_hash));
+  keys->priv_key = EVP_PKEY_new_raw_private_key_p(EVP_PKEY_ED25519, NULL, (const uint8_t *)priv_key, ED25519_KEYLEN);
 }
 
 void sign_ed25519(EVP_PKEY *key, const char *data, const uint16_t data_len, char *restrict buffer)
@@ -59,26 +30,41 @@ void sign_ed25519(EVP_PKEY *key, const char *data, const uint16_t data_len, char
   EVP_MD_CTX *ctx = EVP_MD_CTX_new();
   EVP_DigestSignInit_p(ctx, NULL, NULL, NULL, key);
 
-  size_t signature_len = ED25519_SIG_SIZE;
-  EVP_DigestSign_p(ctx, (unsigned char *)buffer, &signature_len, (const unsigned char *)data, data_len);
+  size_t signature_len = ED25519_SIGSIZE;
+  EVP_DigestSign_p(ctx, (uint8_t *)buffer, &signature_len, (const uint8_t *)data, data_len);
 
   EVP_MD_CTX_free(ctx);
 }
 
-uint16_t base64_encode(const uint8_t *data, const uint16_t data_len, uint8_t *restrict buffer, const uint16_t buffer_size)
+void generate_ws_key(char *restrict buffer, const uint8_t buffer_size)
 {
-  fast_assert(data && buffer, "Unexpected NULL pointer");
-  fast_assert(buffer_size >= BASE64_ENCODED_SIZE(data_len), "Buffer too small for encoding");
+  fast_assert(buffer, "Unexpected NULL pointer");
+  fast_assert(buffer_size >= BASE64_ENCODED_SIZE(WS_KEY_SIZE) + 1, "Buffer too small for encoding");
 
-  return EVP_EncodeBlock(buffer, data, data_len);
+  uint8_t rand_bytes[WS_KEY_SIZE];
+
+  RAND_bytes_p(rand_bytes, sizeof(rand_bytes));
+  EVP_EncodeBlock_p((uint8_t *)buffer, rand_bytes, sizeof(rand_bytes));
 }
 
-uint16_t base64_decode(const uint8_t *data, const uint16_t data_len, uint8_t *restrict buffer, const uint16_t buffer_size)
+bool verify_ws_key(const uint8_t *restrict key, const uint8_t key_len, const uint8_t *restrict accept, const uint16_t accept_len)
 {
-  fast_assert(data && buffer, "Unexpected NULL pointer");
-  fast_assert(buffer_size >= BASE64_DECODED_SIZE(data_len), "Buffer too small for decoding");
+  fast_assert(key && accept, "Unexpected NULL pointer");
+  fast_assert(key_len == BASE64_ENCODED_SIZE(WS_KEY_SIZE), "Invalid ws key size");
+  fast_assert(accept_len == BASE64_ENCODED_SIZE(SHA1_DIGEST_SIZE), "Invalid accept key size");
 
-  return EVP_DecodeBlock(buffer, data, data_len);
+  uint8_t concat[BASE64_ENCODED_SIZE(WS_KEY_SIZE) + STR_LEN(WS_MAGIC_GUID)];
+  memcpy(concat, key, key_len);
+  memcpy(concat + key_len, STR_AND_LEN(WS_MAGIC_GUID));
+
+  uint8_t hash[SHA_DIGEST_LENGTH];
+  SHA1(concat, sizeof(concat), hash);
+
+  uint8_t computed_accept[BASE64_ENCODED_SIZE(SHA_DIGEST_LENGTH) + 1] = {0};
+  const uint8_t computed_len = EVP_EncodeBlock(computed_accept, hash, SHA_DIGEST_LENGTH);
+  fast_assert(computed_len == accept_len, "Invalid accept key size");
+
+  return !CRYPTO_memcmp(computed_accept, accept, accept_len);
 }
 
 void free_keys(keys_t *restrict keys)

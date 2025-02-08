@@ -15,6 +15,21 @@
 static bool fields_fit_in_buffer(const fix_field_t *fields, const uint16_t n_fields, const uint16_t buffer_size);
 static uint8_t calculate_checksum(const char *buffer, const uint16_t len);
 
+
+/*
+Improvement: The code can be refactored for readability.
+For instance, consolidating repeated logic into smaller, more reusable functions
+(e.g., handling the tag-value formatting, tag length calculation)
+can reduce duplication and make the code easier to maintain and debug.
+*/
+
+/*
+Optimization: Precomputing parts of the FIX message that don’t change frequently
+(like the begin_string and body_length fields)
+can save processing time during serialization,
+especially if multiple messages are being sent with similar content.
+*/
+
 uint16_t serialize_fix_fields(char *buffer, const uint16_t buffer_size, const fix_field_t *fields, const uint16_t n_fields)
 {
   fast_assert(buffer && fields, "Unexpected NULL pointer");
@@ -97,10 +112,11 @@ uint16_t finalize_fix_message(char *buffer, const uint16_t buffer_size, const ui
   return buffer - buffer_start;
 }
 
+//TODO simd
 static bool fields_fit_in_buffer(const fix_field_t *fields, const uint16_t n_fields, const uint16_t buffer_size)
 {
   uint16_t fields_len = 0;
-  for (uint8_t i = 0; i < n_fields; i++)
+  for (uint8_t i = 0; LIKELY(i < n_fields); i++)
     fields_len += fields[i].tag_len + 1 + fields[i].value_len + 1;
 
   return fields_len <= buffer_size;
@@ -109,7 +125,63 @@ static bool fields_fit_in_buffer(const fix_field_t *fields, const uint16_t n_fie
 static uint8_t calculate_checksum(const char *buffer, const uint16_t len)
 {
   uint8_t checksum = 0;
-  for (uint16_t i = 0; i < len; i++)
+  uint16_t i = 0;
+
+#ifdef __AVX512__
+  if (len >= SIMD_STRIDE_AVX512)
+  {
+    const uint16_t chunks_avx512 = len / SIMD_STRIDE_AVX512;
+    const uint16_t simd_bytes_avx512 = chunks_avx512 * SIMD_STRIDE_AVX512;
+
+    for (; i < simd_bytes_avx512; i += SIMD_STRIDE_AVX512)
+    {
+      __m512i vec = _mm512_loadu_si512((const __m512i *)(buffer + i));
+      __m512i sum = _mm512_sad_epu8(vec, _mm512_setzero_si512());
+
+      checksum += (uint8_t)_mm512_extract_epi64(sum, 0) + _mm512_extract_epi64(sum, 1);
+    }
+  }
+#endif
+
+#ifdef __AVX2__
+  if (len >= SIMD_STRIDE_AVX2)
+  {
+    const uint16_t chunks_avx2 = len / SIMD_STRIDE_AVX2;
+    const uint16_t simd_bytes_avx2 = chunks_avx2 * SIMD_STRIDE_AVX2;
+
+    for (; i < simd_bytes_avx2; i += SIMD_STRIDE_AVX2)
+    {
+      __m256i vec = _mm256_loadu_si256((const __m256i *)(buffer + i));
+      __m256i sad = _mm256_sad_epu8(vec, _mm256_setzero_si256());
+
+      __m128i sum128 = _mm_add_epi64(
+        _mm256_castsi256_si128(sad),
+        _mm256_extracti128_si256(sad, 1)
+      );
+
+      checksum += (uint8_t)_mm_extract_epi64(sum128, 0) + _mm_extract_epi64(sum128, 1);
+    }
+  }
+#endif
+
+#ifdef __SSE2__
+  if (len >= SIMD_STRIDE_SSE2)
+  {
+    const uint16_t chunks_sse2 = len / SIMD_STRIDE_SSE2;
+    const uint16_t simd_bytes_sse2 = chunks_sse2 * SIMD_STRIDE_SSE2;
+
+    for (; i < simd_bytes_sse2; i += SIMD_STRIDE_SSE2)
+    {
+      __m128i vec = _mm_loadu_si128((const __m128i *)(buffer + i));
+      __m128i sad = _mm_sad_epu8(vec, _mm_setzero_si128());
+
+      checksum += (uint8_t)_mm_extract_epi64(sad, 0);
+    }
+  }
+#endif
+
+  for (; i < len; ++i)
     checksum += buffer[i];
+
   return checksum;
 }

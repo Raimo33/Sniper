@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 20:53:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/07 20:08:58 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/08 13:20:00 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,7 +110,7 @@ static bool send_upgrade_query(ws_client_t *restrict client)
 
   if (!initialized)
   {
-    generate_ws_key(client->conn_key);
+    generate_ws_key(client->conn_key, sizeof(client->conn_key));
     http_request_t request = {
       .method = GET,
       .path = WS_PATH,
@@ -120,7 +120,7 @@ static bool send_upgrade_query(ws_client_t *restrict client)
         { STR_AND_LEN("Host"), STR_AND_LEN(WS_HOST ":" WS_PORT) },
         { STR_AND_LEN("Upgrade"), STR_AND_LEN("websocket") },
         { STR_AND_LEN("Connection"), STR_AND_LEN("Upgrade") },
-        { STR_AND_LEN("Sec-WebSocket-Key"), (char *)client->conn_key, WS_KEY_SIZE }
+        { STR_AND_LEN("Sec-WebSocket-Key"), client->conn_key, STR_LEN(client->conn_key) }
       },
       .n_headers = 4,
       .body = NULL,
@@ -130,7 +130,6 @@ static bool send_upgrade_query(ws_client_t *restrict client)
     initialized = true;
   }
   
-  printf("SENDING UPGRADE QUERY\n");
   return try_ssl_send(client->ssl, client->write_buffer, len, &client->write_offset);
 }
 
@@ -140,20 +139,17 @@ static bool receive_upgrade_response(ws_client_t *restrict client)
     return false;
 
   const http_response_t *restrict response = &client->http_response;
-  printf("response status code: %d\n", response->status_code);
 
   fast_assert(response->status_code == 101, "Websocket upgrade failed: invalid status code");
-  fast_assert(response->headers.n_entries == 3, "Websocket upgrade failed: missing response headers");
+  fast_assert(response->headers.n_entries >= 3, "Websocket upgrade failed: missing response headers");
 
-  const header_entry_t *accept_header = header_map_get(&response->headers, STR_AND_LEN("Sec-WebSocket-Accept"));
-  fast_assert(accept_header, "Websocket upgrade failed: missing Upgrade header");
+  const header_entry_t *accept_header = header_map_get(&response->headers, STR_AND_LEN("sec-websocket-accept"));
+  fast_assert(accept_header, "Websocket upgrade failed: missing accept header");
 
-  if (verify_ws_key(client->conn_key, (uint8_t *)accept_header->value, accept_header->value_len) == false)
+  if (verify_ws_key((const uint8_t *)client->conn_key, STR_LEN(client->conn_key), (const uint8_t *)accept_header->value, accept_header->value_len) == false)
     panic("Websocket upgrade failed: key mismatch");
 
-  printf("FREEING HTTP RESPONSE\n");
   free_http_response(&client->http_response);
-  printf("FREED HTTP RESPONSE\n");
   return true;
 }
 

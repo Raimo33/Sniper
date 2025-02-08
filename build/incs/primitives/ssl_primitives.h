@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/06 10:06:06 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/07 18:21:18 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/08 13:14:55 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,9 +28,6 @@ COLD extern inline int32_t SSL_CTX_set_ciphersuites_p(SSL_CTX *ctx, const char *
 COLD extern inline int32_t SSL_CTX_set_cipher_list_p(SSL_CTX *ctx, const char *str);
 COLD extern inline SSL *SSL_new_p(SSL_CTX *ctx);
 COLD extern inline int32_t SSL_set_fd_p(SSL *ssl, int fd);
-COLD extern inline EVP_PKEY *EVP_PKEY_new_raw_private_key_p(int type, ENGINE *e, const unsigned char *key, size_t keylen);
-HOT extern inline int32_t EVP_DigestSignInit_p(EVP_MD_CTX *ctx, EVP_PKEY_CTX **pctx, const EVP_MD *type, ENGINE *e, EVP_PKEY *pkey);
-HOT extern inline int32_t EVP_DigestSign_p(EVP_MD_CTX *ctx, unsigned char *sigret, size_t *siglen, const unsigned char *tbs, size_t tbslen);
 HOT extern inline int32_t SSL_write_p(SSL *ssl, const void *buf, int num);
 HOT extern inline int32_t SSL_read_p(SSL *ssl, void *buf, int num);
 COLD extern inline int32_t SSL_connect_p(SSL *ssl);

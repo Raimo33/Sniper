@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 17:42:49 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/07 19:01:04 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/08 13:42:47 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@
 
 # define SIGNAL_EVENTS  EPOLLIN | EPOLLONESHOT | EPOLLWAKEUP | EPOLLET
 # define TCP_EVENTS     EPOLLIN | EPOLLOUT | EPOLLHUP | EPOLLRDHUP | EPOLLERR | EPOLLET
-# define LOG_EVENTS     EPOLLOUT | EPOLLHUP | EPOLLERR | EPOLLET
+# define LOG_EVENTS     EPOLLOUT | EPOLLHUP | EPOLLERR
 
 typedef struct
 {

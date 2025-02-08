@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 16:53:00 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/06 22:15:01 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/08 13:09:21 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ typedef struct
   uint16_t sock_fd;
   struct sockaddr_in addr;
   SSL *ssl;
-  uint8_t conn_key[WS_KEY_SIZE];
+  char conn_key[BASE64_ENCODED_SIZE(WS_KEY_SIZE) + 1];
   char *write_buffer;
   char *read_buffer;
   http_response_t http_response;

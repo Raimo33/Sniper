@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/01 18:09:17 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/06 10:43:28 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/08 13:01:57 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@ COLD static uint16_t add_currency(graph_t *restrict graph, const currency_t *res
 
   for (uint16_t i = 0; i < graph->n_currencies; i++)
   {
-    if (memcmp(&graph->currencies[i], currency, sizeof(currency_t)) == 0)
+    if (!memcmp(&graph->currencies[i], currency, sizeof(currency_t)))
       return i;
   }
 

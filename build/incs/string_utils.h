@@ -27,6 +27,6 @@
 
 HOT void strtolower(char *str, const uint16_t len);
 HOT const char *get_timestamp_utc_str(void);
-HOT extern inline uint8_t ultoa(uint64_t num, char *buffer);
+HOT uint8_t ultoa(uint64_t num, char *buffer);
 
 #endif
