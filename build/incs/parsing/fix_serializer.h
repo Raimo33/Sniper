@@ -15,10 +15,10 @@
 
 # include <stdint.h>
 # include <stdbool.h>
+# include <immintrin.h>
 
 # include "extensions.h"
 # include "errors.h"
-# include "simd.h"
 
 # define FIX_BEGINSTRING "8"
 # define FIX_BODYLENGTH "9"

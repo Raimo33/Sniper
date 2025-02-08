@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/04 11:15:12 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/07 21:38:37 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/08 18:16:40 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 # include <string.h>
 # include <stdlib.h>
 # include <xxhash.h>
+# include <immintrin.h>
 
 # include "primitives/alloc_primitives.h"
 # include "extensions.h"

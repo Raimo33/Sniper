@@ -136,6 +136,7 @@ static uint32_t serialize_body(char *restrict buffer, const char *restrict body,
   return buffer - buffer_start;
 }
 
+//TODO simd, attenzione al padding
 static bool request_fits_in_buffer(const http_request_t *restrict request, const uint32_t buffer_size)
 {
   uint32_t request_len = 0;
@@ -145,13 +146,15 @@ static bool request_fits_in_buffer(const http_request_t *restrict request, const
   request_len += versions_len[request->version] + 2;
 
   for (uint8_t i = 0; LIKELY(i < request->n_headers); i++)
-    request_len += request->headers[i].key_len + 2 + request->headers[i].value_len + 2;
-  
+    request_len += request->headers[i].key_len + request->headers[i].value_len;
+  request_len += (request->n_headers << 2);
+
   request_len += 2 + request->body_len;
 
   return request_len <= buffer_size;
 }
 
+//TODO ridurre ridondanza di scorrimenti. in teoria in un unco scorrimento dovrei capire 
 bool is_full_http_response(const char *restrict buffer, const uint32_t buffer_size, const uint32_t response_len)
 {
   const char *headers_end = memmem(buffer, buffer_size, STR_AND_LEN("\r\n\r\n"));
@@ -169,7 +172,7 @@ bool is_full_http_response(const char *restrict buffer, const uint32_t buffer_si
   if (LIKELY(content_length))
   {
     const uint32_t headers_len = headers_end - buffer + STR_LEN("\r\n");
-    const uint32_t body_len = atoi(content_length + STR_LEN("Content-Length:"));
+    const uint32_t body_len = strtoul(content_length + STR_LEN("Content-Length:"), NULL, 10);
     const uint32_t available_space = buffer_size - headers_len;
     fast_assert(body_len <= available_space, "Body size exceeds available space");
     return ((headers_len + body_len) == response_len);
@@ -201,11 +204,11 @@ static uint8_t deserialize_version(const char *restrict buffer, http_version_t *
   while (*version < n_versions)
   {
     if (!memcmp(buffer, versions_str[*version], versions_len[*version]))
-      break;
+      return version_end - buffer;
     version++;
   }
 
-  return version_end - buffer; 
+  panic("Unsupported HTTP version");
 }
 
 static uint8_t deserialize_status_code(const char *restrict buffer, uint16_t *status_code, const uint32_t buffer_size)
@@ -218,7 +221,7 @@ static uint8_t deserialize_status_code(const char *restrict buffer, uint16_t *st
 
   buffer = memmem(buffer, line_end - buffer, STR_AND_LEN(" "));
   fast_assert(buffer, "No status code found");
-  *status_code = atoi(buffer);
+  *status_code = strtoul(buffer, NULL, 10);
 
   return line_end - line_start;
 }
@@ -310,7 +313,7 @@ static uint32_t deserialize_chunked_body(const char *restrict buffer, char *rest
 
 static uint32_t deserialize_unified_body(const char *restrict buffer, char *restrict *body, const char *restrict content_length, UNUSED const uint32_t buffer_size)
 {
-  const uint16_t body_len = atoi(content_length);
+  const uint16_t body_len = strtoul(content_length, NULL, 10);
 
   *body = (char *)malloc_p(body_len);
   memcpy(*body, buffer, body_len);
@@ -318,7 +321,6 @@ static uint32_t deserialize_unified_body(const char *restrict buffer, char *rest
   return body_len;
 }
 
-//TODO simd easy
 static uint32_t count_chunked_body_len(const char *buffer, const char *body_end)
 {
   uint32_t body_len = 0;
@@ -336,16 +338,70 @@ static uint32_t count_chunked_body_len(const char *buffer, const char *body_end)
   return body_len;
 }
 
-//TODO simd easy
 static uint8_t count_headers(const char *buffer, const char *headers_end)
 {
+  const char *p = buffer;
+  const char *end = headers_end - 1;
   uint8_t n_headers = 0;
-  
-  while (LIKELY(buffer < headers_end))
+
+#ifdef __AVX512F__
+  while (p + 64 <= end)
   {
-    buffer = memmem(buffer, headers_end - buffer, STR_AND_LEN("\r\n"));
-    n_headers++;
-    buffer += STR_LEN("\r\n");
+    __m512i current = _mm512_loadu_si512((const __m512i*)p);
+    __m512i next = _mm512_loadu_si512((const __m512i*)(p + 1));
+
+    __m512i r_mask = _mm512_cmpeq_epi8(current, _mm512_set1_epi8('\r'));
+    __m512i n_mask = _mm512_cmpeq_epi8(next, _mm512_set1_epi8('\n'));
+
+    __m512i res = _mm512_and_si512(r_mask, n_mask);
+    n_headers += __builtin_popcount(_mm512_movepi8_mask(res));
+  
+    n_headers += (p[63] == '\r' && p[64] == '\n');
+
+    p += 64;
+  }
+#endif
+
+#ifdef __AVX2__
+  while (p + 32 <= end)
+  {
+    __m256i current = _mm256_loadu_si256((const __m256i*)p);
+    __m256i next = _mm256_loadu_si256((const __m256i*)(p + 1));
+
+    __m256i r_mask = _mm256_cmpeq_epi8(current, _mm256_set1_epi8('\r'));
+    __m256i n_mask = _mm256_cmpeq_epi8(next, _mm256_set1_epi8('\n'));
+
+    __m256i res = _mm256_and_si256(r_mask, n_mask);
+    n_headers += __builtin_popcount(_mm256_movemask_epi8(res));
+
+    n_headers += (p[31] == '\r' && p[32] == '\n');
+
+    p += 32;
+  }
+#endif
+
+#ifdef __SSE2__
+  while (p + 16 <= end)
+  {
+    __m128i current = _mm_loadu_si128((const __m128i*)p);
+    __m128i next = _mm_loadu_si128((const __m128i*)(p + 1));
+
+    __m128i r_mask = _mm_cmpeq_epi8(current, _mm_set1_epi8('\r'));
+    __m128i n_mask = _mm_cmpeq_epi8(next, _mm_set1_epi8('\n'));
+
+    __m128i res = _mm_and_si128(r_mask, n_mask);
+    n_headers += __builtin_popcount(_mm_movemask_epi8(res));
+
+    n_headers += (p[15] == '\r' && p[16] == '\n');
+
+    p += 16;
+  }
+#endif
+
+  while (p < end)
+  {
+    n_headers += (p[0] == '\r' && p[1] == '\n');
+    p++;
   }
 
   return n_headers;
