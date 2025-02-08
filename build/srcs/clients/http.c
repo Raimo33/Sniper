@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 17:53:55 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/08 13:19:57 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/08 19:36:07 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ void init_http(http_client_t *restrict client, keys_t *restrict keys, SSL_CTX *r
 
 void handle_http_connection(UNUSED const uint8_t fd, const uint32_t events, void *data)
 {
-  static void *restrict states[] = {&&ssl_handshake};
+  static void *restrict states[] = {&&ssl_handshake, &&complete};
   static uint8_t sequence = 0;
 
   http_client_t *client = data;
@@ -56,13 +56,15 @@ ssl_handshake:
   log_msg(STR_AND_LEN("Performing SSL handshake"));
   if (!SSL_connect_p(client->ssl))
     return;
-  
+  sequence++;
+
+complete:
   client->status = CONNECTED;
 }
 
 void handle_http_setup(const uint8_t fd, const uint32_t events, void *data)
 {
-  static void *restrict states[] = {&&info_query, &&info_response};
+  static void *restrict states[] = {&&info_query, &&info_response, &&complete};
   static uint8_t sequence = 0;
 
   if (UNLIKELY(events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP)))
@@ -74,17 +76,21 @@ void handle_http_setup(const uint8_t fd, const uint32_t events, void *data)
 
 info_query:
   log_msg(STR_AND_LEN("Querying Exchange info"));
-  sequence += send_info_query(client);
-  return;
+  if (!send_info_query(client))
+    return;
+  sequence++;
 
 info_response:
   log_msg(STR_AND_LEN("Received Exchange info"));
-  receive_info_response(client);
+  if (!receive_info_response(client))
+    return;
+  sequence++;
 
   //TODO altre chiamate per user data, limiti account ecc
   
   (void)fd;
-  // client->status = TRADING;
+complete:
+  client->status = TRADING;
 }
 
 void handle_http_trading(const uint8_t fd, const uint32_t events, void *data)

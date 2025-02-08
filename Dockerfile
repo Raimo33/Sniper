@@ -6,7 +6,7 @@
 #    By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/12/29 17:07:44 by craimond          #+#    #+#              #
-#    Updated: 2025/02/07 22:51:16 by craimond         ###   ########.fr        #
+#    Updated: 2025/02/08 19:14:53 by craimond         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,7 +14,7 @@
 FROM clearlinux:latest 
 
 RUN swupd update
-RUN swupd bundle-add devpkg-openssl devpkg-zlib devpkg-yyjson valgrind
+RUN swupd bundle-add devpkg-openssl devpkg-zlib devpkg-yyjson devpkg-xxhash valgrind
 
 COPY ./build /build
 

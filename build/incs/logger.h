@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 18:08:11 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/06 10:26:15 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/08 20:42:19 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@
 
 typedef struct
 {
-  char data[LOG_RING_SIZE] ALIGNED(16);
+  char data[LOG_RING_SIZE] ALIGNED(64);
   uint16_t head;
   uint16_t tail;
 } t_log_ring;

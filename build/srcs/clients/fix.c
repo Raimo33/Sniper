@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 21:02:36 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/08 13:54:57 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/08 20:00:09 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ void init_fix(fix_client_t *restrict client, keys_t *restrict keys, SSL_CTX *res
 
 void handle_fix_connection(UNUSED const uint8_t fd, const uint32_t events, void *data)
 {
-  static void *restrict states[] = {&&ssl_handshake, &&logon_query, &&logon_response};
+  static void *restrict states[] = {&&ssl_handshake, &&logon_query, &&logon_response, &&complete};
   static uint8_t sequence = 0;
 
   fix_client_t *client = data;
@@ -68,13 +68,15 @@ logon_response:
   log_msg(STR_AND_LEN("Receiving logon response"));
   if (!receive_logon_response(client))
     return;
+  sequence++;
 
+complete:
   client->status = CONNECTED;
 }
 
 void handle_fix_setup(const uint8_t fd, const uint32_t events, void *data)
 {
-  static void *restrict states[] = {&&limits_query, &&limits_response};
+  static void *restrict states[] = {&&limits_query, &&limits_response, &&complete};
   static uint8_t sequence = 0;
 
   if (UNLIKELY(events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP)))
@@ -86,16 +88,20 @@ void handle_fix_setup(const uint8_t fd, const uint32_t events, void *data)
 
 limits_query:
   log_msg(STR_AND_LEN("Sending limits query"));
-  sequence += send_limits_query(client);
-  return;
+  if (!send_limits_query(client))
+    return;
+  sequence++;
 
 limits_response:
   log_msg(STR_AND_LEN("Receiving limits response"));
-  receive_limits_response(client);
+  if (!receive_limits_response(client)) //TODO salvare i limiti nella struttura client, ogni client ha i suoi limiti
+    return;
+  sequence++;
 
   (void)fd;
-  //TODO salvare i limiti nella struttura client, ogni client ha i suoi limiti
-  // client->status = TRADING;
+
+complete:
+  client->status = TRADING;
 }
 
 void handle_fix_trading(const uint8_t fd, const uint32_t events, void *data)
@@ -118,16 +124,19 @@ static bool send_logon_query(fix_client_t *restrict client)
     char seq_num_str[16];
     const uint8_t seq_num_str_len = ultoa(client->msg_seq_num, seq_num_str);
 
-    const fix_field_t raw_data[] = {
-      {STR_AND_LEN(FIX_MSGTYPE),      STR_AND_LEN(FIX_MSG_TYPE_LOGON)},
-      {STR_AND_LEN(FIX_SENDERCOMPID), STR_AND_LEN(FIX_COMP_ID)},
-      {STR_AND_LEN(FIX_TARGETCOMPID), STR_AND_LEN("SPOT")},
-      {STR_AND_LEN(FIX_MSGSEQNUM),    seq_num_str, seq_num_str_len},
-      {STR_AND_LEN(FIX_SENDINGTIME),  timestamp_str, UTC_TIMESTAMP_SIZE},
+    const fix_message_t raw_data = {
+      .fields = (fix_field_t[]) {
+        {STR_AND_LEN(FIX_MSGTYPE),      STR_AND_LEN(FIX_MSG_TYPE_LOGON)},
+        {STR_AND_LEN(FIX_SENDERCOMPID), STR_AND_LEN(FIX_COMP_ID)},
+        {STR_AND_LEN(FIX_TARGETCOMPID), STR_AND_LEN("SPOT")},
+        {STR_AND_LEN(FIX_MSGSEQNUM),    seq_num_str, seq_num_str_len},
+        {STR_AND_LEN(FIX_SENDINGTIME),  timestamp_str, UTC_TIMESTAMP_SIZE},
+      },
+      .n_fields = 5,
     };
 
     char serialized_data[1024];
-    uint16_t data_len = serialize_fix_fields(serialized_data, sizeof(serialized_data), raw_data, ARR_LEN(raw_data));
+    uint16_t data_len = serialize_fix_message(serialized_data, sizeof(serialized_data), raw_data, ARR_LEN(raw_data));
     
     char signed_data[ED25519_SIGSIZE];
     sign_ed25519(client->keys->priv_key, serialized_data, data_len, signed_data);
@@ -139,24 +148,27 @@ static bool send_logon_query(fix_client_t *restrict client)
     char data_len_str[16];
     const uint8_t data_len_str_len = ultoa(data_len, data_len_str);
   
-    const fix_field_t fields[] = {
-      {STR_AND_LEN(FIX_MSGTYPE),         STR_AND_LEN(FIX_MSG_TYPE_LOGON)},
-      {STR_AND_LEN(FIX_SENDERCOMPID),    STR_AND_LEN(FIX_COMP_ID)},
-      {STR_AND_LEN(FIX_TARGETCOMPID),    STR_AND_LEN("SPOT")},
-      {STR_AND_LEN(FIX_MSGSEQNUM),       seq_num_str, seq_num_str_len},
-      {STR_AND_LEN(FIX_SENDINGTIME),     timestamp_str, UTC_TIMESTAMP_SIZE},
-      {STR_AND_LEN(FIX_ENCRYPTMETHOD),   STR_AND_LEN("0")},
-      {STR_AND_LEN(FIX_HEARTBTINT),      STR_AND_LEN(FIX_HEARTBEAT_INTERVAL)},
-      {STR_AND_LEN(FIX_RAWDATALENGTH),   data_len_str, data_len_str_len},
-      {STR_AND_LEN(FIX_RAWDATA),         encoded_data, data_len},
-      {STR_AND_LEN(FIX_RESETSEQNUMFLAG), STR_AND_LEN("Y")},
-      {STR_AND_LEN(FIX_USERNAME),        (char *)client->keys->api_key, API_KEY_SIZE},
-      {STR_AND_LEN(FIX_MESSAGEHANDLING), STR_AND_LEN("1")},
-      {STR_AND_LEN(FIX_RESPONSEMODE),    STR_AND_LEN("1")},
+    const fix_message_t message = {
+      .fields = (fix_field_t[]) {
+        {STR_AND_LEN(FIX_MSGTYPE),         STR_AND_LEN(FIX_MSG_TYPE_LOGON)},
+        {STR_AND_LEN(FIX_SENDERCOMPID),    STR_AND_LEN(FIX_COMP_ID)},
+        {STR_AND_LEN(FIX_TARGETCOMPID),    STR_AND_LEN("SPOT")},
+        {STR_AND_LEN(FIX_MSGSEQNUM),       seq_num_str, seq_num_str_len},
+        {STR_AND_LEN(FIX_SENDINGTIME),     timestamp_str, UTC_TIMESTAMP_SIZE},
+        {STR_AND_LEN(FIX_ENCRYPTMETHOD),   STR_AND_LEN("0")},
+        {STR_AND_LEN(FIX_HEARTBTINT),      STR_AND_LEN(FIX_HEARTBEAT_INTERVAL)},
+        {STR_AND_LEN(FIX_RAWDATALENGTH),   data_len_str, data_len_str_len},
+        {STR_AND_LEN(FIX_RAWDATA),         encoded_data, data_len},
+        {STR_AND_LEN(FIX_RESETSEQNUMFLAG), STR_AND_LEN("Y")},
+        {STR_AND_LEN(FIX_USERNAME),        (char *)client->keys->api_key, API_KEY_SIZE},
+        {STR_AND_LEN(FIX_MESSAGEHANDLING), STR_AND_LEN("1")},
+        {STR_AND_LEN(FIX_RESPONSEMODE),    STR_AND_LEN("1")},
+      },
+      .n_fields = 13,
     };
   
     client->msg_seq_num++;
-    len = serialize_fix_fields(client->write_buffer, FIX_WRITE_BUFFER_SIZE, fields, ARR_LEN(fields));
+    len = serialize_fix_message(client->write_buffer, FIX_WRITE_BUFFER_SIZE, &message);
     len = finalize_fix_message(client->write_buffer, FIX_WRITE_BUFFER_SIZE, len);
   }
 

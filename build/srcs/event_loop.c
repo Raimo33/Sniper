@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 17:40:24 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/08 13:37:21 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/08 20:42:30 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,7 +87,7 @@ void resolve_domains(clients_t *restrict clients)
 
 void connect_clients(const uint8_t epoll_fd, clients_t *restrict clients, const uint8_t log_fd, const uint8_t signal_fd)
 {
-  struct epoll_event events[MAX_EVENTS] ALIGNED(16) = {0};
+  struct epoll_event events[MAX_EVENTS] ALIGNED(64) = {0};
   struct epoll_event *event;
   uint8_t n;
   uint8_t event_fd;

@@ -28,7 +28,7 @@ HOT static uint32_t count_chunked_body_len(const char *buffer, const char *body_
 HOT static uint8_t count_headers(const char *buffer, const char *headers_end);
 HOT static void header_map_insert(header_map_t *restrict map, header_entry_t *restrict header);
 
-static const char methods[][sizeof(uint64_t)] = {
+static const char methods[][sizeof(uint64_t)] ALIGNED(64) = {
   [GET] = "GET",
   [POST] = "POST",
   [PUT] = "PUT",
@@ -41,7 +41,7 @@ static const uint8_t methods_len[] = {
   [DELETE] = STR_LEN("DELETE")
 };
 
-static const char versions_str[][sizeof(uint64_t)] = {
+static const char versions_str[][sizeof(uint64_t)] ALIGNED(64) = {
   [HTTP_1_0] = "HTTP/1.0",
   [HTTP_1_1] = "HTTP/1.1"
 };
@@ -74,6 +74,7 @@ static uint8_t serialize_method(char *restrict buffer, const http_method_t metho
 {
   const char *buffer_start = buffer;
 
+  //TODO problem if buffer is not aligned??
   *(uint64_t *)buffer = *(const uint64_t *)methods[method];
   buffer += methods_len[method];
   *buffer++ = ' ';
@@ -96,6 +97,7 @@ static uint8_t serialize_version(char *restrict buffer, const http_version_t ver
 {
   const char *buffer_start = buffer;
 
+  //TODO problen if buffer is not aligned??
   *(uint64_t *)buffer = *(const uint64_t *)versions_str[version];
   buffer += versions_len[version];
   *(uint16_t *)buffer = *(const uint16_t *)clrf;
@@ -181,7 +183,7 @@ bool is_full_http_response(const char *restrict buffer, const uint32_t buffer_si
   return true;
 }
 
-uint32_t deserialize_http_response(const char *restrict buffer, http_response_t *response, const uint32_t buffer_size)
+uint32_t deserialize_http_response(const char *restrict buffer, const uint32_t buffer_size, http_response_t *restrict response)
 {
   fast_assert(buffer && response, "Unexpected NULL pointer");
 
@@ -201,14 +203,17 @@ static uint8_t deserialize_version(const char *restrict buffer, http_version_t *
   const char *version_end = memmem(buffer, buffer_size, STR_AND_LEN(" "));
   fast_assert(version_end, "No HTTP version found");
   
-  while (*version < n_versions)
+  for (uint8_t i = 0; i < n_versions; i++)
   {
-    if (!memcmp(buffer, versions_str[*version], versions_len[*version]))
+    if (!memcmp(buffer, versions_str[i], versions_len[i]))
+    {
+      *version = i;
       return version_end - buffer;
-    version++;
+    }
   }
 
-  panic("Unsupported HTTP version");
+  panic("HTTP version not suppported");
+  UNREACHABLE;
 }
 
 static uint8_t deserialize_status_code(const char *restrict buffer, uint16_t *status_code, const uint32_t buffer_size)
@@ -347,14 +352,24 @@ static uint8_t count_headers(const char *buffer, const char *headers_end)
 #ifdef __AVX512F__
   while (p + 64 <= end)
   {
+    #ifdef __AVX512VBMI__
+    __m512i current = _mm512_maskz_loadu_epi8(0xFFFFFFFFFFFFFFFF, (const __m512i*)p);
+    __m512i next = _mm512_maskz_loadu_epi8(0xFFFFFFFFFFFFFFFF, (const __m512i*)(p + 1));
+    #else
     __m512i current = _mm512_loadu_si512((const __m512i*)p);
     __m512i next = _mm512_loadu_si512((const __m512i*)(p + 1));
+    #endif
 
     __m512i r_mask = _mm512_cmpeq_epi8(current, _mm512_set1_epi8('\r'));
     __m512i n_mask = _mm512_cmpeq_epi8(next, _mm512_set1_epi8('\n'));
 
     __m512i res = _mm512_and_si512(r_mask, n_mask);
+    #ifdef __AVX512VPOPCNTDQ__
+    __m512i popcnt = _mm512_popcnt_epi64(_mm512_maskz_set1_epi8(_mm512_movepi8_mask(res), 1));
+    n_headers += _mm512_reduce_add_epi64(popcnt);
+    #else
     n_headers += __builtin_popcount(_mm512_movepi8_mask(res));
+    #endif
   
     n_headers += (p[63] == '\r' && p[64] == '\n');
 

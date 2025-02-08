@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 20:53:34 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/08 13:20:00 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/08 19:36:11 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@ void init_ws(ws_client_t *restrict client, SSL_CTX *restrict ssl_ctx)
 
 void handle_ws_connection(UNUSED const uint8_t fd, const uint32_t events, void *data)
 {
-  static void *restrict states[] = {&&ssl_handshake, &&upgrade_query, &&upgrade_response};
+  static void *restrict states[] = {&&ssl_handshake, &&upgrade_query, &&upgrade_response, &&complete};
   static uint8_t sequence = 0;
 
   ws_client_t *client = data;
@@ -66,7 +66,9 @@ upgrade_response:
   log_msg(STR_AND_LEN("Receiving Websocket upgrade response"));
   if (!receive_upgrade_response(client))
     return;
+  sequence++;
 
+complete:
   client->status = CONNECTED;
 }
 

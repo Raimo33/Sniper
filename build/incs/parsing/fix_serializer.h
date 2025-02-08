@@ -51,7 +51,7 @@
 
 # define FIX_VERSION "FIX.4.4"
 
-typedef struct
+typedef struct ALIGNED(64)
 {
   const char *tag;
   uint16_t tag_len;
@@ -59,7 +59,15 @@ typedef struct
   uint16_t value_len;
 } fix_field_t;
 
-HOT uint16_t serialize_fix_fields(char *restrict buffer, const uint16_t buffer_size, const fix_field_t *restrict fields, const uint16_t n_fields);
+typedef struct ALIGNED(64)
+{
+  fix_field_t *fields;
+  uint16_t n_fields;
+} fix_message_t;
+
+HOT uint16_t serialize_fix_message(char *restrict buffer, const uint16_t buffer_size, const fix_message_t *restrict message);
 HOT uint16_t finalize_fix_message(char *restrict buffer, const uint16_t buffer_size, const uint16_t len);
+HOT bool is_full_fix_message(const char *restrict buffer, const uint16_t buffer_size, const uint32_t message_len);
+HOT uint16_t deserialize_fix_message(const char *restrict buffer, fix_message_t *restrict message, const uint16_t buffer_size);
 
 #endif

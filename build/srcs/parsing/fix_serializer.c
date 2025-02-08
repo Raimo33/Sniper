@@ -12,19 +12,21 @@
 
 #include "parsing/fix_serializer.h"
 
-static bool fields_fit_in_buffer(const fix_field_t *fields, const uint8_t n_fields, const uint16_t buffer_size);
+static bool message_fits_in_buffer(const fix_message_t *message, const uint16_t buffer_size);
 static uint8_t compute_checksum(const char *buffer, const uint16_t len);
 
-uint16_t serialize_fix_fields(char *buffer, const uint16_t buffer_size, const fix_field_t *fields, const uint16_t n_fields)
+uint16_t serialize_fix_message(char *buffer, const uint16_t buffer_size, const fix_message_t *message)
 {
-  fast_assert(buffer && fields, "Unexpected NULL pointer");
+  fast_assert(buffer && message && message->fields, "Unexpected NULL pointer");
 
   const char *buffer_start = buffer;
 
-  if (!fields_fit_in_buffer(fields, n_fields, buffer_size))
+  if (!message_fits_in_buffer(message, buffer_size))
     panic("FIX message does not fit in buffer");
 
-  for (uint8_t i = 0; i < n_fields; i++)
+  const fix_field_t *fields = message->fields;
+  const uint16_t n_fields = message->n_fields;
+  for (uint8_t i = 0; LIKELY(i < n_fields); i++)
   {
     memcpy(buffer, fields[i].tag, fields[i].tag_len);
     buffer += fields[i].tag_len;
@@ -54,8 +56,14 @@ uint16_t finalize_fix_message(char *buffer, const uint16_t buffer_size, const ui
 
   memmove(buffer + added_len, buffer, len);
 
-  const fix_field_t fields[] = { begin_string, body_length };
-  buffer += serialize_fix_fields(buffer, added_len, fields, ARR_LEN(fields));
+  const fix_message_t message = {
+    .fields = (fix_field_t[]) {
+      begin_string,
+      body_length
+    },
+    .n_fields = 2
+  };
+  buffer += serialize_fix_message(buffer, added_len, &message);
 
   static const char checksum_table[256][sizeof(uint32_t)] = {
     {"000\x01"}, {"001\x01"}, {"002\x01"}, {"003\x01"}, {"004\x01"}, {"005\x01"}, {"006\x01"}, {"007\x01"}, {"008\x01"}, {"009\x01"},
@@ -97,13 +105,62 @@ uint16_t finalize_fix_message(char *buffer, const uint16_t buffer_size, const ui
   return buffer - buffer_start;
 }
 
-//TODO SIMD a tutti i costi, attenzione al padding
-static bool fields_fit_in_buffer(const fix_field_t *fields, const uint8_t n_fields, const uint16_t buffer_size)
+bool is_full_fix_message(const char *buffer, const uint16_t buffer_size, const uint32_t message_len)
 {
-  uint16_t total_len = (n_fields << 1);
+  static const uint8_t pattern_len = STR_LEN("10=xxx\x01");
 
-  for (uint8_t i = 0; LIKELY(i < n_fields); i++)
-    total_len += fields[i].tag_len + fields[i].value_len;
+  if (message_len < pattern_len)
+    return false;
+
+  const char *end = buffer + message_len - pattern_len;
+
+#ifdef __SSE2__
+  //TODO implementare con 128 bit
+#else
+  while (LIKELY(buffer < end))
+  {
+    if (check_fix_field(buffer++))
+      return true;
+  }
+
+  return false;
+#endif
+}
+
+uint16_t deserialize_fix_message(const char *restrict buffer, fix_message_t *restrict message, const uint16_t buffer_size)
+{
+  //TODO validate checksum
+  //TODO capire se binance invia la body length.
+  return ;//body length + qualcosa
+}
+
+static inline bool check_fix_field(const char *buffer)
+{
+  //TODO safe?? unaligned access because buffer is not aligned
+  const uint64_t *aligned_ptr = (const uint64_t *)buffer;
+  uint64_t word = *aligned_ptr;
+
+#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+  uint64_t expected = ('1' << 0) | ('0' << 8) | ('=' << 16) | (0x01ULL << 48);
+#elif __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+  uint64_t expected = (0x01ULL << 0) | ('=' << 8) | ('0' << 16) | ('1' << 24);
+#else
+  #error "Unknown byte order"
+#endif
+
+  static const uint64_t mask = (0xFFULL << 0) | (0xFFULL << 8) | (0xFFULL << 16) | (0xFFULL << 48);
+  static const uint64_t expected = ('1'  << 0) | ('0' << 8) | ('='  << 16) | (0x01ULL << 48);
+
+  return (word & mask) == expected;
+}
+
+//TODO SIMD a tutti i costi, attenzione al padding
+static bool message_fits_in_buffer(const fix_message_t *restrict message, const uint16_t buffer_size)
+{
+  uint16_t total_len = (message->n_fields << 1);
+
+  for (uint8_t i = 0; LIKELY(i < message->n_fields); i++)
+    total_len += message->fields[i].tag_len + message->fields[i].value_len;
 
   return total_len <= buffer_size;
 }

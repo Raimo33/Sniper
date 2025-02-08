@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/01 11:19:17 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/06 10:25:52 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/08 20:07:17 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,7 +71,9 @@ typedef struct
   uint16_t n_allocated_pairs;
 } graph_t;
 
+//TODO higly optimized simd support
 COLD void init_graph(graph_t *restrict graph);
 COLD void free_graph(graph_t *restrict graph);
+
 
 #endif

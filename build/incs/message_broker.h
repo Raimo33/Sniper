@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/29 14:16:23 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/06 11:00:56 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/08 19:58:12 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 
 # include "fast_ssl.h"
 # include "parsing/http_serializer.h"
+# include "parsing/fix_serializer.h"
 # include "extensions.h"
 
 HOT bool try_ssl_send(SSL *restrict ssl, char *restrict buffer, const uint32_t len, uint32_t *offset);
