@@ -253,7 +253,7 @@ uint16_t deserialize_fix_message(char *restrict buffer, const uint16_t buffer_si
   buffer += validate_checksum(buffer, buffer_size, content_length, &body_start);
 
   tokenize_message(body_start, content_length);
-  //TODO fill the message fields
+  fill_message_fields(body_start, content_length, message);
 
   return buffer - buffer_start;
 }
