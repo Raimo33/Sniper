@@ -10,6 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+//TODO esportare in una libreria, fare i test, benchmark, etc
+
 #ifndef FIX_SERIALIZER_H
 # define FIX_SERIALIZER_H
 
@@ -69,6 +71,6 @@ typedef struct ALIGNED(64)
 HOT uint16_t serialize_fix_message(char *restrict buffer, const uint16_t buffer_size, const fix_message_t *restrict message);
 HOT uint16_t finalize_fix_message(char *restrict buffer, const uint16_t buffer_size, const uint16_t len);
 HOT bool is_full_fix_message(const char *restrict buffer, const uint16_t buffer_size, const uint16_t message_len);
-HOT uint16_t deserialize_fix_message(const char *restrict buffer, const uint16_t buffer_size, fix_message_t *restrict message);
+HOT uint16_t deserialize_fix_message(char *restrict buffer, const uint16_t buffer_size, fix_message_t *restrict message);
 
 #endif

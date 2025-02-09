@@ -74,7 +74,6 @@ static uint8_t serialize_method(char *restrict buffer, const http_method_t metho
 {
   const char *buffer_start = buffer;
 
-  //TODO problem if buffer is not aligned??
   *(uint64_t *)buffer = *(const uint64_t *)methods[method];
   buffer += methods_len[method];
   *buffer++ = ' ';
@@ -239,26 +238,20 @@ static uint32_t deserialize_headers(const char *restrict buffer, header_map_t *h
   header_map->size = count_headers(buffer, headers_end) * HEADER_MAP_DILUTION_FACTOR;
   header_map->entries = (header_entry_t *)calloc_p(header_map->size, sizeof(header_entry_t));
 
-  const char *line_end;
-  const char *key_start;
-  const char *value_start;
-  uint16_t key_len;
-  uint16_t value_len;
-  header_entry_t header;
   while (LIKELY(buffer < headers_end))
   {
-    line_end = memmem(buffer, headers_end - buffer, STR_AND_LEN("\r\n"));
+    const char *line_end = memmem(buffer, headers_end - buffer, STR_AND_LEN("\r\n"));
 
-    key_start = buffer;
+    const char *key_start = buffer;
     buffer = memmem(key_start, line_end - buffer, STR_AND_LEN(":"));
     fast_assert(buffer, "Malformed header: missing colon");
-    key_len = buffer - key_start;
+    uint16_t key_len = buffer - key_start;
 
     buffer += 1 + (buffer[1] == ' ');
-    value_start = buffer;
-    value_len = line_end - value_start;
+    const char *value_start = buffer;
+    uint16_t value_len = line_end - value_start;
 
-    header = (header_entry_t){
+    header_entry_t header = {
       .key = strndup(key_start, key_len),
       .key_len = key_len,
       .value = strndup(value_start, value_len),
@@ -298,10 +291,9 @@ static uint32_t deserialize_chunked_body(const char *restrict buffer, char *rest
   const uint32_t final_body_len = count_chunked_body_len(buffer, body_end);
   *body = (char *)malloc_p(final_body_len);
 
-  uint16_t chunk_len;
   while (LIKELY(buffer < body_end))
   {
-    chunk_len = strtoul(buffer, (char **)&buffer, 16);
+    const uint16_t chunk_len = strtoul(buffer, (char **)&buffer, 16);
     buffer += STR_LEN("\r\n");
   
     memcpy(*body + body_used, buffer, chunk_len);
@@ -327,10 +319,9 @@ static uint32_t count_chunked_body_len(const char *buffer, const char *body_end)
 {
   uint32_t body_len = 0;
 
-  uint16_t chunk_len;
   while (LIKELY(buffer < body_end))
   {
-    chunk_len = strtoul(buffer, (char **)&buffer, 16);
+    const uint16_t chunk_len = strtoul(buffer, (char **)&buffer, 16);
     buffer += STR_LEN("\r\n");
 
     body_len += chunk_len;
