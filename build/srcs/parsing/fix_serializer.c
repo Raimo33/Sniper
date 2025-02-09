@@ -15,10 +15,12 @@
 static bool message_fits_in_buffer(const fix_message_t *message, const uint16_t buffer_size);
 static uint8_t compute_checksum(const char *buffer, const uint16_t len);
 static inline bool is_checksum_sequence(const char *buffer);
+static const char *get_checksum_start(const char *buffer, const uint16_t buffer_size);
+static void tokenize_message(const char *buffer, const uint16_t buffer_size, fix_message_t *message);
 
 uint16_t serialize_fix_message(char *buffer, const uint16_t buffer_size, const fix_message_t *message)
 {
-  fast_assert(buffer && message && message->fields, "Unexpected NULL pointer");
+  fast_assert(buffer && message, "Unexpected NULL pointer");
 
   const char *buffer_start = buffer;
 
@@ -58,7 +60,7 @@ uint16_t finalize_fix_message(char *buffer, const uint16_t buffer_size, const ui
   memmove(buffer + added_len, buffer, len);
 
   const fix_message_t message = {
-    .fields = (fix_field_t[]) {
+    .fields = {
       begin_string,
       body_length
     },
@@ -100,7 +102,7 @@ uint16_t finalize_fix_message(char *buffer, const uint16_t buffer_size, const ui
   memcpy(buffer, STR_AND_LEN(FIX_CHECKSUM));
   buffer += STR_LEN(FIX_CHECKSUM);
   *buffer++ = '=';
-  *(uint32_t *)buffer = *(uint32_t *)checksum_table[checksum];
+  *(uint32_t *)buffer = *(const uint32_t *)checksum_table[checksum];
   buffer += 4;
 
   return buffer - buffer_start;
@@ -108,12 +110,21 @@ uint16_t finalize_fix_message(char *buffer, const uint16_t buffer_size, const ui
 
 bool is_full_fix_message(const char *buffer, UNUSED const uint16_t buffer_size, const uint16_t message_len)
 {
-  static const uint8_t pattern_len = STR_LEN("10=xxx\x01");
+  static const uint8_t checksum_len = STR_LEN(FIX_CHECKSUM "=000\x01");
+  static const uint8_t begin_string_len = STR_LEN(FIX_BEGINSTRING "=" FIX_VERSION "\x01");
+  static const uint8_t body_length_len = STR_LEN(FIX_BODYLENGTH "=");
 
-  if (message_len < pattern_len)
+  if (message_len < (checksum_len + begin_string_len + body_length_len))
     return false;
 
-  const char *end = buffer + message_len - pattern_len;
+  //TODO potenziale loop infinito se content len e' piu grante del buffer_size. fare un assert
+
+  return (!!get_checksum_start(buffer, message_len));
+}
+
+static const char *get_checksum_start(const char *buffer, const uint16_t buffer_size)
+{
+  const char *end = buffer + buffer_size - STR_LEN(FIX_CHECKSUM "=000\x01");
 
 #ifdef __AVX512F__
   while (UNLIKELY(buffer + 64 < end))
@@ -130,7 +141,10 @@ bool is_full_fix_message(const char *buffer, UNUSED const uint16_t buffer_size, 
     candidates = _kand_mask64(candidates, _kshiftri_mask64(m4, 6));
 
     if (candidates)
-      return true;
+    {
+      int32_t index = __builtin_ctzll(candidates);
+      return buffer + index;
+    }
 
     buffer += 64;
   }
@@ -154,13 +168,16 @@ bool is_full_fix_message(const char *buffer, UNUSED const uint16_t buffer_size, 
     candidates = _mm256_and_si256(candidates, shifted_m3);
     candidates = _mm256_and_si256(candidates, shifted_m4);
 
-    if (_mm256_movemask_epi8(candidates))
-      return true;
+    int mask = _mm256_movemask_epi8(candidates);
+    if (mask)
+    {
+      int index = __builtin_ctz(mask);
+      return buffer + index;
+    }
 
     buffer += 32;
   }
 #endif
-
 
 #ifdef __SSE2__
   while (UNLIKELY(buffer + 16 < end))
@@ -180,8 +197,12 @@ bool is_full_fix_message(const char *buffer, UNUSED const uint16_t buffer_size, 
     candidates = _mm_and_si128(candidates, shifted_m3);
     candidates = _mm_and_si128(candidates, shifted_m4);
 
-    if (_mm_movemask_epi8(candidates))
-      return true;
+    int32_t mask = _mm_movemask_epi8(candidates);
+    if (mask)
+    {
+      int16_t index = __builtin_ctz(mask);
+      return buffer + index;
+    }
 
     buffer += 16;
   }
@@ -189,17 +210,17 @@ bool is_full_fix_message(const char *buffer, UNUSED const uint16_t buffer_size, 
 
   while (LIKELY(buffer < end))
   {
-    if (is_checksum_sequence(buffer++))
-      return true;
+    if (is_checksum_sequence(buffer))
+      return buffer;
+    buffer++;
   }
 
-  return false;
+  return NULL;
 }
 
 static inline bool is_checksum_sequence(const char *buffer)
 {
-  uint64_t word;
-  memcpy(&word, buffer, sizeof(word));
+  uint64_t word = *(const uint64_t *)buffer;
 
 #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
   const uint64_t expected = ('1' <<  0) | ('0' <<  8) | ('=' << 16) | (0x01ULL << 55);
@@ -216,18 +237,44 @@ static inline bool is_checksum_sequence(const char *buffer)
 
 uint16_t deserialize_fix_message(const char *restrict buffer, const uint16_t buffer_size, fix_message_t *restrict message)
 {
-  //assert fix version
-  //extract content length
-  //assert content length is - (all the soh characters) <= buffer_size
-  //compute the checksum on my side
-  //go to checksum by skipping content length
-  //compare the checksums
-  //memcpy the fields in the message, casting accordingly (without memcpying the chcksum, body length, beginstring)
+  fast_assert(buffer && message, "Unexpected NULL pointer");
+  
+  const char *buffer_start = buffer;
 
-  (void)buffer;
+  static const char expected_begin_string[] = FIX_BEGINSTRING "=" FIX_VERSION "\x01";
+  if (UNLIKELY(!!memcmp(buffer, STR_AND_LEN(expected_begin_string))))
+    panic("Invalid FIX begin string");
+  buffer += STR_LEN(expected_begin_string);
+
+  static const char body_length_tag[] = FIX_BODYLENGTH "=";
+  if (UNLIKELY(*(uint16_t *)buffer != *(const uint16_t *)body_length_tag))
+    panic("Invalid FIX body length tag");
+  buffer += STR_LEN(body_length_tag);
+  
+  const uint16_t content_length = (uint16_t)strtoul(buffer, (char **)&buffer, 10);
+  fast_assert(*buffer == '\x01', "Missing field separator");
+  buffer++;
+
+  const char *body_start = buffer;
+  const char *body_end = get_checksum_start(buffer, buffer_size);
+  const char *checksum_start = body_end + STR_LEN(FIX_CHECKSUM "=");
+  fast_assert(body_end - body_start == content_length, "Misleading content length provided");
+
+  const uint8_t expected_checksum = compute_checksum(body_start, content_length);
+  const uint8_t provided_checksum = (uint8_t)strtoul(checksum_start, (char **)&buffer, 10);
+  fast_assert(expected_checksum == provided_checksum, "Checksum mismatch");
+
+  tokenize_message(body_start, content_length, message);
+
+  return buffer - buffer_start;
+}
+
+static void tokenize_message(const char *restrict buffer, const uint16_t buffer_size, fix_message_t *restrict message)
+{
   (void)buffer_size;
   (void)message;
-  return 0;//body length + qualcosa
+  (void)buffer;
+  //TODO: swar, assicurarsi che n_fields <= MAX_FIELDS
 }
 
 static bool message_fits_in_buffer(const fix_message_t *restrict message, const uint16_t buffer_size)

@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 16:52:51 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/06 22:16:07 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/09 12:39:19 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,8 +23,7 @@
 # include "fixed_point.h"
 # include "graph.h"
 
-// # define FIX_HOST "fix-oe.binance.com"
-# define FIX_HOST "fix-oe.testnet.binance.vision"
+# define FIX_HOST "fix-oe.testnet.binance.vision" //"fix-oe.binance.com"
 # define FIX_PORT "9000"
 # define FIX_KEEPALIVE_IDLE 300
 # define FIX_KEEPALIVE_INTVL 30
@@ -47,7 +46,8 @@ typedef struct
   keys_t *keys;
   char *write_buffer;
   char *read_buffer;
-  // http_response_t http_response;
+  http_response_t http_response;
+  fix_message_t fix_message;
   uint32_t write_offset;
   uint32_t read_offset;
   uint64_t msg_seq_num;

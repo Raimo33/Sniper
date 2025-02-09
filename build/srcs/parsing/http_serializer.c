@@ -97,10 +97,10 @@ static uint8_t serialize_version(char *restrict buffer, const http_version_t ver
 {
   const char *buffer_start = buffer;
 
-  memcpy(buffer, versions_str[version], versions_len[version]);
+  *(uint64_t *)buffer = *(const uint64_t *)versions_str[version];
   buffer += versions_len[version];
-  memcpy(buffer, clrf, sizeof(clrf));
-  buffer += 2;
+  *(uint16_t *)buffer = *(const uint16_t *)clrf;
+  buffer += sizeof(clrf);
   
   return buffer - buffer_start;
 }
@@ -113,16 +113,16 @@ static uint32_t serialize_headers(char *restrict buffer, const header_entry_t *r
   {
     memcpy(buffer, headers[i].key, headers[i].key_len);
     buffer += headers[i].key_len;
-    memcpy(buffer, colon_space, sizeof(colon_space));
-    buffer += 2;
+    *(uint16_t *)buffer = *(const uint16_t *)colon_space;
+    buffer += sizeof(colon_space);
     memcpy(buffer, headers[i].value, headers[i].value_len);
     buffer += headers[i].value_len;
-    memcpy(buffer, clrf, sizeof(clrf));
-    buffer += 2;
+    *(uint16_t *)buffer = *(const uint16_t *)clrf;
+    buffer += sizeof(clrf);
   }
 
-  memcpy(buffer, clrf, sizeof(clrf));
-  buffer += 2;
+  *(uint16_t *)buffer = *(const uint16_t *)clrf;
+  buffer += sizeof(clrf);
 
   return buffer - buffer_start;
 }
@@ -137,7 +137,6 @@ static uint32_t serialize_body(char *restrict buffer, const char *restrict body,
   return buffer - buffer_start;
 }
 
-//TODO simd, attenzione al padding
 static bool request_fits_in_buffer(const http_request_t *restrict request, const uint32_t buffer_size)
 {
   uint32_t request_len = 0;
@@ -223,9 +222,8 @@ static uint8_t deserialize_status_code(const char *restrict buffer, uint16_t *st
   fast_assert(line_end, "Malformed response: missing clrf");
   line_end += STR_LEN("\r\n");
 
-  buffer = memmem(buffer, line_end - buffer, STR_AND_LEN(" "));
-  fast_assert(buffer, "No status code found");
   *status_code = strtoul(buffer, NULL, 10);
+  fast_assert(*status_code >= 100 && *status_code < 600, "Invalid status code");
 
   return line_end - line_start;
 }

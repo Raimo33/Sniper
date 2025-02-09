@@ -50,6 +50,7 @@
 # define FIX_MSG_TYPE_LOGON "A"
 
 # define FIX_VERSION "FIX.4.4"
+# define FIX_MAX_FIELDS 64
 
 typedef struct ALIGNED(64)
 {
@@ -61,7 +62,7 @@ typedef struct ALIGNED(64)
 
 typedef struct ALIGNED(64)
 {
-  fix_field_t *fields;
+  fix_field_t fields[FIX_MAX_FIELDS];
   uint8_t n_fields;
 } fix_message_t;
 

@@ -6,13 +6,14 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/27 14:15:47 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/06 10:23:36 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/09 14:31:17 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef FASTAF_H
 # define FASTAF_H
 
+# include "arch_check.h"
 # include "logger.h"
 # include "errors.h"
 # include "signals.h"

@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 21:02:36 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/09 11:21:18 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/09 12:42:57 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,8 @@ void init_fix(fix_client_t *restrict client, keys_t *restrict keys, SSL_CTX *res
     .keys = keys,
     .write_buffer = calloc_p(FIX_WRITE_BUFFER_SIZE, sizeof(char)),
     .read_buffer = calloc_p(FIX_READ_BUFFER_SIZE, sizeof(char)),
+    .http_response = {},
+    .fix_message = {},
     .write_offset = 0,
     .read_offset = 0,
     .msg_seq_num = 1,
@@ -125,7 +127,7 @@ static bool send_logon_query(fix_client_t *restrict client)
     const uint8_t seq_num_str_len = ultoa(client->msg_seq_num, seq_num_str);
 
     const fix_message_t raw_data = {
-      .fields = (fix_field_t[]) {
+      .fields = {
         {STR_AND_LEN(FIX_MSGTYPE),      STR_AND_LEN(FIX_MSG_TYPE_LOGON)},
         {STR_AND_LEN(FIX_SENDERCOMPID), STR_AND_LEN(FIX_COMP_ID)},
         {STR_AND_LEN(FIX_TARGETCOMPID), STR_AND_LEN("SPOT")},
@@ -149,7 +151,7 @@ static bool send_logon_query(fix_client_t *restrict client)
     const uint8_t data_len_str_len = ultoa(data_len, data_len_str);
   
     const fix_message_t message = {
-      .fields = (fix_field_t[]) {
+      .fields = {
         {STR_AND_LEN(FIX_MSGTYPE),         STR_AND_LEN(FIX_MSG_TYPE_LOGON)},
         {STR_AND_LEN(FIX_SENDERCOMPID),    STR_AND_LEN(FIX_COMP_ID)},
         {STR_AND_LEN(FIX_TARGETCOMPID),    STR_AND_LEN("SPOT")},
@@ -177,8 +179,12 @@ static bool send_logon_query(fix_client_t *restrict client)
 
 static bool receive_logon_response(fix_client_t *restrict client)
 {
-  //TODO
+  if (UNLIKELY(!try_ssl_recv_fix(client->ssl, client->read_buffer, FIX_READ_BUFFER_SIZE, &client->read_offset, &client->fix_message)))
+    return false;
+  
+  //TODO check logon success
   (void)client;
+
   return false;
 }
 

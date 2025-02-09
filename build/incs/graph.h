@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/01 11:19:17 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/08 20:07:17 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/09 16:07:45 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,6 @@ typedef struct
   const fixed_point_t step_size;
   fixed_point_t rate;
 } trading_pair_t;
-
 
 typedef struct
 {
