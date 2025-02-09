@@ -14,6 +14,7 @@
 
 static bool message_fits_in_buffer(const fix_message_t *message, const uint16_t buffer_size);
 static uint8_t compute_checksum(const char *buffer, const uint16_t len);
+static inline bool is_checksum_sequence(const char *buffer);
 
 uint16_t serialize_fix_message(char *buffer, const uint16_t buffer_size, const fix_message_t *message)
 {
@@ -105,7 +106,7 @@ uint16_t finalize_fix_message(char *buffer, const uint16_t buffer_size, const ui
   return buffer - buffer_start;
 }
 
-bool is_full_fix_message(const char *buffer, const uint16_t buffer_size, const uint32_t message_len)
+bool is_full_fix_message(const char *buffer, UNUSED const uint16_t buffer_size, const uint16_t message_len)
 {
   static const uint8_t pattern_len = STR_LEN("10=xxx\x01");
 
@@ -114,47 +115,121 @@ bool is_full_fix_message(const char *buffer, const uint16_t buffer_size, const u
 
   const char *end = buffer + message_len - pattern_len;
 
+#ifdef __AVX512F__
+  while (UNLIKELY(buffer + 64 < end))
+  {
+    __m512i chunk = _mm512_loadu_si512((const void*)(buffer));
+
+    __mmask64 m1 = _mm512_cmpeq_epi8_mask(chunk, _mm512_set1_epi8('1'));
+    __mmask64 m2 = _mm512_cmpeq_epi8_mask(chunk, _mm512_set1_epi8('0'));
+    __mmask64 m3 = _mm512_cmpeq_epi8_mask(chunk, _mm512_set1_epi8('='));
+    __mmask64 m4 = _mm512_cmpeq_epi8_mask(chunk, _mm512_set1_epi8(0x01));
+
+    __mmask64 candidates = _kand_mask64(m1, _kshiftri_mask64(m2, 1));
+    candidates = _kand_mask64(candidates, _kshiftri_mask64(m3, 2));
+    candidates = _kand_mask64(candidates, _kshiftri_mask64(m4, 6));
+
+    if (candidates)
+      return true;
+
+    buffer += 64;
+  }
+#endif
+
+#ifdef __AVX2__
+  while (UNLIKELY(buffer + 32 < end))
+  {
+    __m256i chunk = _mm256_loadu_si256((const void*)(buffer));
+
+    __m256i m1 = _mm256_cmpeq_epi8(chunk, _mm256_set1_epi8('1'));
+    __m256i m2 = _mm256_cmpeq_epi8(chunk, _mm256_set1_epi8('0'));
+    __m256i m3 = _mm256_cmpeq_epi8(chunk, _mm256_set1_epi8('='));
+    __m256i m4 = _mm256_cmpeq_epi8(chunk, _mm256_set1_epi8(0x01));
+
+    __m256i shifted_m2 = _mm256_srli_epi64(m2, 1);
+    __m256i shifted_m3 = _mm256_srli_epi64(m3, 2);
+    __m256i shifted_m4 = _mm256_srli_epi64(m4, 6);
+
+    __m256i candidates = _mm256_and_si256(m1, shifted_m2);
+    candidates = _mm256_and_si256(candidates, shifted_m3);
+    candidates = _mm256_and_si256(candidates, shifted_m4);
+
+    if (_mm256_movemask_epi8(candidates))
+      return true;
+
+    buffer += 32;
+  }
+#endif
+
+
 #ifdef __SSE2__
-  //TODO implementare con 128 bit
-#else
+  while (UNLIKELY(buffer + 16 < end))
+  {
+    __m128i chunk = _mm_loadu_si128((const __m128i*)(buffer));
+
+    __m128i m1 = _mm_cmpeq_epi8(chunk, _mm_set1_epi8('1'));
+    __m128i m2 = _mm_cmpeq_epi8(chunk, _mm_set1_epi8('0'));
+    __m128i m3 = _mm_cmpeq_epi8(chunk, _mm_set1_epi8('='));
+    __m128i m4 = _mm_cmpeq_epi8(chunk, _mm_set1_epi8(0x01));
+
+    __m128i shifted_m2 = _mm_srli_epi64(m2, 1);
+    __m128i shifted_m3 = _mm_srli_epi64(m3, 2);
+    __m128i shifted_m4 = _mm_srli_epi64(m4, 6);
+
+    __m128i candidates = _mm_and_si128(m1, shifted_m2);
+    candidates = _mm_and_si128(candidates, shifted_m3);
+    candidates = _mm_and_si128(candidates, shifted_m4);
+
+    if (_mm_movemask_epi8(candidates))
+      return true;
+
+    buffer += 16;
+  }
+#endif
+
   while (LIKELY(buffer < end))
   {
-    if (check_fix_field(buffer++))
+    if (is_checksum_sequence(buffer++))
       return true;
   }
 
   return false;
-#endif
 }
 
-uint16_t deserialize_fix_message(const char *restrict buffer, fix_message_t *restrict message, const uint16_t buffer_size)
+static inline bool is_checksum_sequence(const char *buffer)
 {
-  //TODO validate checksum
-  //TODO capire se binance invia la body length.
-  return ;//body length + qualcosa
-}
-
-static inline bool check_fix_field(const char *buffer)
-{
-  //TODO safe?? unaligned access because buffer is not aligned
-  const uint64_t *aligned_ptr = (const uint64_t *)buffer;
-  uint64_t word = *aligned_ptr;
+  uint64_t word;
+  memcpy(&word, buffer, sizeof(word));
 
 #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
-  uint64_t expected = ('1' << 0) | ('0' << 8) | ('=' << 16) | (0x01ULL << 48);
+  const uint64_t expected = ('1' <<  0) | ('0' <<  8) | ('=' << 16) | (0x01ULL << 55);
+  const uint64_t mask = (0xFFULL <<  0) | (0xFFULL <<  8) | (0xFFULL << 16) | (0xFFULL << 55);
 #elif __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-  uint64_t expected = (0x01ULL << 0) | ('=' << 8) | ('0' << 16) | ('1' << 24);
+  const uint64_t expected = ('1' << 56) | ('0' << 48) | ('=' << 40) | (0x01ULL << 8);
+  const uint64_t mask = (0xFFULL << 56) | (0xFFULL << 48) | (0xFFULL << 40) | (0xFFULL << 8);
 #else
-  #error "Unknown byte order"
+  # error "Unknown byte order"
 #endif
-
-  static const uint64_t mask = (0xFFULL << 0) | (0xFFULL << 8) | (0xFFULL << 16) | (0xFFULL << 48);
-  static const uint64_t expected = ('1'  << 0) | ('0' << 8) | ('='  << 16) | (0x01ULL << 48);
 
   return (word & mask) == expected;
 }
 
-//TODO SIMD a tutti i costi, attenzione al padding
+uint16_t deserialize_fix_message(const char *restrict buffer, const uint16_t buffer_size, fix_message_t *restrict message)
+{
+  //assert fix version
+  //extract content length
+  //assert content length is - (all the soh characters) <= buffer_size
+  //compute the checksum on my side
+  //go to checksum by skipping content length
+  //compare the checksums
+  //memcpy the fields in the message, casting accordingly (without memcpying the chcksum, body length, beginstring)
+
+  (void)buffer;
+  (void)buffer_size;
+  (void)message;
+  return 0;//body length + qualcosa
+}
+
 static bool message_fits_in_buffer(const fix_message_t *restrict message, const uint16_t buffer_size)
 {
   uint16_t total_len = (message->n_fields << 1);
@@ -168,67 +243,48 @@ static bool message_fits_in_buffer(const fix_message_t *restrict message, const 
 static uint8_t compute_checksum(const char *buffer, const uint16_t len)
 {
   uint8_t checksum = 0;
-  uint16_t i = 0;
   
+  const char *end = buffer + len;
+
 #ifdef __AVX512F__
-  static const uint8_t avx512_stride = 64;
-
-  if (len >= avx2_stride)
+  while (LIKELY(buffer + 64 <= end))
   {
-    const uint16_t chunks_avx512 = len / avx2_stride;
-    const uint16_t simd_bytes_avx512 = chunks_avx512 * avx2_stride;
-
-    for (; i < simd_bytes_avx512; i += avx2_stride)
-    {
-      __m512i vec = _mm512_loadu_si512((const __m512i *)(buffer + i));
-      __m512i sum = _mm512_sad_epu8(vec, _mm512_setzero_si512());
-
-      checksum += (uint8_t)_mm512_extract_epi64(sum, 0) + _mm512_extract_epi64(sum, 1);
-    }
+    __m512i vec = _mm512_loadu_si512((const __m512i *)buffer);
+    __m512i sum = _mm512_sad_epu8(vec, _mm512_setzero_si512());
+    
+    checksum += (uint8_t)_mm512_reduce_add_epi64(sum);
+    buffer += 64;
   }
 #endif
 
 #ifdef __AVX2__
-  static const uint8_t avx2_stride = 32;
-  if (len >= avx2_stride)
+  while (LIKELY(buffer + 32 <= end))
   {
-    const uint16_t chunks_avx2 = len / avx2_stride;
-    const uint16_t simd_bytes_avx2 = chunks_avx2 * avx2_stride;
+    __m256i vec = _mm256_loadu_si256((const __m256i *)buffer);
+    __m256i sum = _mm256_sad_epu8(vec, _mm256_setzero_si256());
+    
+    __m128i sum_low = _mm256_castsi256_si128(sum);
+    __m128i sum_high = _mm256_extracti128_si256(sum, 1);
+    sum_low = _mm_add_epi64(sum_low, sum_high);
 
-    for (; i < simd_bytes_avx2; i += avx2_stride)
-    {
-      __m256i vec = _mm256_loadu_si256((const __m256i *)(buffer + i));
-      __m256i sad = _mm256_sad_epu8(vec, _mm256_setzero_si256());
-
-      __m128i sum128 = _mm_add_epi64(
-        _mm256_castsi256_si128(sad),
-        _mm256_extracti128_si256(sad, 1)
-      );
-
-      checksum += (uint8_t)_mm_extract_epi64(sum128, 0) + _mm_extract_epi64(sum128, 1);
-    }
+    checksum += (uint8_t)(_mm_extract_epi64(sum_low, 0) + _mm_extract_epi64(sum_low, 1));
+    buffer += 32;
   }
 #endif
 
 #ifdef __SSE2__
-  static const uint8_t sse2_stride = 16;
-  if (len >= sse2_stride)
+  while (LIKELY(buffer + 16 <= end))
   {
-    const uint16_t chunks_sse2 = len / sse2_stride;
-    const uint16_t simd_bytes_sse2 = chunks_sse2 * sse2_stride;
+    __m128i vec = _mm_loadu_si128((const __m128i *)buffer);
+    __m128i sum = _mm_sad_epu8(vec, _mm_setzero_si128());
 
-    for (; i < simd_bytes_sse2; i += sse2_stride)
-    {
-      __m128i vec = _mm_loadu_si128((const __m128i *)(buffer + i));
-      __m128i sad = _mm_sad_epu8(vec, _mm_setzero_si128());
-
-      checksum += (uint8_t)_mm_extract_epi64(sad, 0);
-    }
+    checksum += (uint8_t)(_mm_extract_epi64(sum, 0) + _mm_extract_epi64(sum, 1));
+    buffer += 16;
   }
 #endif
 
-  for (; i < len; ++i)
-    checksum += buffer[i];
+  while (LIKELY(buffer < end))
+    checksum += *buffer++;
 
   return checksum;
 }

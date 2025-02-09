@@ -6,7 +6,7 @@
 /*   By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 21:02:36 by craimond          #+#    #+#             */
-/*   Updated: 2025/02/08 20:00:09 by craimond         ###   ########.fr       */
+/*   Updated: 2025/02/09 11:21:18 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -136,7 +136,7 @@ static bool send_logon_query(fix_client_t *restrict client)
     };
 
     char serialized_data[1024];
-    uint16_t data_len = serialize_fix_message(serialized_data, sizeof(serialized_data), raw_data, ARR_LEN(raw_data));
+    uint16_t data_len = serialize_fix_message(serialized_data, sizeof(serialized_data), &raw_data);
     
     char signed_data[ED25519_SIGSIZE];
     sign_ed25519(client->keys->priv_key, serialized_data, data_len, signed_data);

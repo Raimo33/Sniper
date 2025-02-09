@@ -6,10 +6,11 @@
 #    By: craimond <claudio.raimondi@pm.me>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/01/11 18:23:06 by craimond          #+#    #+#              #
-#    Updated: 2025/02/07 13:00:50 by craimond         ###   ########.fr        #
+#    Updated: 2025/02/09 09:31:07 by craimond         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
+MAKEFLAGS += -j$(nproc)
 IMAGE_NAME := fast-af
 CONTAINER_NAME := fast-af
 ENV_FILE := .env

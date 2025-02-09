@@ -62,12 +62,12 @@ typedef struct ALIGNED(64)
 typedef struct ALIGNED(64)
 {
   fix_field_t *fields;
-  uint16_t n_fields;
+  uint8_t n_fields;
 } fix_message_t;
 
 HOT uint16_t serialize_fix_message(char *restrict buffer, const uint16_t buffer_size, const fix_message_t *restrict message);
 HOT uint16_t finalize_fix_message(char *restrict buffer, const uint16_t buffer_size, const uint16_t len);
-HOT bool is_full_fix_message(const char *restrict buffer, const uint16_t buffer_size, const uint32_t message_len);
-HOT uint16_t deserialize_fix_message(const char *restrict buffer, fix_message_t *restrict message, const uint16_t buffer_size);
+HOT bool is_full_fix_message(const char *restrict buffer, const uint16_t buffer_size, const uint16_t message_len);
+HOT uint16_t deserialize_fix_message(const char *restrict buffer, const uint16_t buffer_size, fix_message_t *restrict message);
 
 #endif

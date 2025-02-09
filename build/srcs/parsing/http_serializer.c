@@ -97,10 +97,9 @@ static uint8_t serialize_version(char *restrict buffer, const http_version_t ver
 {
   const char *buffer_start = buffer;
 
-  //TODO problen if buffer is not aligned??
-  *(uint64_t *)buffer = *(const uint64_t *)versions_str[version];
+  memcpy(buffer, versions_str[version], versions_len[version]);
   buffer += versions_len[version];
-  *(uint16_t *)buffer = *(const uint16_t *)clrf;
+  memcpy(buffer, clrf, sizeof(clrf));
   buffer += 2;
   
   return buffer - buffer_start;
@@ -114,15 +113,15 @@ static uint32_t serialize_headers(char *restrict buffer, const header_entry_t *r
   {
     memcpy(buffer, headers[i].key, headers[i].key_len);
     buffer += headers[i].key_len;
-    *(uint16_t *)buffer = *(const uint16_t *)colon_space;
+    memcpy(buffer, colon_space, sizeof(colon_space));
     buffer += 2;
     memcpy(buffer, headers[i].value, headers[i].value_len);
     buffer += headers[i].value_len;
-    *(uint16_t *)buffer = *(const uint16_t *)clrf;
+    memcpy(buffer, clrf, sizeof(clrf));
     buffer += 2;
   }
 
-  *(uint16_t *)buffer = *(const uint16_t *)clrf;
+  memcpy(buffer, clrf, sizeof(clrf));
   buffer += 2;
 
   return buffer - buffer_start;
@@ -345,19 +344,18 @@ static uint32_t count_chunked_body_len(const char *buffer, const char *body_end)
 
 static uint8_t count_headers(const char *buffer, const char *headers_end)
 {
-  const char *p = buffer;
   const char *end = headers_end - 1;
   uint8_t n_headers = 0;
 
 #ifdef __AVX512F__
-  while (p + 64 <= end)
+  while (buffer + 64 <= end)
   {
     #ifdef __AVX512VBMI__
-    __m512i current = _mm512_maskz_loadu_epi8(0xFFFFFFFFFFFFFFFF, (const __m512i*)p);
-    __m512i next = _mm512_maskz_loadu_epi8(0xFFFFFFFFFFFFFFFF, (const __m512i*)(p + 1));
+    __m512i current = _mm512_maskz_loadu_epi8(0xFFFFFFFFFFFFFFFF, (const __m512i*)buffer);
+    __m512i next = _mm512_maskz_loadu_epi8(0xFFFFFFFFFFFFFFFF, (const __m512i*)(buffer + 1));
     #else
-    __m512i current = _mm512_loadu_si512((const __m512i*)p);
-    __m512i next = _mm512_loadu_si512((const __m512i*)(p + 1));
+    __m512i current = _mm512_loadu_si512((const __m512i*)buffer);
+    __m512i next = _mm512_loadu_si512((const __m512i*)(buffer + 1));
     #endif
 
     __m512i r_mask = _mm512_cmpeq_epi8(current, _mm512_set1_epi8('\r'));
@@ -373,15 +371,15 @@ static uint8_t count_headers(const char *buffer, const char *headers_end)
   
     n_headers += (p[63] == '\r' && p[64] == '\n');
 
-    p += 64;
+    buffer += 64;
   }
 #endif
 
 #ifdef __AVX2__
-  while (p + 32 <= end)
+  while (buffer + 32 <= end)
   {
-    __m256i current = _mm256_loadu_si256((const __m256i*)p);
-    __m256i next = _mm256_loadu_si256((const __m256i*)(p + 1));
+    __m256i current = _mm256_loadu_si256((const __m256i*)buffer);
+    __m256i next = _mm256_loadu_si256((const __m256i*)(buffer + 1));
 
     __m256i r_mask = _mm256_cmpeq_epi8(current, _mm256_set1_epi8('\r'));
     __m256i n_mask = _mm256_cmpeq_epi8(next, _mm256_set1_epi8('\n'));
@@ -389,17 +387,17 @@ static uint8_t count_headers(const char *buffer, const char *headers_end)
     __m256i res = _mm256_and_si256(r_mask, n_mask);
     n_headers += __builtin_popcount(_mm256_movemask_epi8(res));
 
-    n_headers += (p[31] == '\r' && p[32] == '\n');
+    n_headers += (buffer[31] == '\r' && buffer[32] == '\n');
 
-    p += 32;
+    buffer += 32;
   }
 #endif
 
 #ifdef __SSE2__
-  while (p + 16 <= end)
+  while (buffer + 16 <= end)
   {
-    __m128i current = _mm_loadu_si128((const __m128i*)p);
-    __m128i next = _mm_loadu_si128((const __m128i*)(p + 1));
+    __m128i current = _mm_loadu_si128((const __m128i*)buffer);
+    __m128i next = _mm_loadu_si128((const __m128i*)(buffer + 1));
 
     __m128i r_mask = _mm_cmpeq_epi8(current, _mm_set1_epi8('\r'));
     __m128i n_mask = _mm_cmpeq_epi8(next, _mm_set1_epi8('\n'));
@@ -407,16 +405,16 @@ static uint8_t count_headers(const char *buffer, const char *headers_end)
     __m128i res = _mm_and_si128(r_mask, n_mask);
     n_headers += __builtin_popcount(_mm_movemask_epi8(res));
 
-    n_headers += (p[15] == '\r' && p[16] == '\n');
+    n_headers += (buffer[15] == '\r' && buffer[16] == '\n');
 
-    p += 16;
+    buffer += 16;
   }
 #endif
 
-  while (p < end)
+  while (buffer < end)
   {
-    n_headers += (p[0] == '\r' && p[1] == '\n');
-    p++;
+    n_headers += (buffer[0] == '\r' && buffer[1] == '\n');
+    buffer++;
   }
 
   return n_headers;
